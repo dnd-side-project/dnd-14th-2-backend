@@ -4,9 +4,8 @@ import com.example.demo.application.OauthService;
 import com.example.demo.domain.Provider;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
-import java.util.Map;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -18,20 +17,20 @@ public class GoogleOauthService implements OauthService {
     private static final String GRANT_TYPE = "authorization_code";
 
     private final RestClient googleOauthRestClient;
-    private final RestClient googleApiRestClient;
+    private final GoogleIdTokenVerifierService googleIdTokenVerifierService;
     private final UserRepository userRepository;
     private final String clientId;
     private final String clientSecret;
     private final String redirectUri;
 
     public GoogleOauthService(RestClient googleOauthRestClient,
-                              RestClient googleApiRestClient,
+                              GoogleIdTokenVerifierService googleIdTokenVerifierService,
                               UserRepository userRepository,
                               @Value("${google.client-id}") String clientId,
                               @Value("${google.client-secret}") String clientSecret,
                               @Value("${google.redirection-url}") String redirectUri) {
         this.googleOauthRestClient = googleOauthRestClient;
-        this.googleApiRestClient = googleApiRestClient;
+        this.googleIdTokenVerifierService = googleIdTokenVerifierService;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.redirectUri = redirectUri;
@@ -41,43 +40,34 @@ public class GoogleOauthService implements OauthService {
     // User Return -> OSIV
     @Override
     public User getUserInfo(String authorizationCode) {
-        String googleAccessToken = requestGoogleAccessToken(authorizationCode);
+        GoogleTokenInfo googleTokenInfo = requestGoogleTokenInfo(authorizationCode);
+        Payload result = googleIdTokenVerifierService.verify(googleTokenInfo.id_token());
 
-        GoogleUserInfo userInfo = requestGoogleUserInfo(googleAccessToken);
+        String providerId = result.getSubject();
+        String email = result.getEmail();
+        String picture = result.get("picture").toString();
 
-        User user = userRepository.findByProviderAndProviderId(Provider.GOOGLE, userInfo.id())
+        User user = userRepository.findByProviderAndProviderId(Provider.GOOGLE, providerId)
             .orElseGet(() -> userRepository.save(
                 new User(
-                    userInfo.email(),
-                    userInfo.picture(),
+                    email,
+                    picture,
                     Provider.GOOGLE,
-                    userInfo.id()
+                    providerId
                 )
             ));
 
         return user;
     }
 
-    @Nullable
-    private GoogleUserInfo requestGoogleUserInfo(String googleAccessToken) {
-        return googleApiRestClient.get()
-            .uri("/oauth2/v2/userinfo")
-            .header("Authorization", "Bearer " + googleAccessToken)
-            .retrieve()
-            .toEntity(GoogleUserInfo.class)
-            .getBody();
-    }
-
-    private String requestGoogleAccessToken(String authorizationCode) {
-        GoogleTokenInfo body = googleOauthRestClient.post()
+    private GoogleTokenInfo requestGoogleTokenInfo(String authorizationCode) {
+        return googleOauthRestClient.post()
             .uri("/token")
             .header("Content-Type", "application/x-www-form-urlencoded")
             .body(tokenBody(authorizationCode))
             .retrieve()
             .toEntity(GoogleTokenInfo.class)
             .getBody();
-
-        return body.access_token();
     }
 
     private MultiValueMap<String, String> tokenBody(String authorizationCode) {
