@@ -13,4 +13,11 @@ public class RestClientConfig {
             .baseUrl("https://oauth2.googleapis.com")
             .build();
     }
+
+    @Bean
+    public RestClient googleApiRestClient() {
+        return RestClient.builder()
+            .baseUrl("https://www.googleapis.com")
+            .build();
+    }
 }
