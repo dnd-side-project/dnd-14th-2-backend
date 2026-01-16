@@ -25,7 +25,6 @@ public class GoogleOauthService implements OauthService {
         this.userRepository = userRepository;
     }
 
-    // User Return -> OSIV
     @Override
     public User getUserInfo(String authorizationCode) {
         OauthToken oauthToken = tokenExchanger.exchange(authorizationCode);
