@@ -10,7 +10,14 @@ public class RestClientConfig {
     @Bean
     public RestClient googleOauthRestClient() {
         return RestClient.builder()
-            .baseUrl("https://oauth2.googleapis.com")
-            .build();
+                .baseUrl("https://oauth2.googleapis.com")
+                .build();
+    }
+
+    @Bean
+    public RestClient kakaoTokenRestClient() {
+        return RestClient.builder()
+                .baseUrl("https://kauth.kakao.com/oauth/token")
+                .build();
     }
 }

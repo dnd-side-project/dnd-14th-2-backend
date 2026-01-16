@@ -1,22 +1,28 @@
 package com.example.demo.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor
 public class User {
 
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String nickname;
+
     private String email;
+
+    @Column(length = 2048)
     private String profile;
+
+    @Enumerated(value = EnumType.STRING)
     private Provider provider;
+
     private String providerId;
 
     public User(String email, String profile, Provider provider, String providerId) {
@@ -26,7 +32,4 @@ public class User {
         this.providerId = providerId;
     }
 
-    public Long getId() {
-        return id;
-    }
 }
