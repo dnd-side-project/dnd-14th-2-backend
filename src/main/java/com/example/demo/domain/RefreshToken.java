@@ -17,4 +17,8 @@ public class RefreshToken {
         this.userId = userId;
         this.token = token;
     }
+
+    public void rotate(String refreshToken) {
+        this.token = refreshToken;
+    }
 }

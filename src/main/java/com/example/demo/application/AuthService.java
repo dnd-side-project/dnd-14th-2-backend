@@ -6,6 +6,7 @@ import com.example.demo.domain.RefreshTokenRepository;
 import com.example.demo.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -14,14 +15,16 @@ public class AuthService {
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
 
+    @Transactional
     public TokenResponse issueTokens(User user) {
-        TokenResponse tokenResponse = tokenProvider.generateToken(user.getId());
+        TokenResponse token = tokenProvider.generateToken(user.getId());
 
-        refreshTokenRepository.save(new RefreshToken(
-            user.getId(),
-            tokenResponse.refreshToken()
-        ));
+        RefreshToken refreshToken = refreshTokenRepository.findByUserId((user.getId()))
+            .orElseGet(() -> new RefreshToken(user.getId(), token.refreshToken()));
 
-        return tokenResponse;
+        refreshToken.rotate(token.refreshToken());
+        refreshTokenRepository.save(refreshToken);
+
+        return token;
     }
 }
