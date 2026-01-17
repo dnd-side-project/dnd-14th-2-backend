@@ -18,6 +18,11 @@ public class LoginInterceptor implements HandlerInterceptor {
         throws Exception {
         String authorization = request.getHeader("Authorization");
 
+        String uri = request.getRequestURI();
+        if (uri.startsWith("/oauth/kakao")|| uri.startsWith("/oauth/google")) {
+            return true;
+        }
+
         if (authorization == null || !authorization.startsWith("Bearer ")) {
             // 로그인이 필요하다는 예외
             throw new RuntimeException();

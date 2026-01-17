@@ -1,5 +1,4 @@
-package com.example.demo.infrastructure.properties;
-
+package com.example.demo.infrastructure.oauth.kakao;
 
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.context.properties.ConfigurationProperties;
