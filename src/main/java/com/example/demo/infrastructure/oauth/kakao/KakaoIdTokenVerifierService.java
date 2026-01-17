@@ -8,14 +8,10 @@ import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.*;
 import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.jwk.source.RemoteJWKSet;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.RequiredArgsConstructor;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
@@ -27,13 +23,10 @@ import static com.example.demo.common.config.RestClientConfig.KAKAO_ISSUER;
 
 @RequiredArgsConstructor
 @Component
-public class KakaoIdTokenVerifier implements IdTokenVerifier {
+public class KakaoIdTokenVerifierService implements IdTokenVerifier {
 
-    private static final URL KAKAO_JWKS_URL = toUrl("https://kauth.kakao.com/.well-known/jwks.json");
-
-    private final JWKSource<SecurityContext> jwkSource = new RemoteJWKSet<>(KAKAO_JWKS_URL);
-    private final KakaoOauthProperties kakaoOauthProperties; // clientId 필요 (aud 검증)
-
+    private final JWKSource<SecurityContext> kakaoJwkSource;
+    private final KakaoOauthProperties kakaoOauthProperties;
 
     @Override
     public OauthUserInfo verify(String idToken) {
@@ -69,12 +62,12 @@ public class KakaoIdTokenVerifier implements IdTokenVerifier {
                         .keyID(keyId)
                         .build()
         );
-        List<JWK> jwks = jwkSource.get(selector, null);
+        List<JWK> jwks = kakaoJwkSource.get(selector, null);
         if (jwks.isEmpty()) {
             throw new IllegalArgumentException("해당 kid에 매칭되는 공개키를 찾을 수 없습니다. keyId=" + keyId);
         }
 
-        RSAKey rsaKey = (RSAKey) jwks.get(0);
+        RSAKey rsaKey = (RSAKey) jwks.getFirst();
         JWSVerifier verifier = new RSASSAVerifier(rsaKey.toRSAPublicKey());
 
         if (!jwt.verify(verifier)) {
@@ -85,13 +78,13 @@ public class KakaoIdTokenVerifier implements IdTokenVerifier {
     private JWTClaimsSet validateClaims(SignedJWT jwt) throws ParseException {
         JWTClaimsSet claims = jwt.getJWTClaimsSet();
 
-        // issuer (발급자) 검증
+        // issuer 검증
         String issuer = claims.getIssuer();
         if (!KAKAO_ISSUER.equals(issuer)) {
             throw new IllegalArgumentException("id_token 발급자가 올바르지 않습니다: " + issuer);
         }
 
-        // 우리 앱 client_id 검증
+        // client_id 검증
         String clientId = kakaoOauthProperties.clientId();
         List<String> aud = claims.getAudience();
         if (aud == null || !aud.contains(clientId)) {
@@ -111,13 +104,4 @@ public class KakaoIdTokenVerifier implements IdTokenVerifier {
         }
         return claims;
     }
-
-    private static URL toUrl(String url) {
-        try {
-            return new URL(url);
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException("JWKS URL 설정이 올바르지 않습니다: " + url, e);
-        }
-    }
-
 }
