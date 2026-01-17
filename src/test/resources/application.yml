@@ -1,8 +1,6 @@
 spring:
-  profiles:
-    active: test
   datasource:
-    url: jdbc:mysql://localhost:3306/dnd-test
+    url: jdbc:mysql://localhost:3306/dnd_test
     username: dnd
     password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -26,3 +24,13 @@ oauth:
     client-id: test-client-id
     client-secret: test-client-secret
     redirect-uri: http://localhost:8080/oauth/kakao
+
+  oidc:
+    google:
+      issuer: "https://accounts.google.com"
+      audience: ${oauth.google.client-id}
+      jwks-uri: "https://www.googleapis.com/oauth2/v3/certs"
+    kakao:
+      issuer: "https://kauth.kakao.com"
+      audience: ${oauth.kakao.client-id}
+      jwks-uri: "https://kauth.kakao.com/.well-known/jwks.json"

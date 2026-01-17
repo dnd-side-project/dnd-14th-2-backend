@@ -8,17 +8,13 @@ import mockwebserver3.MockResponse;
 import mockwebserver3.RecordedRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
 
 class GoogleTokenExchangerTest extends AbstractMockServerTest {
 
-    @Autowired
     private GoogleTokenExchanger googleTokenExchanger;
-
-    @Autowired
     private RestClient googleOauthRestClient;
 
     @BeforeEach
@@ -36,9 +32,9 @@ class GoogleTokenExchangerTest extends AbstractMockServerTest {
         String authorizationCode = "test-authorization-code";
         String responseBody = """
             {
-                "idToken": "test-id-token",
-                "accessToken": "test-access-token",
-                "refreshToken": "test-refresh-token"
+                "id_token": "test-id-token",
+                "access_token": "test-access-token",
+                "refresh_token": "test-refresh-token"
             }
             """;
 

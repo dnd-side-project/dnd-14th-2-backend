@@ -21,12 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class KakaoOauthService implements OauthService {
     private final UserRepository userRepository;
     private final TokenExchanger kakaoTokenExchanger;
-    private final IdTokenVerifier kakaoIdTokenVerifierService;
+    private final IdTokenVerifier OidcIdTokenVerifierService;
 
     @Override
     public User getUserInfo(String authorizationCode) {
         OauthToken oauthToken = kakaoTokenExchanger.exchange(authorizationCode);
-        OauthUserInfo userInfo = kakaoIdTokenVerifierService.verify(oauthToken.idToken());
+        OauthUserInfo userInfo = OidcIdTokenVerifierService.verifyAndGetUserInfo(Provider.KAKAO, oauthToken.idToken());
 
         return userRepository.findByProviderAndProviderId(Provider.KAKAO, userInfo.providerId())
                 .orElseGet(() -> userRepository.save(

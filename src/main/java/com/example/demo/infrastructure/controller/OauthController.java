@@ -1,6 +1,5 @@
 package com.example.demo.infrastructure.controller;
 
-import com.example.demo.application.LoginService;
 import com.example.demo.application.dto.TokenResponse;
 import com.example.demo.application.oauth.AuthService;
 import com.example.demo.application.oauth.OauthService;
@@ -15,25 +14,26 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
-@RequiredArgsConstructor
 @RestController
+@RequiredArgsConstructor
 public class OauthController {
 
-    private final LoginService loginService;
+    private final OauthService kakaoOauthService;
     private final OauthService googleOauthService;
     private final AuthService authService;
-
-    @PostMapping("/oauth/kakao")
-    public ResponseEntity<?> kakaoLogin(@RequestParam(name = "code") String authorizationCode) {
-        AuthTokenWebResponse response = loginService.kakaoLogin(authorizationCode);
-        return ResponseEntity.ok(response);
-    }
 
     @PostMapping("/oauth/google")
     public ResponseEntity<TokenResponse> googleLogin(@RequestParam("code") String authorizationCode) {
         User userInfo = googleOauthService.getUserInfo(authorizationCode);
         TokenResponse tokenResponse = authService.issueTokens(userInfo);
 
+        return ResponseEntity.ok(tokenResponse);
+    }
+
+    @PostMapping("/oauth/kakao")
+    public ResponseEntity<?> kakaoLogin(@RequestParam(name = "code") String authorizationCode) {
+        User user = kakaoOauthService.getUserInfo(authorizationCode);
+        TokenResponse tokenResponse = authService.issueTokens(user);
         return ResponseEntity.ok(tokenResponse);
     }
 

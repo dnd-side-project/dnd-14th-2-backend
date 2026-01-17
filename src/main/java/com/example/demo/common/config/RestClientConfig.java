@@ -7,8 +7,6 @@ import org.springframework.web.client.RestClient;
 @Configuration
 public class RestClientConfig {
 
-    public static final String KAKAO_ISSUER = "https://kauth.kakao.com";
-
     @Bean
     public RestClient googleOauthRestClient() {
         return RestClient.builder()
@@ -19,7 +17,7 @@ public class RestClientConfig {
     @Bean
     public RestClient kakaoTokenRestClient() {
         return RestClient.builder()
-                .baseUrl(KAKAO_ISSUER)
+                .baseUrl("https://kauth.kakao.com")
                 .build();
     }
 }

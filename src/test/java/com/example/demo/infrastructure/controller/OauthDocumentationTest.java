@@ -1,10 +1,12 @@
 package com.example.demo.infrastructure.controller;
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
-import com.example.demo.application.LoginService;
-import com.example.demo.application.TokenProvider;
+import com.example.demo.application.dto.TokenResponse;
 import com.example.demo.application.oauth.AuthService;
 import com.example.demo.application.oauth.OauthService;
+import com.example.demo.application.oauth.TokenProvider;
+import com.example.demo.domain.Provider;
+import com.example.demo.domain.User;
 import com.example.demo.infrastructure.controller.dto.AuthTokenWebResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,13 +34,10 @@ class OauthDocumentationTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private LoginService loginService;
-
-    @MockitoBean
     private AuthService authService;
 
     @MockitoBean
-    private OauthService googleOauthService;
+    private OauthService kakaoOauthService;
 
     @MockitoBean
     private TokenProvider tokenProvider;
@@ -48,9 +47,16 @@ class OauthDocumentationTest {
     public void kakaoLogin_docs() throws Exception {
         // given
         String code = "test-authorization-code";
-
-        given(loginService.kakaoLogin(code))
-                .willReturn(new AuthTokenWebResponse("jwt.access.token", "jwt.refresh.token"));
+        User user = new User(
+                "test@email.com",
+                "https://profile/image.jpg",
+                Provider.KAKAO,
+                "kakao-provider-id"
+        );
+        String accessToken ="jwt.access.token";
+        String refreshToken ="jwt.refresh.token";
+        given(kakaoOauthService.getUserInfo(code)).willReturn(user);
+        given(authService.issueTokens(user)).willReturn(new TokenResponse(accessToken, refreshToken));
 
         // when & then
         mockMvc.perform(

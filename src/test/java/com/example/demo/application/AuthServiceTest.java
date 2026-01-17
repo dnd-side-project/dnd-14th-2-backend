@@ -1,15 +1,18 @@
 package com.example.demo.application;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.example.demo.application.dto.TokenResponse;
 import com.example.demo.application.oauth.AuthService;
-import com.example.demo.domain.*;
+import com.example.demo.domain.Provider;
+import com.example.demo.domain.RefreshToken;
+import com.example.demo.domain.RefreshTokenRepository;
+import com.example.demo.domain.User;
+import com.example.demo.domain.UserRepository;
 import com.example.demo.util.AbstractIntegrationTest;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class AuthServiceTest extends AbstractIntegrationTest {
 

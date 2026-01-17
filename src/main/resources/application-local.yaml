@@ -12,6 +12,9 @@ spring:
     hibernate:
       ddl-auto: create
 
+jwt:
+  secret-key: test+test+test+test+test+test+test+test+test+test
+
 oauth:
   google:
     client-id: ${GOOGLE_CLIENT_ID}
@@ -21,9 +24,15 @@ oauth:
     client-id: ${KAKAO_CLIENT_ID}
     client-secret: ${KAKAO_CLIENT_SECRET}
     redirect-uri: ${KAKAO_REDIRECT_URI}
-jwt:
-  secret-key: test+test+test+test+test+test+test+test+test+test
-
+  oidc:
+    google:
+      issuer: "https://accounts.google.com"
+      audience: ${oauth.google.client-id}
+      jwks-uri: "https://www.googleapis.com/oauth2/v3/certs"
+    kakao:
+      issuer: "https://kauth.kakao.com"
+      audience: ${oauth.kakao.client-id}
+      jwks-uri: "https://kauth.kakao.com/.well-known/jwks.json"
 
 springdoc:
   api-docs:

@@ -49,7 +49,7 @@ class KakaoOauthServiceTest {
         User existingUser = new User("test@kakao.com", "http://image.png", Provider.KAKAO, "kakao-provider-id");
 
         given(kakaoTokenExchanger.exchange(authCode)).willReturn(oauthToken);
-        given(kakaoIdTokenVerifier.verify(refreshToken)).willReturn(userInfo);
+        given(kakaoIdTokenVerifier.verifyAndGetUserInfo(Provider.KAKAO, idToken)).willReturn(userInfo);
         given(userRepository.findByProviderAndProviderId(Provider.KAKAO, userInfo.providerId()))
                 .willReturn(Optional.of(existingUser));
 
@@ -74,7 +74,7 @@ class KakaoOauthServiceTest {
         User newUser = new User("new@kakao.com", "http://new-image.png", Provider.KAKAO, "kakao-id-new");
 
         given(kakaoTokenExchanger.exchange(authCode)).willReturn(oauthToken);
-        given(kakaoIdTokenVerifier.verify(idToken)).willReturn(userInfo);
+        given(kakaoIdTokenVerifier.verifyAndGetUserInfo(Provider.KAKAO, idToken)).willReturn(userInfo);
         given(userRepository.findByProviderAndProviderId(Provider.KAKAO, userInfo.providerId()))
                 .willReturn(Optional.empty()); // DB에 없음
         given(userRepository.save(any(User.class))).willReturn(newUser);
