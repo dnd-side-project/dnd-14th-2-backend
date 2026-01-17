@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class GoogleIdTokenVerifierService {
     private final GoogleIdTokenVerifier verifier;
 
-    public GoogleIdTokenVerifierService(@Value("${google.client-id}") String clientId) {
+    public GoogleIdTokenVerifierService(@Value("${oauth.google.client-id}") String clientId) {
         this.verifier = new GoogleIdTokenVerifier.Builder(
             new NetHttpTransport(),
             GsonFactory.getDefaultInstance()

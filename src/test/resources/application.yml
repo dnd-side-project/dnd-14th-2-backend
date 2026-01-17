@@ -15,7 +15,8 @@ spring:
 jwt:
   secret-key: test+test+test+test+test+test+test+test+test+test
 
-google:
-  client-id: test-client-id
-  client-secret: test-client-secret
-  redirect-uri: http://localhost:8080/oauth/goole
+oauth:
+  google:
+    client-id: test-client-id
+    client-secret: test-client-secret
+    redirect-uri: http://localhost:8080/oauth/goole
