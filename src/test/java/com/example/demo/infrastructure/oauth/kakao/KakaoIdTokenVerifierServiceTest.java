@@ -85,7 +85,6 @@ class KakaoIdTokenVerifierServiceTest {
                 new JWSHeader.Builder(JWSAlgorithm.HS256).build(), // RS256 아님
                 claimsSet
         );
-        // (대칭키 알고리즘이므로 단순 sign)
         signedJWT.sign(new com.nimbusds.jose.crypto.MACSigner("secret-key-64-characters-long-for-hs256-test"));
         String invalidAlgToken = signedJWT.serialize();
 
@@ -161,7 +160,7 @@ class KakaoIdTokenVerifierServiceTest {
         return signedJWT.serialize();
     }
 
-    // 기본 클레임 셋 생성 (공통 부분)
+    // 기본 클레임 생성
     private JWTClaimsSet.Builder createDefaultClaims() {
         return new JWTClaimsSet.Builder()
                 .issuer(KAKAO_ISSUER)
