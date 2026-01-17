@@ -11,19 +11,19 @@ version = '0.0.1-SNAPSHOT'
 description = 'Demo project for Spring Boot'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 ext {
@@ -44,39 +44,38 @@ ext {
 
 dependencies {
 
-	// spring
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
+    // spring
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
-	// lombok
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
+    // lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 
-	// mysql driver
-	runtimeOnly 'com.mysql:mysql-connector-j'
+    // mysql driver
+    runtimeOnly 'com.mysql:mysql-connector-j'
 
-	// jjwt
-	implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
-	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
-	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0'
+    // jjwt
+    implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0'
 
-	// google oauth
-	implementation 'com.google.api-client:google-api-client:2.8.1'
+    // google oauth
+    implementation 'com.google.api-client:google-api-client:2.8.1'
 
-	// nimbus-jose-jwt
-	implementation 'com.nimbusds:nimbus-jose-jwt:10.7'
+    // nimbus-jose-jwt
+    implementation 'com.nimbusds:nimbus-jose-jwt:10.7'
 
-	// test
-	testImplementation 'com.squareup.okhttp3:mockwebserver:5.3.2'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // test
+    testImplementation 'com.squareup.okhttp3:mockwebserver:5.3.2'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     // swagger
     testImplementation 'com.epages:restdocs-api-spec-mockmvc:0.19.4'
-    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.15'
 
 }
@@ -119,8 +118,8 @@ tasks.named('test') {
 }
 
 tasks.named('asciidoctor') {
-	inputs.dir snippetsDir
-	dependsOn test
+    inputs.dir snippetsDir
+    dependsOn test
 }
 
 tasks.named('bootRun') {

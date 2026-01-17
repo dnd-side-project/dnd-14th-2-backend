@@ -1,13 +1,12 @@
 package com.example.demo.infrastructure.oauth.kakao;
 
-import com.example.demo.application.oauth.IdTokenVerifier;
-import com.example.demo.application.oauth.TokenExchanger;
 import com.example.demo.application.dto.OauthToken;
 import com.example.demo.application.dto.OauthUserInfo;
+import com.example.demo.application.oauth.IdTokenVerifier;
+import com.example.demo.application.oauth.TokenExchanger;
 import com.example.demo.domain.Provider;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -37,7 +36,6 @@ class KakaoOauthServiceTest {
     private IdTokenVerifier kakaoIdTokenVerifier;
 
     @Test
-    @DisplayName("기존에 가입된 사용자가 있다면 해당 사용자를 반환한다")
     void 가입된_사용자가_있는_경우_조회_후_반환() {
         // given
         String authCode = "auth-code";
@@ -62,7 +60,6 @@ class KakaoOauthServiceTest {
     }
 
     @Test
-    @DisplayName("신규 사용자라면 회원 정보를 저장한 후 반환한다")
     void 신규_사용자인_경우_저장_후_반환() {
         // given
         String authCode = "auth-code";

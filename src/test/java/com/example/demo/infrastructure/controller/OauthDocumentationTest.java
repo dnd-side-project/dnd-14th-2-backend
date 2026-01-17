@@ -7,8 +7,6 @@ import com.example.demo.application.oauth.OauthService;
 import com.example.demo.application.oauth.TokenProvider;
 import com.example.demo.domain.Provider;
 import com.example.demo.domain.User;
-import com.example.demo.infrastructure.controller.dto.AuthTokenWebResponse;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
@@ -43,7 +41,6 @@ class OauthDocumentationTest {
     private TokenProvider tokenProvider;
 
     @Test
-    @DisplayName("카카오 소셜로그인 API 명세서 작성")
     public void kakaoLogin_docs() throws Exception {
         // given
         String code = "test-authorization-code";
@@ -53,8 +50,8 @@ class OauthDocumentationTest {
                 Provider.KAKAO,
                 "kakao-provider-id"
         );
-        String accessToken ="jwt.access.token";
-        String refreshToken ="jwt.refresh.token";
+        String accessToken = "jwt.access.token";
+        String refreshToken = "jwt.refresh.token";
         given(kakaoOauthService.getUserInfo(code)).willReturn(user);
         given(authService.issueTokens(user)).willReturn(new TokenResponse(accessToken, refreshToken));
 
