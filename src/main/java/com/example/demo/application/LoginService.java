@@ -1,6 +1,8 @@
 package com.example.demo.application;
 
 import com.example.demo.application.dto.TokenResponse;
+import com.example.demo.application.oauth.AuthService;
+import com.example.demo.application.oauth.OauthService;
 import com.example.demo.domain.User;
 import com.example.demo.infrastructure.controller.dto.AuthTokenWebResponse;
 import lombok.RequiredArgsConstructor;

@@ -1,5 +1,6 @@
-package com.example.demo.application;
+package com.example.demo.application.oauth;
 
+import com.example.demo.application.TokenProvider;
 import com.example.demo.application.dto.TokenResponse;
 import com.example.demo.domain.RefreshToken;
 import com.example.demo.domain.RefreshTokenRepository;
@@ -26,5 +27,9 @@ public class AuthService {
         refreshTokenRepository.save(refreshToken);
 
         return token;
+    }
+
+    public void logout(Long userId) {
+        refreshTokenRepository.deleteByUserId(userId);
     }
 }

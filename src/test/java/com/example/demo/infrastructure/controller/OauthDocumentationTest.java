@@ -1,16 +1,19 @@
 package com.example.demo.infrastructure.controller;
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
-import com.example.demo.application.AuthService;
+import com.example.demo.application.oauth.AuthService;
 import com.example.demo.application.LoginService;
 import com.example.demo.application.TokenProvider;
+import com.example.demo.application.oauth.OauthService;
 import com.example.demo.infrastructure.controller.dto.AuthTokenWebResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -35,6 +38,9 @@ class OauthDocumentationTest {
 
     @MockitoBean
     private AuthService authService;
+
+    @MockitoBean
+    private OauthService googleOauthService;
 
     @MockitoBean
     private TokenProvider tokenProvider;

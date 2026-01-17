@@ -1,10 +1,10 @@
 package com.example.demo.infrastructure.oauth.kakao;
 
 import com.example.demo.application.IdTokenVerifier;
-import com.example.demo.application.OauthService;
 import com.example.demo.application.TokenExchanger;
 import com.example.demo.application.dto.OauthToken;
 import com.example.demo.application.dto.OauthUserInfo;
+import com.example.demo.application.oauth.OauthService;
 import com.example.demo.domain.Provider;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
@@ -28,13 +28,13 @@ public class KakaoOauthService implements OauthService {
         OauthToken oauthToken = kakaoTokenExchanger.exchange(authorizationCode);
         OauthUserInfo userInfo = kakaoIdTokenVerifier.verify(oauthToken.idToken());
 
-        return userRepository.findByProviderAndProviderId(Provider.KAKAO, userInfo.id())
+        return userRepository.findByProviderAndProviderId(Provider.KAKAO, userInfo.providerId())
                 .orElseGet(() -> userRepository.save(
                         new User(
                                 userInfo.email(),
                                 userInfo.picture(),
                                 Provider.KAKAO,
-                                userInfo.id()
+                                userInfo.providerId()
                         )
                 ));
     }

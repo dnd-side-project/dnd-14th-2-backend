@@ -1,4 +1,4 @@
-package com.example.demo.infrastructure;
+package com.example.demo.infrastructure.oauth.token;
 
 import com.example.demo.application.TokenProvider;
 import com.example.demo.application.dto.TokenResponse;
@@ -10,10 +10,17 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.util.Date;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class JwtProvider implements TokenProvider {
+
+    private final String jwtSecretKey;
+
+    public JwtProvider(@Value("${jwt.secret-key}") String jwtSecretKey) {
+        this.jwtSecretKey = jwtSecretKey;
+    }
 
     public TokenResponse generateToken(Long userId) {
         long now = System.currentTimeMillis();
@@ -21,14 +28,14 @@ public class JwtProvider implements TokenProvider {
             .claim("userId", userId)
             .issuedAt(new Date(now))
             .expiration(new Date(now + 43200000))
-            .signWith(SignatureAlgorithm.HS256, "test+test+test+test+test+test+test+test+test+test")
+            .signWith(SignatureAlgorithm.HS256, jwtSecretKey)
             .compact();
 
         String refreshToken = Jwts.builder()
             .claim("userId", userId)
             .issuedAt(new Date(now))
             .expiration(new Date(now + 5260000000L))
-            .signWith(SignatureAlgorithm.HS256, "test+test+test+test+test+test+test+test+test+test")
+            .signWith(SignatureAlgorithm.HS256, jwtSecretKey)
             .compact();
 
         return new TokenResponse(accessToken, refreshToken);
@@ -39,7 +46,7 @@ public class JwtProvider implements TokenProvider {
         try {
             Claims payload = Jwts.parser()
                 .verifyWith(
-                    Keys.hmacShaKeyFor(Decoders.BASE64.decode("test+test+test+test+test+test+test+test+test+test")))
+                    Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecretKey)))
                 .build()
                 .parseSignedClaims(accessToken)
                 .getPayload();

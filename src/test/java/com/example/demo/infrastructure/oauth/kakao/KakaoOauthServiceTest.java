@@ -50,7 +50,7 @@ class KakaoOauthServiceTest {
 
         given(kakaoTokenExchanger.exchange(authCode)).willReturn(oauthToken);
         given(kakaoIdTokenVerifier.verify(refreshToken)).willReturn(userInfo);
-        given(userRepository.findByProviderAndProviderId(Provider.KAKAO, userInfo.id()))
+        given(userRepository.findByProviderAndProviderId(Provider.KAKAO, userInfo.providerId()))
                 .willReturn(Optional.of(existingUser));
 
         // when
@@ -75,7 +75,7 @@ class KakaoOauthServiceTest {
 
         given(kakaoTokenExchanger.exchange(authCode)).willReturn(oauthToken);
         given(kakaoIdTokenVerifier.verify(idToken)).willReturn(userInfo);
-        given(userRepository.findByProviderAndProviderId(Provider.KAKAO, userInfo.id()))
+        given(userRepository.findByProviderAndProviderId(Provider.KAKAO, userInfo.providerId()))
                 .willReturn(Optional.empty()); // DB에 없음
         given(userRepository.save(any(User.class))).willReturn(newUser);
 

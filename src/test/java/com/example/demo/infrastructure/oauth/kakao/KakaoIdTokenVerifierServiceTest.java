@@ -71,7 +71,7 @@ class KakaoIdTokenVerifierServiceTest {
         OauthUserInfo userInfo = kakaoIdTokenVerifierService.verify(idToken);
 
         // then
-        assertThat(userInfo.id()).isEqualTo(sub);
+        assertThat(userInfo.providerId()).isEqualTo(sub);
         assertThat(userInfo.email()).isEqualTo(email);
         assertThat(userInfo.picture()).isEqualTo(picture);
     }

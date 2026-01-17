@@ -1,4 +1,4 @@
-package com.example.demo.application;
+package com.example.demo.application.oauth;
 
 import com.example.demo.domain.User;
 

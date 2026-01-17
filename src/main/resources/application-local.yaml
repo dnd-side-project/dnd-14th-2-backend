@@ -1,4 +1,7 @@
 spring:
+  config:
+    activate:
+      on-profile: local
   application:
     name: demo
   datasource:
@@ -10,10 +13,17 @@ spring:
       ddl-auto: create
 
 oauth:
+  google:
+    client-id: ${GOOGLE_CLIENT_ID}
+    client-secret: ${GOOGLE_CLIENT_SECRET}
+    redirect-uri: ${GOOGLE_REDIRECT_URI}
   kakao:
     client-id: ${KAKAO_CLIENT_ID}
     client-secret: ${KAKAO_CLIENT_SECRET}
     redirect-uri: ${KAKAO_REDIRECT_URI}
+jwt:
+  secret-key: test+test+test+test+test+test+test+test+test+test
+
 
 springdoc:
   api-docs:
