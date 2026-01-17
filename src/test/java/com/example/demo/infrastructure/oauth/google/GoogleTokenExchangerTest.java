@@ -8,13 +8,17 @@ import mockwebserver3.MockResponse;
 import mockwebserver3.RecordedRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
 
 class GoogleTokenExchangerTest extends AbstractMockServerTest {
 
+    @Autowired
     private GoogleTokenExchanger googleTokenExchanger;
+
+    @Autowired
     private RestClient googleOauthRestClient;
 
     @BeforeEach
@@ -22,9 +26,7 @@ class GoogleTokenExchangerTest extends AbstractMockServerTest {
         googleOauthRestClient = anyRestClient();
         googleTokenExchanger = new GoogleTokenExchanger(
             googleOauthRestClient,
-            "test-client-id",
-            "test-client-secret",
-            "http://localhost:8080/callback"
+            new GoogleOauthProperties("test-client-id", "test-client-secret", "test")
         );
     }
 
@@ -63,7 +65,7 @@ class GoogleTokenExchangerTest extends AbstractMockServerTest {
         assertThat(requestBody).contains("code=" + authorizationCode);
         assertThat(requestBody).contains("client_id=test-client-id");
         assertThat(requestBody).contains("client_secret=test-client-secret");
-        assertThat(requestBody).contains("redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fcallback");
+        assertThat(requestBody).contains("redirect_uri=test");
         assertThat(requestBody).contains("grant_type=authorization_code");
     }
 }

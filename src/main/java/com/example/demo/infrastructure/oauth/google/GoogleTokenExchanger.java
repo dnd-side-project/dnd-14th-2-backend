@@ -14,18 +14,12 @@ public class GoogleTokenExchanger implements TokenExchanger {
     private static final String GRANT_TYPE = "authorization_code";
 
     private final RestClient googleOauthRestClient;
-    private final String clientId;
-    private final String clientSecret;
-    private final String redirectUri;
+    private final GoogleOauthProperties googleOauthProperties;
 
     public GoogleTokenExchanger(RestClient googleOauthRestClient,
-                                @Value("${google.client-id}") String clientId,
-                                @Value("${google.client-secret}") String clientSecret,
-                                @Value("${google.redirect-uri}") String redirectUri) {
+                                GoogleOauthProperties googleOauthProperties) {
         this.googleOauthRestClient = googleOauthRestClient;
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
-        this.redirectUri = redirectUri;
+        this.googleOauthProperties = googleOauthProperties;
     }
 
     @Override
@@ -42,9 +36,9 @@ public class GoogleTokenExchanger implements TokenExchanger {
     private MultiValueMap<String, String> tokenBody(String authorizationCode) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("code", authorizationCode);
-        params.add("client_id", clientId);
-        params.add("client_secret", clientSecret);
-        params.add("redirect_uri", redirectUri);
+        params.add("client_id", googleOauthProperties.clientId());
+        params.add("client_secret", googleOauthProperties.clientSecret());
+        params.add("redirect_uri", googleOauthProperties.redirectUri());
         params.add("grant_type", GRANT_TYPE);
 
         return params;
