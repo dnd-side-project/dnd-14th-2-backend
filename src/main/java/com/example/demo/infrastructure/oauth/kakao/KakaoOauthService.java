@@ -24,6 +24,11 @@ public class KakaoOauthService implements OauthService {
     private final IdTokenVerifier OidcIdTokenVerifierService;
 
     @Override
+    public Provider provider() {
+        return Provider.GOOGLE;
+    }
+
+    @Override
     public User getUserInfo(String authorizationCode) {
         OauthToken oauthToken = kakaoTokenExchanger.exchange(authorizationCode);
         OauthUserInfo userInfo = OidcIdTokenVerifierService.verifyAndGetUserInfo(Provider.KAKAO, oauthToken.idToken());

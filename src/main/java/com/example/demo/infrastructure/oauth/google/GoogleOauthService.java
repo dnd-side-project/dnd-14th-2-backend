@@ -20,6 +20,12 @@ public class GoogleOauthService implements OauthService {
     private final UserRepository userRepository;
 
     @Override
+    public Provider provider() {
+        return Provider.KAKAO;
+    }
+
+
+    @Override
     public User getUserInfo(String authorizationCode) {
         OauthToken oauthToken = googleTokenExchanger.exchange(authorizationCode);
         if (oauthToken == null || oauthToken.idToken() == null) {
