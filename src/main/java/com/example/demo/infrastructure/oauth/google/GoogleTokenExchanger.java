@@ -2,6 +2,7 @@ package com.example.demo.infrastructure.oauth.google;
 
 import com.example.demo.application.oauth.TokenExchanger;
 import com.example.demo.application.dto.OauthToken;
+import com.example.demo.domain.Provider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -14,6 +15,12 @@ public class GoogleTokenExchanger implements TokenExchanger {
 
     private final RestClient googleOauthRestClient;
     private final GoogleOauthProperties googleOauthProperties;
+
+
+    @Override
+    public Provider provider() {
+        return Provider.GOOGLE;
+    }
 
     @Override
     public OauthToken exchange(String authorizationCode) {

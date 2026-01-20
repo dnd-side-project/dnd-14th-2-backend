@@ -2,8 +2,7 @@ package com.example.demo.infrastructure.controller;
 
 import com.example.demo.application.dto.TokenResponse;
 import com.example.demo.application.oauth.AuthService;
-import com.example.demo.application.oauth.OauthServiceFactory;
-import com.example.demo.domain.Provider;
+import com.example.demo.application.oauth.OauthService;
 import com.example.demo.domain.User;
 import com.example.demo.infrastructure.controller.dto.AuthTokenWebResponse;
 import com.example.demo.infrastructure.controller.dto.OauthLoginWebRequest;
@@ -21,14 +20,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class OauthController {
 
-    private final OauthServiceFactory oauthServiceFactory;
+    private final OauthService oauthService;
     private final AuthService authService;
 
 
     @PostMapping("/oauth/login")
     public ResponseEntity<AuthTokenWebResponse> oauthLogin(@Valid @RequestBody OauthLoginWebRequest request) {
-        Provider provider = request.provider();
-        User userInfo = oauthServiceFactory.get(provider).getUserInfo(request.code());
+        User userInfo = oauthService.getUserInfo(request.provider(), request.code());
         TokenResponse token = authService.issueTokens(userInfo);
 
         return ResponseEntity.ok(AuthTokenWebResponse.from(token));

@@ -2,13 +2,9 @@ package com.example.demo.infrastructure.controller;
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.example.demo.application.dto.TokenResponse;
-import com.example.demo.application.oauth.AuthService;
-import com.example.demo.application.oauth.OauthService;
-import com.example.demo.application.oauth.TokenProvider;
+import com.example.demo.application.oauth.*;
 import com.example.demo.domain.Provider;
 import com.example.demo.domain.User;
-import com.example.demo.application.oauth.OauthServiceFactory;
-import com.example.demo.infrastructure.controller.dto.OauthLoginWebRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
@@ -29,35 +25,33 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(OauthController.class)
 @AutoConfigureRestDocs
 class OauthDocumentationTest {
+
     @Autowired
     private MockMvc mockMvc;
+
+    @MockitoBean
+    private OauthService oauthService;
 
     @MockitoBean
     private AuthService authService;
 
     @MockitoBean
-    private OauthServiceFactory oauthServiceFactory;
-
-    @MockitoBean
-    private OauthService kakaoOauthService;
-
-    @MockitoBean
     private TokenProvider tokenProvider;
 
     @Test
-    public void oauthLogin_kakao_docs() throws Exception {
+    void oauthLogin_docs() throws Exception {
         // given
         String code = "test-authorization-code";
         User user = new User(
                 "test@email.com",
                 "https://profile/image.jpg",
                 Provider.KAKAO,
-                "kakao-provider-id"
+                "provider-id"
         );
         String accessToken = "jwt.access.token";
         String refreshToken = "jwt.refresh.token";
-        given(oauthServiceFactory.get(Provider.KAKAO)).willReturn(kakaoOauthService);
-        given(kakaoOauthService.getUserInfo(code)).willReturn(user);
+
+        given(oauthService.getUserInfo(Provider.KAKAO, code)).willReturn(user);
         given(authService.issueTokens(user)).willReturn(new TokenResponse(accessToken, refreshToken));
 
         // when & then

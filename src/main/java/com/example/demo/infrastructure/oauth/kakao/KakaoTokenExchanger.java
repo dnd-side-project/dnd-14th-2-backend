@@ -2,6 +2,7 @@ package com.example.demo.infrastructure.oauth.kakao;
 
 import com.example.demo.application.oauth.TokenExchanger;
 import com.example.demo.application.dto.OauthToken;
+import com.example.demo.domain.Provider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,11 @@ public class KakaoTokenExchanger implements TokenExchanger {
 
     private final RestClient kakaoTokenRestClient;
     private final KakaoOauthProperties kakaoOauthProperties;
+
+    @Override
+    public Provider provider() {
+        return Provider.KAKAO;
+    }
 
     @Override
     public OauthToken exchange(String authorizationCode) {
