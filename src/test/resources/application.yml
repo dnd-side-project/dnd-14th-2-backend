@@ -19,7 +19,7 @@ oauth:
   google:
     client-id: test-client-id
     client-secret: test-client-secret
-    redirect-uri: http://localhost:8080/oauth/goole
+    redirect-uri: http://localhost:8080/oauth/google
   kakao:
     client-id: test-client-id
     client-secret: test-client-secret

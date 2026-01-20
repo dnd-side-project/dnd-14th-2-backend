@@ -4,6 +4,7 @@ import com.example.demo.infrastructure.advice.dto.ErrorResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -18,6 +19,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException e) {
+        String msg = e.getMessage();
+        if (msg == null || msg.isBlank()) {
+            msg = "요청 값이 올바르지 않습니다.";
+        }
         return error(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
@@ -49,7 +54,7 @@ public class GlobalExceptionHandler {
     }
 
     private String validationMessage(MethodArgumentNotValidException e) {
-        var fieldError = e.getBindingResult().getFieldError();
+        FieldError fieldError = e.getBindingResult().getFieldError();
         if (fieldError == null) {
             return "요청 값이 올바르지 않습니다.";
         }

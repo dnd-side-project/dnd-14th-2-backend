@@ -7,6 +7,7 @@ import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Component
@@ -16,6 +17,7 @@ public class OauthService {
     private final IdTokenVerifier OidcIdTokenVerifierService;
     private final UserRepository userRepository;
 
+    @Transactional
     public User getUserInfo(Provider provider, String authorizationCode) {
         OauthToken oauthToken = exchangerFactory.get(provider).exchange(authorizationCode);
         if (oauthToken == null || oauthToken.idToken() == null) {

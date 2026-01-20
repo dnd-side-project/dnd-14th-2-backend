@@ -28,6 +28,7 @@ public class AuthService {
         return token;
     }
 
+    @Transactional
     public void logout(Long userId) {
         refreshTokenRepository.deleteByUserId(userId);
     }
