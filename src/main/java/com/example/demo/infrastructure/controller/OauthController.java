@@ -1,28 +1,25 @@
 package com.example.demo.infrastructure.controller;
 
-import com.example.demo.application.dto.TokenResponse;
 import com.example.demo.application.oauth.AuthService;
 import com.example.demo.application.oauth.OauthService;
+import com.example.demo.application.dto.TokenResponse;
 import com.example.demo.domain.User;
 import com.example.demo.infrastructure.controller.dto.AuthTokenWebResponse;
 import com.example.demo.infrastructure.controller.dto.OauthLoginWebRequest;
 import com.example.demo.infrastructure.interceptor.UserId;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-@Slf4j
-@RequiredArgsConstructor
 @RestController
+@RequiredArgsConstructor
 public class OauthController {
 
     private final OauthService oauthService;
     private final AuthService authService;
-
 
     @PostMapping("/oauth/login")
     public ResponseEntity<AuthTokenWebResponse> oauthLogin(@Valid @RequestBody OauthLoginWebRequest request) {
@@ -38,5 +35,4 @@ public class OauthController {
 
         return ResponseEntity.noContent().build();
     }
-
 }

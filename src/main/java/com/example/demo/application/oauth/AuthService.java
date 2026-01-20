@@ -20,7 +20,7 @@ public class AuthService {
         TokenResponse token = tokenProvider.generateToken(user.getId());
 
         RefreshToken refreshToken = refreshTokenRepository.findByUserId((user.getId()))
-                .orElseGet(() -> new RefreshToken(user.getId(), token.refreshToken()));
+            .orElseGet(() -> new RefreshToken(user.getId(), token.refreshToken()));
 
         refreshToken.rotate(token.refreshToken());
         refreshTokenRepository.save(refreshToken);

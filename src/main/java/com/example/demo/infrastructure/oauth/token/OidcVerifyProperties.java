@@ -7,7 +7,6 @@ public record OidcVerifyProperties(
     OidcProperties google,
     OidcProperties kakao
 ) {
-
     public record OidcProperties(
         String issuer,
         String audience,

@@ -37,9 +37,9 @@ class AuthServiceTest extends AbstractIntegrationTest {
         // then
         Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUserId(savedUser.getId());
         assertThat(refreshToken.get())
-                .isNotNull();
+            .isNotNull();
         assertThat(refreshToken.get())
-                .extracting("token")
-                .isEqualTo(tokenResponse.refreshToken());
+            .extracting("token")
+            .isEqualTo(tokenResponse.refreshToken());
     }
 }
