@@ -33,17 +33,3 @@ oauth:
       issuer: "https://kauth.kakao.com"
       audience: ${oauth.kakao.client-id}
       jwks-uri: "https://kauth.kakao.com/.well-known/jwks.json"
-
-springdoc:
-  api-docs:
-    enabled: true
-    path: /v3/api-docs
-  swagger-ui:
-    url: /swagger-ui/openapi3.yaml
-    enabled: true
-    path: /swagger-ui/index.html
-    disable-swagger-default-url: true
-    display-request-duration: true
-    operations-sorter: alpha
-    tags-sorter: alpha
-  enable-spring-security: false

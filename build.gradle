@@ -103,10 +103,13 @@ tasks.register('copyToSwagger', Copy) {
     into layout.buildDirectory.dir('generated/swagger-ui')
     rename { 'openapi3.yaml' }
 }
-// 3) 정적 리소스에 포함 (앱 실행 시 /swagger-ui/openapi3.yaml 로 서빙됨)
-tasks.named('processResources') {
+
+// 3) "빌드(패키징)" 할 때마다 Swagger 스펙을 생성/복사하고, JAR 안에 포함
+tasks.named('bootJar') {
+    dependsOn tasks.named('copyToSwagger')
+
     from(layout.buildDirectory.dir('generated/swagger-ui')) {
-        into 'static/swagger-ui'
+        into 'BOOT-INF/classes/static/swagger-ui'
     }
 }
 
@@ -125,4 +128,5 @@ tasks.named('asciidoctor') {
 tasks.named('bootRun') {
     dependsOn tasks.named('copyToSwagger')
     systemProperty 'spring.profiles.active', runProfile
+    classpath += files(layout.buildDirectory.dir('generated/swagger-ui'))
 }
