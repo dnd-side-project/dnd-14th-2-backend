@@ -21,7 +21,7 @@ jobs:
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping --silent"
+          --health-cmd="mysqladmin ping -uroot -proot_password --silent"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
@@ -39,10 +39,15 @@ jobs:
 
       - name: MySQL 기다리기...
         run: |
-          until mysqladmin ping -h"127.0.0.1" -P"3306" --silent; do
+          for i in {1..30}; do
+            if mysqladmin ping -h"127.0.0.1" -P"3306" -uroot -p"root_password" --silent; then
+              exit 0
+            fi
             echo 'Waiting for MySQL...'
             sleep 2
           done
+          echo 'MySQL did not become ready in time'
+          exit 1
 
       - name: gradlew 실행 권한 설정
         run: chmod +x gradlew
