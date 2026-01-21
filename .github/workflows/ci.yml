@@ -53,7 +53,9 @@ jobs:
         run: chmod +x gradlew
 
       - name: Gradle 빌드
-        run: ./gradlew clean build -x test
+        run: ./gradlew clean test build
+        env:
+          CI: true
 
       - name: 테스트 실행
         run: ./gradlew test
