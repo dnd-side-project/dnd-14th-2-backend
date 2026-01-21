@@ -1,4 +1,4 @@
-name: CI with MySQL
+name: Backend CI with MySQL
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  build-and-test:
     runs-on: ubuntu-latest
 
     services:
