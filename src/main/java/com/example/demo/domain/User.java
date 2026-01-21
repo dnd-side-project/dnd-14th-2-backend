@@ -22,7 +22,9 @@ public class User extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nickname;
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "nickname"))
+    private Nickname nickname;
 
     private String email;
 
@@ -45,6 +47,9 @@ public class User extends BaseEntity{
         this.providerId = providerId;
     }
 
+    public void changeNickname(String nickname) {
+        this.nickname = new Nickname(nickname);
+    }
     public void withdraw(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
         this.email = null;
