@@ -28,10 +28,11 @@ public class UserService {
 
     @Transactional
     public void registerNickname(Long userId, String nickname) {
-        validateIsDuplicateNickname(nickname);
-
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+
+        validateIsDuplicateNickname(nickname);
+
         user.registerNickname(nickname);
     }
 
