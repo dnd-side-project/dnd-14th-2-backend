@@ -58,13 +58,10 @@ jobs:
       - name: gradlew 실행 권한 설정
         run: chmod +x gradlew
 
-      - name: Gradle 빌드
-        run: ./gradlew clean test build
+      - name: Gradle 빌드 및 테스트
+        run: ./gradlew clean build
         env:
           CI: true
-
-      - name: 테스트 실행
-        run: ./gradlew test
 
       - name: 테스트 리포트 생성
         if: always()
@@ -74,3 +71,4 @@ jobs:
           path: build/test-results/test/*.xml
           reporter: java-junit
           fail-on-error: true
+          token: ${{ secrets.GITHUB_TOKEN }}
