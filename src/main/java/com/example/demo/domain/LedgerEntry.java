@@ -10,11 +10,11 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+@Getter
 @Entity
 @NoArgsConstructor
 public class LedgerEntry {
 
-    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -40,4 +40,30 @@ public class LedgerEntry {
     @Size(max = 100)
     @Column(length = 100)
     private String memo;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    public LedgerEntry(long amount, LedgerType type, LedgerCategory category, String description, LocalDate occurredOn, PaymentMethod paymentMethod, User user) {
+        this.amount = amount;
+        this.type = type;
+        this.category = category;
+        this.description = description;
+        this.occurredOn = occurredOn;
+        this.paymentMethod = paymentMethod;
+        this.user = user;
+    }
+
+    public void updateMemo(String memo) {
+        this.memo = memo;
+    }
+
+    public void update(long amount, LedgerType type, LedgerCategory category, String description, PaymentMethod paymentMethod) {
+        this.amount = amount;
+        this.type = type;
+        this.category = category;
+        this.description = description;
+        this.paymentMethod = paymentMethod;
+    }
 }
