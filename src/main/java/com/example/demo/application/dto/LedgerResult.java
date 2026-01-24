@@ -8,23 +8,25 @@ import com.example.demo.domain.enums.PaymentMethod;
 import java.time.LocalDate;
 
 public record LedgerResult(
-        Long ledgerId,
-        Long amount,
-        LedgerType type,
-        LedgerCategory category,
-        String description,
-        LocalDate occurredOn,
-        PaymentMethod paymentMethod
+    Long ledgerId,
+    Long amount,
+    LedgerType type,
+    LedgerCategory category,
+    String description,
+    LocalDate occurredOn,
+    PaymentMethod paymentMethod,
+    String memo
 ) {
     public static LedgerResult from(LedgerEntry entry) {
         return new LedgerResult(
-                entry.getId(),
-                entry.getAmount(),
-                entry.getType(),
-                entry.getCategory(),
-                entry.getDescription(),
-                entry.getOccurredOn(),
-                entry.getPaymentMethod()
+            entry.getId(),
+            entry.getAmount(),
+            entry.getType(),
+            entry.getCategory(),
+            entry.getDescription(),
+            entry.getOccurredOn(),
+            entry.getPaymentMethod(),
+            entry.getMemo()
         );
     }
 }

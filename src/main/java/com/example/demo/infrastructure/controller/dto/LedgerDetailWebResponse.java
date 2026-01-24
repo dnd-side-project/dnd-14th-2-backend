@@ -8,23 +8,25 @@ import com.example.demo.domain.enums.PaymentMethod;
 import java.time.LocalDate;
 
 public record LedgerDetailWebResponse(
-        Long ledgerId,
-        Long amount,
-        LedgerType type,
-        LedgerCategory category,
-        String description,
-        LocalDate occurredOn,
-        PaymentMethod paymentMethod
+    Long ledgerId,
+    Long amount,
+    LedgerType type,
+    LedgerCategory category,
+    String description,
+    LocalDate occurredOn,
+    PaymentMethod paymentMethod,
+    String memo
 ) {
     public static LedgerDetailWebResponse from(LedgerResult ledgerResult) {
         return new LedgerDetailWebResponse(
-                ledgerResult.ledgerId(),
-                ledgerResult.amount(),
-                ledgerResult.type(),
-                ledgerResult.category(),
-                ledgerResult.description(),
-                ledgerResult.occurredOn(),
-                ledgerResult.paymentMethod()
+            ledgerResult.ledgerId(),
+            ledgerResult.amount(),
+            ledgerResult.type(),
+            ledgerResult.category(),
+            ledgerResult.description(),
+            ledgerResult.occurredOn(),
+            ledgerResult.paymentMethod(),
+            ledgerResult.memo()
         );
     }
 }

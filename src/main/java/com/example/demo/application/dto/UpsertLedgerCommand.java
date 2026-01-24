@@ -6,13 +6,14 @@ import com.example.demo.domain.enums.PaymentMethod;
 
 import java.time.LocalDate;
 
-public record CreateLedgerCommand(
-        long userId,
-        long amount,
-        LedgerType type,
-        LedgerCategory category,
-        String description,
-        LocalDate occurredOn,
-        PaymentMethod paymentMethod
+public record UpsertLedgerCommand(
+    long userId,
+    long amount,
+    LedgerType type,
+    LedgerCategory category,
+    String description,
+    LocalDate occurredOn,
+    PaymentMethod paymentMethod,
+    String memo
 ) {
 }

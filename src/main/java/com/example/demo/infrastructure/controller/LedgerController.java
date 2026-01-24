@@ -1,37 +1,38 @@
 package com.example.demo.infrastructure.controller;
 
+import com.example.demo.application.DateRangeResolver;
 import com.example.demo.application.LedgerService;
-import com.example.demo.application.dto.CreateLedgerCommand;
-import com.example.demo.application.dto.LedgerResult;
-import com.example.demo.infrastructure.controller.dto.CreateLedgerWebRequest;
-import com.example.demo.infrastructure.controller.dto.LedgerDetailWebResponse;
-import com.example.demo.infrastructure.controller.dto.UpdateLedgerMemoWebRequest;
-import com.example.demo.infrastructure.controller.dto.UpdateLedgerWebRequest;
+import com.example.demo.application.UserService;
+import com.example.demo.application.dto.*;
+import com.example.demo.infrastructure.controller.dto.*;
 import com.example.demo.infrastructure.interceptor.UserId;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.time.LocalDate;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
 @RestController
 public class LedgerController {
     private final LedgerService ledgerService;
-
+    private final UserService userService;
+    private final DateRangeResolver dateRangeResolver;
 
     @PostMapping("/ledgers")
-    public ResponseEntity<LedgerDetailWebResponse> create(
-            @UserId Long userId,
-            @Valid @RequestBody CreateLedgerWebRequest request
+    public ResponseEntity<CreateLedgerWebResponse> create(
+        @UserId Long userId,
+        @Valid @RequestBody UpsertLedgerWebRequest request
     ) {
-        log.info("[create] request = {}", request);
-        CreateLedgerCommand command = request.toCommand(userId);
+        UpsertLedgerCommand command = request.toCommand(userId);
         LedgerResult result = ledgerService.createLedgerEntry(command);
-        LedgerDetailWebResponse response = LedgerDetailWebResponse.from(result);
+        CreateLedgerWebResponse response = new CreateLedgerWebResponse(result.ledgerId());
 
         URI location = URI.create("/ledgers/" + response.ledgerId());
         return ResponseEntity.created(location).body(response);
@@ -39,10 +40,9 @@ public class LedgerController {
 
     @GetMapping("/ledgers/{ledgerId}")
     public ResponseEntity<LedgerDetailWebResponse> getById(
-            @UserId Long userId,
-            @PathVariable Long ledgerId
+        @UserId Long userId,
+        @PathVariable Long ledgerId
     ) {
-        log.info("[getById] ledgerId={}", ledgerId);
         LedgerResult result = ledgerService.getLedgerEntry(userId, ledgerId);
         LedgerDetailWebResponse response = LedgerDetailWebResponse.from(result);
 
@@ -51,9 +51,9 @@ public class LedgerController {
 
     @PatchMapping("/ledgers/{ledgerId}/memo")
     public ResponseEntity<Void> updateMemo(
-            @UserId Long userId,
-            @PathVariable Long ledgerId,
-            @Valid @RequestBody UpdateLedgerMemoWebRequest request
+        @UserId Long userId,
+        @PathVariable Long ledgerId,
+        @Valid @RequestBody UpdateLedgerMemoWebRequest request
     ) {
         ledgerService.updateLedgerMemo(userId, ledgerId, request.memo());
         return ResponseEntity.noContent().build();
@@ -61,12 +61,11 @@ public class LedgerController {
 
     @PutMapping("/ledgers/{ledgerId}")
     public ResponseEntity<LedgerDetailWebResponse> update(
-            @UserId Long userId,
-            @PathVariable Long ledgerId,
-            @Valid @RequestBody UpdateLedgerWebRequest request
+        @UserId Long userId,
+        @PathVariable Long ledgerId,
+        @Valid @RequestBody UpsertLedgerWebRequest request
     ) {
-        log.info("[update] ledgerId={}, request={}", ledgerId, request);
-        CreateLedgerCommand command = request.toCommand(userId);
+        UpsertLedgerCommand command = request.toCommand(userId);
         LedgerResult result = ledgerService.updateLedgerEntry(ledgerId, command);
         LedgerDetailWebResponse response = LedgerDetailWebResponse.from(result);
 
@@ -75,13 +74,35 @@ public class LedgerController {
 
     @DeleteMapping("/ledgers/{ledgerId}")
     public ResponseEntity<Void> delete(
-            @UserId Long userId,
-            @PathVariable Long ledgerId
+        @UserId Long userId,
+        @PathVariable Long ledgerId
     ) {
-        log.info("[delete] ledgerId={}", ledgerId);
         ledgerService.deleteLedgerEntry(userId, ledgerId);
 
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/ledgers/summary")
+    public ResponseEntity<LedgerSummaryWebResponse> getSummary(
+        @UserId Long userId,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
+    ) {
+        DateRange range = dateRangeResolver.resolve(start, end);
+        UserInfo userInfo = userService.getUserInfo(userId);
+        List<DailySummary> result = ledgerService.getSummary(userId, range.start(), range.end());
+        return ResponseEntity.ok(LedgerSummaryWebResponse.from(userInfo, range.start(), range.end(), result));
+    }
+
+    @GetMapping("/ledgers/daily")
+    public ResponseEntity<DailyLedgerDetailWebResponse> getDailyDetail(
+        @UserId Long userId,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+    ) {
+        LocalDate targetDate = dateRangeResolver.resolveDate(date);
+        DailyLedgerDetail result = ledgerService.getLedgerEntriesByDate(userId, targetDate);
+        DailyLedgerDetailWebResponse response = new DailyLedgerDetailWebResponse(result);
+
+        return ResponseEntity.ok(response);
+    }
 }

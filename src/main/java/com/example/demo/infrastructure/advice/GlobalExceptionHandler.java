@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
         if (msg == null || msg.isBlank()) {
             msg = "요청 값이 올바르지 않습니다.";
         }
-        return error(HttpStatus.BAD_REQUEST, e.getMessage());
+        return error(HttpStatus.BAD_REQUEST, msg);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -61,9 +61,9 @@ public class GlobalExceptionHandler {
 
         String msg = fieldError.getDefaultMessage();
         if (msg == null || msg.isBlank()) {
-            msg = "요청 값이 올바르지 않습니다.";
+            return "요청 값이 올바르지 않습니다.";
         }
 
-        return fieldError.getField() + ": " + msg;
+        return msg;
     }
 }
