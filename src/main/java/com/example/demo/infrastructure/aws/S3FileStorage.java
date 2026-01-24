@@ -15,7 +15,6 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
 @Component
-@Profile({"dev", "prod"})
 public class S3FileStorage implements FileStorage {
 
     private final S3Client s3Client;
