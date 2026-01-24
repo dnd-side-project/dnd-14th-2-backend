@@ -33,4 +33,6 @@ public interface LedgerEntryRepository extends Repository<LedgerEntry, Long> {
                                     @Param("end") LocalDate end);
 
     List<LedgerEntry> findAllByUser_IdAndOccurredOn(Long userId, LocalDate targetDate);
+
+    Optional<LedgerEntry> findById(Long ledgerId);
 }
