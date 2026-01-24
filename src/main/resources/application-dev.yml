@@ -18,6 +18,12 @@ spring:
         format_sql: true
         highlight_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
+  cloud:
+    aws:
+      region:
+        static: ${AWS_REGION}
+      s3:
+        bucket: ${AWS_BUCKET}
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}

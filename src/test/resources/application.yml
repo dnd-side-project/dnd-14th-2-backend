@@ -11,6 +11,12 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  cloud:
+    aws:
+      region:
+        static: ap-northeast-2
+      s3:
+        bucket: my-test-bucket-name
 
 jwt:
   secret-key: test+test+test+test+test+test+test+test+test+test

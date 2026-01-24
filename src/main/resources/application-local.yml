@@ -11,6 +11,12 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
+  cloud:
+    aws:
+      region:
+        static: ap-northeast-2
+      s3:
+        bucket: my-local-bucket-name
 
 jwt:
   secret-key: test+test+test+test+test+test+test+test+test+test
@@ -33,9 +39,3 @@ oauth:
       issuer: "https://kauth.kakao.com"
       audience: ${oauth.kakao.client-id}
       jwks-uri: "https://kauth.kakao.com/.well-known/jwks.json"
-
-cloud:
-  aws:
-    region: my-local-region
-    s3:
-      bucket: my-local-bucket-name
