@@ -52,7 +52,7 @@ public class User extends BaseEntity{
 
     public void registerNickname(String nickname) {
         if (this.nickname != null) {
-            throw new IllegalArgumentException("이미 닉네임이 등록된 사용자입니다.");
+            throw new IllegalStateException("이미 닉네임이 등록된 사용자입니다.");
         }
 
         this.nickname = new Nickname(nickname);
