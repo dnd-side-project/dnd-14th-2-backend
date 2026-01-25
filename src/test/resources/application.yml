@@ -21,6 +21,10 @@ spring:
 jwt:
   secret-key: test+test+test+test+test+test+test+test+test+test
 
+invitation:
+  secret-salt: test+test+test+test+test+test+test+test+test+test
+
+
 oauth:
   oidc:
     google:
