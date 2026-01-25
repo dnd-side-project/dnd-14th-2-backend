@@ -93,10 +93,21 @@ openapi3 {
     outputDirectory = layout.buildDirectory.dir('api-spec').get().asFile.path
 }
 
+tasks.register('docsTest', Test) {
+    group = 'verification'
+    description = 'Runs REST Docs tests (@Tag("restdocs")) only'
+
+    useJUnitPlatform {
+        includeTags 'restdocs'
+    }
+
+    outputs.dir snippetsDir
+    systemProperty 'spring.profiles.active', 'test'
+}
 
 // 1) REST Docs snippets가 필요하므로 openapi3 생성 전에 test가 먼저 돌아야 함
 tasks.matching { it.name == 'openapi3' }.configureEach {
-    dependsOn tasks.named('test')
+    dependsOn tasks.named('docsTest')
 }
 
 // 2) 생성된 openapi3.yaml을 빌드 산출물에 포함될 정적 리소스로 복사
@@ -118,14 +129,15 @@ tasks.named('bootJar') {
 
 // 4) 테스트/앱 실행 시 test profile을 쓰도록 설정
 tasks.named('test') {
-	outputs.dir snippetsDir
-	useJUnitPlatform()
-    systemProperty 'spring.profiles.active', 'test'
+    useJUnitPlatform {
+        excludeTags 'restdocs'
+    }
+    finalizedBy tasks.named('openapi3')
 }
 
 tasks.named('asciidoctor') {
 	inputs.dir snippetsDir
-	dependsOn test
+	dependsOn tasks.named('docsTest')
 }
 
 tasks.named('bootRun') {
