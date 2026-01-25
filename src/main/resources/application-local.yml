@@ -34,4 +34,5 @@ oauth:
 
 springdoc:
   swagger-ui:
-    enabled: false
+    url: /api-docs/openapi3.yaml
+    disable-swagger-default-url: true

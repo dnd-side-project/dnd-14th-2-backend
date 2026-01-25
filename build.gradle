@@ -2,7 +2,6 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.9'
     id 'io.spring.dependency-management' version '1.1.7'
-    id 'org.asciidoctor.jvm.convert' version '4.0.5'
     id 'com.epages.restdocs-api-spec' version '0.19.4'
 }
 
@@ -24,22 +23,6 @@ configurations {
 
 repositories {
 	mavenCentral()
-}
-
-ext {
-    // REST Docs가 생성하는 snippets 출력 경로
-    snippetsDir = file('build/generated-snippets')
-
-    // 실행 시 활성화할 Spring profile
-    runProfile = (project.findProperty('runProfile')
-            ?: project.findProperty('profile')
-            ?: System.getenv('SPRING_PROFILES_ACTIVE')
-            ?: 'local') as String
-
-    // Swagger UI의 "Try it out" 기본 서버 주소
-    openApiServer = (project.findProperty('openApiServer')
-            ?: System.getenv('OPENAPI_SERVER')
-            ?: 'http://localhost:8080') as String
 }
 
 dependencies {
@@ -83,6 +66,22 @@ dependencies {
     implementation("io.awspring.cloud:spring-cloud-aws-starter-s3")
 }
 
+ext {
+    // REST Docs가 생성하는 snippets 출력 경로
+    snippetsDir = file('build/generated-snippets')
+
+    // 실행 시 활성화할 Spring profile
+    runProfile = (project.findProperty('runProfile')
+            ?: project.findProperty('profile')
+            ?: System.getenv('SPRING_PROFILES_ACTIVE')
+            ?: 'local') as String
+
+    // Swagger UI의 "Try it out" 기본 서버 주소
+    openApiServer = (project.findProperty('openApiServer')
+            ?: System.getenv('OPENAPI_SERVER')
+            ?: 'http://localhost:8080') as String
+}
+
 openapi3 {
     server = openApiServer
 
@@ -93,10 +92,11 @@ openapi3 {
     outputDirectory = layout.buildDirectory.dir('api-spec').get().asFile.path
 }
 
+def openapiFile = layout.buildDirectory.file("api-spec/openapi3.yaml")
+def apiDocsOutDir = layout.buildDirectory.dir("generated-docs/static/api-docs")
+
 tasks.register('docsTest', Test) {
     group = 'verification'
-    description = 'Runs REST Docs tests (@Tag("restdocs")) only'
-
     useJUnitPlatform {
         includeTags 'restdocs'
     }
@@ -105,38 +105,112 @@ tasks.register('docsTest', Test) {
     systemProperty 'spring.profiles.active', 'test'
 }
 
-// 1) REST Docs snippets가 필요하므로 openapi3 생성 전에 test가 먼저 돌아야 함
 tasks.matching { it.name == 'openapi3' }.configureEach {
     dependsOn tasks.named('docsTest')
 }
 
-// 2) 생성된 openapi3.yaml을 빌드 산출물에 포함될 정적 리소스로 복사
-tasks.register('copyToSwagger', Copy) {
-    dependsOn 'openapi3'
-    from layout.buildDirectory.file('api-spec/openapi3.yaml')
-    into file('src/main/resources/static/swagger-ui')
-    rename { 'openapi3.yaml' }
+tasks.register("patchOpenApiSecurity") {
+    dependsOn tasks.matching { it.name == "openapi3" }
+
+    doLast {
+        File swaggerUIFile = file("${openapi3.outputDirectory}/openapi3.yaml")
+        String y = swaggerUIFile.getText("UTF-8").replace("\r\n", "\n")
+
+        // ✅ 공개 엔드포인트 목록 (여기만 추가하면 됨)
+        def publicPaths = [
+                "/oauth/login"
+        ] as Set
+
+        // 1) securitySchemes.bearerAuth 보장 (Authorize 버튼)
+        if (!(y.contains("securitySchemes:") && y.contains("bearerAuth:"))) {
+            String schemeBlock =
+                    """  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+"""
+            if (y.contains("\ncomponents:\n")) {
+                y = y.replaceFirst(/\ncomponents:\n/, "\ncomponents:\n${schemeBlock}")
+            } else {
+                y += "\ncomponents:\n${schemeBlock}"
+            }
+        }
+
+        // 2) operation별 security 삽입 (publicPaths는 제외)
+        def out = new StringBuilder()
+        def lines = y.readLines()
+        boolean inPaths = false
+        String currentPath = null
+
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines[i]
+            out.append(line).append("\n")
+
+            if (line.trim() == "paths:") {
+                inPaths = true
+                continue
+            }
+
+            if (!inPaths) continue
+
+            // path 라인: "  /something:"
+            if (line ==~ /^  \/.*:\s*$/) {
+                currentPath = line.trim().replace(":", "")
+                continue
+            }
+
+            // method 라인: "    post:" (indent 4)
+            if (line ==~ /^\s{4}(get|post|put|patch|delete|options|head|trace):\s*$/) {
+                // 공개 path면 security 추가 안 함
+                if (currentPath != null && publicPaths.contains(currentPath)) {
+                    continue
+                }
+
+                // 이미 security 있으면 스킵
+                boolean hasSecurity = false
+                int j = i + 1
+                while (j < lines.size()) {
+                    String l = lines[j]
+                    int indent = l.takeWhile { it == ' ' }.size()
+                    if (indent <= 4) break
+                    if (l ==~ /^\s+security:\s*$/) { hasSecurity = true; break }
+                    j++
+                }
+
+                if (!hasSecurity) {
+                    out.append("      security:\n")
+                    out.append("      - bearerAuth: []\n")
+                }
+            }
+        }
+
+        swaggerUIFile.write(out.toString(), "UTF-8")
+    }
 }
 
-// 3) "빌드(패키징)" 할 때마다 Swagger 스펙을 생성/복사하고, JAR 안에 포함
-tasks.named('bootJar') {
-    dependsOn tasks.named('copyToSwagger')
+tasks.register("copyOpenApiToStatic", Copy) {
+    dependsOn tasks.named("patchOpenApiSecurity")
+    from(openapiFile)
+    into(apiDocsOutDir)
+    rename { "openapi3.yaml" }
 }
 
-// 4) 테스트/앱 실행 시 test profile을 쓰도록 설정
 tasks.named('test') {
     useJUnitPlatform {
         excludeTags 'restdocs'
     }
-    finalizedBy tasks.named('openapi3')
-}
-
-tasks.named('asciidoctor') {
-	inputs.dir snippetsDir
-	dependsOn tasks.named('docsTest')
 }
 
 tasks.named('bootRun') {
-    dependsOn tasks.named('copyToSwagger')
+    dependsOn tasks.named("copyOpenApiToStatic")
     systemProperty 'spring.profiles.active', runProfile
+    classpath += files(layout.buildDirectory.dir("generated-docs"))
+}
+
+tasks.named('bootJar') {
+    dependsOn tasks.named('copyOpenApiToStatic')
+    from(apiDocsOutDir) {
+        into("BOOT-INF/classes/static/api-docs")
+    }
 }
