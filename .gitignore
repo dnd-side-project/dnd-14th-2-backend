@@ -6,9 +6,6 @@ build/
 !**/src/test/**/build/
 .env
 
-### Open API ###
-src/main/resources/static/swagger-ui/openapi3.yaml
-
 ### STS ###
 .apt_generated
 .classpath
