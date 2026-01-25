@@ -1,7 +1,6 @@
 package com.example.demo.infrastructure.controller;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
-import static com.epages.restdocs.apispec.ResourceDocumentation.headerWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -19,6 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.example.demo.application.UserService;
+import com.epages.restdocs.apispec.Schema;
 import com.example.demo.application.oauth.TokenProvider;
 import org.junit.jupiter.api.Tag;
 import com.example.demo.application.user.UserService;
@@ -74,9 +74,8 @@ class UserDocumentationTest {
                     .tag("User")
                     .summary("닉네임 등록")
                     .description("로그인한 사용자의 닉네임을 등록하고 초대코드를 반환합니다.")
-                    .requestHeaders(
-                        headerWithName(HttpHeaders.AUTHORIZATION).description("Bearer {accessToken}")
-                    )
+                    .requestSchema(Schema.schema("NicknameWebRequest"))
+                    .responseSchema(Schema.schema("InvitationCodeWebResponse"))
                     .requestFields(
                         fieldWithPath("nickname").type(STRING).description("사용자 입력 닉네임")
                     )
