@@ -1,5 +1,6 @@
-package com.example.demo.application;
+package com.example.demo.infrastructure.user;
 
+import com.example.demo.application.user.InvitationCodeGenerator;
 import com.example.demo.domain.User;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

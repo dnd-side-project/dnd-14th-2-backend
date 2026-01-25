@@ -1,4 +1,4 @@
-package com.example.demo.application;
+package com.example.demo.application.user;
 
 import com.example.demo.application.dto.UserInfo;
 import com.example.demo.domain.RefreshTokenRepository;

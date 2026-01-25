@@ -3,6 +3,7 @@ package com.example.demo.application;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
+import com.example.demo.application.user.UserService;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
 import com.example.demo.util.AbstractIntegrationTest;
