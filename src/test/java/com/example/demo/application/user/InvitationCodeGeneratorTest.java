@@ -1,8 +1,7 @@
-package com.example.demo.application;
+package com.example.demo.application.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.example.demo.application.user.InvitationCodeGenerator;
 import com.example.demo.domain.Provider;
 import com.example.demo.domain.User;
 import com.example.demo.infrastructure.user.RandomUpperInvitationCodeGenerator;
