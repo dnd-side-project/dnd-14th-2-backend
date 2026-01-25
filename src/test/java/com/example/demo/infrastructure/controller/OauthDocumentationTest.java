@@ -116,9 +116,6 @@ class OauthDocumentationTest {
                 resource(ResourceSnippetParameters.builder()
                     .tag("Auth")
                     .summary("로그아웃")
-                    .requestHeaders(
-                        headerWithName(HttpHeaders.AUTHORIZATION).description("Bearer {accessToken}")
-                    )
                     .build()
                 )
             ));
