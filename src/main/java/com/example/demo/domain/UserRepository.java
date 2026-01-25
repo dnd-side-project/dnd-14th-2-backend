@@ -8,9 +8,11 @@ public interface UserRepository extends Repository<User, Long> {
 
     User save(User user);
 
+    Optional<User> findById(Long userId);
+
     Optional<User> findByProviderAndProviderId(Provider provider, String providerId);
 
-    Optional<User> findById(Long userId);
+    Optional<User> findByInvitationCode(String invitationCode);
 
     @Query("""
         select count(u) > 0
