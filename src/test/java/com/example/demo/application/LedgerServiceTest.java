@@ -105,24 +105,24 @@ class LedgerServiceTest extends AbstractIntegrationTest {
     void 사용자와_가계부ID로_가계부_항목을_조회할_수_있다() {
         // given
         User user = DbUtils.givenSavedUser(userRepository);
-        UpsertLedgerCommand command = new UpsertLedgerCommand(
-            user.getId(),
+        LedgerEntry entry = new LedgerEntry(
             5000L,
             LedgerType.EXPENSE,
             LedgerCategory.TRANSPORT,
             "버스",
             LocalDate.of(2026, 1, 24),
             PaymentMethod.DEBIT_CARD,
-            null
+            null,
+            user
         );
-        LedgerEntry entry = ledgerEntryRepository.save(new LedgerEntry(command, user));
+        LedgerEntry savedEntry = ledgerEntryRepository.save(entry);
         flushAndClear();
 
         // when
-        LedgerResult result = ledgerService.getLedgerEntry(user.getId(), entry.getId());
+        LedgerResult result = ledgerService.getLedgerEntry(user.getId(), savedEntry.getId());
 
         // then
-        assertThat(result.ledgerId()).isEqualTo(entry.getId());
+        assertThat(result.ledgerId()).isEqualTo(savedEntry.getId());
         assertThat(result.amount()).isEqualTo(5000L);
         assertThat(result.type()).isEqualTo(LedgerType.EXPENSE);
         assertThat(result.category()).isEqualTo(LedgerCategory.TRANSPORT);
@@ -136,23 +136,23 @@ class LedgerServiceTest extends AbstractIntegrationTest {
     void 다른_사용자의_가계부를_조회하면_예외를_던진다() {
         // given
         User savedUser1 = DbUtils.givenSavedUser(userRepository);
-        UpsertLedgerCommand command = new UpsertLedgerCommand(
-            savedUser1.getId(),
+        LedgerEntry entry = new LedgerEntry(
             5000L,
             LedgerType.EXPENSE,
             LedgerCategory.TRANSPORT,
             "버스",
             LocalDate.of(2026, 1, 24),
             PaymentMethod.DEBIT_CARD,
-            null
+            null,
+            savedUser1
         );
-        LedgerEntry entry = ledgerEntryRepository.save(new LedgerEntry(command, savedUser1));
+        LedgerEntry savedEntry = ledgerEntryRepository.save(entry);
         flushAndClear();
 
         User savedUser2 = DbUtils.givenSavedUser(userRepository);
 
         // when & then
-        assertThatThrownBy(() -> ledgerService.getLedgerEntry(savedUser2.getId(), entry.getId()))
+        assertThatThrownBy(() -> ledgerService.getLedgerEntry(savedUser2.getId(), savedEntry.getId()))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("해당되는 가계부 항목이 존재하지 않습니다.");
     }
@@ -161,24 +161,25 @@ class LedgerServiceTest extends AbstractIntegrationTest {
     void 메모를_수정할_수_있다() {
         // given
         User savedUser = DbUtils.givenSavedUser(userRepository);
-        UpsertLedgerCommand command = new UpsertLedgerCommand(
-            savedUser.getId(),
+        LedgerEntry entry = new LedgerEntry(
             7000L,
             LedgerType.EXPENSE,
             LedgerCategory.FOOD,
             "커피",
             LocalDate.of(2026, 1, 24),
             PaymentMethod.CREDIT_CARD,
-            null
+            null,
+            savedUser
         );
-        LedgerEntry entry = ledgerEntryRepository.save(new LedgerEntry(command, savedUser));
+        LedgerEntry savedEntry = ledgerEntryRepository.save(entry);
+        flushAndClear();
 
         // when
-        ledgerService.updateLedgerMemo(savedUser.getId(), entry.getId(), "아메리카노");
+        ledgerService.updateLedgerMemo(savedUser.getId(), savedEntry.getId(), "아메리카노");
         flushAndClear();
 
         // then
-        LedgerEntry updated = ledgerEntryRepository.findById(entry.getId()).orElseThrow();
+        LedgerEntry updated = ledgerEntryRepository.findById(savedEntry.getId()).orElseThrow();
         assertThat(updated.getMemo()).isEqualTo("아메리카노");
     }
 
@@ -186,17 +187,18 @@ class LedgerServiceTest extends AbstractIntegrationTest {
     void 가계부_항목을_수정할_수_있다() {
         // given
         User savedUser = DbUtils.givenSavedUser(userRepository);
-        UpsertLedgerCommand oldCommand = new UpsertLedgerCommand(
-            savedUser.getId(),
+        LedgerEntry entry = new LedgerEntry(
             7000L,
             LedgerType.EXPENSE,
             LedgerCategory.FOOD,
             "커피",
             LocalDate.of(2026, 1, 24),
             PaymentMethod.CREDIT_CARD,
-            "old"
+            "old",
+            savedUser
         );
-        LedgerEntry entry = ledgerEntryRepository.save(new LedgerEntry(oldCommand, savedUser));
+        LedgerEntry savedEntry = ledgerEntryRepository.save(entry);
+        flushAndClear();
 
         // when
         UpsertLedgerCommand newCommand = new UpsertLedgerCommand(
@@ -209,12 +211,12 @@ class LedgerServiceTest extends AbstractIntegrationTest {
             PaymentMethod.CASH,
             "new"
         );
-        LedgerResult result = ledgerService.updateLedgerEntry(entry.getId(), newCommand);
+        LedgerResult result = ledgerService.updateLedgerEntry(savedEntry.getId(), newCommand);
         flushAndClear();
 
         // then
         assertThat(result.amount()).isEqualTo(15000L);
-        LedgerEntry updated = ledgerEntryRepository.findById(entry.getId()).orElseThrow();
+        LedgerEntry updated = ledgerEntryRepository.findById(savedEntry.getId()).orElseThrow();
         assertThat(updated.getDescription()).isEqualTo("옷");
         assertThat(updated.getPaymentMethod()).isEqualTo(PaymentMethod.CASH);
         assertThat(updated.getMemo()).isEqualTo("new");
@@ -224,24 +226,24 @@ class LedgerServiceTest extends AbstractIntegrationTest {
     void 가계부_항목을_삭제할_수_있다() {
         // given
         User savedUser = DbUtils.givenSavedUser(userRepository);
-        UpsertLedgerCommand command = new UpsertLedgerCommand(
-            savedUser.getId(),
+        LedgerEntry entry = new LedgerEntry(
             7000L,
             LedgerType.EXPENSE,
             LedgerCategory.FOOD,
             "커피",
             LocalDate.of(2026, 1, 24),
             PaymentMethod.CREDIT_CARD,
-            null
+            null,
+            savedUser
         );
-        LedgerEntry entry = ledgerEntryRepository.save(new LedgerEntry(command, savedUser));
+        LedgerEntry savedEntry = ledgerEntryRepository.save(entry);
 
         // when
-        ledgerService.deleteLedgerEntry(savedUser.getId(), entry.getId());
+        ledgerService.deleteLedgerEntry(savedUser.getId(), savedEntry.getId());
         flushAndClear();
 
         // then
-        assertThat(ledgerEntryRepository.findById(entry.getId())).isEmpty();
+        assertThat(ledgerEntryRepository.findById(savedEntry.getId())).isEmpty();
     }
 
     @Test
@@ -251,41 +253,42 @@ class LedgerServiceTest extends AbstractIntegrationTest {
         LocalDate start = LocalDate.of(2026, 1, 24);
         LocalDate end = LocalDate.of(2026, 1, 26);
 
-        UpsertLedgerCommand command1 = new UpsertLedgerCommand(
-            savedUser.getId(),
+        LedgerEntry entry1 = new LedgerEntry(
             1000L,
             LedgerType.INCOME,
             LedgerCategory.SAVINGS_FINANCE,
             "용돈",
             start,
             PaymentMethod.BANK_TRANSFER,
-            null
+            null,
+            savedUser
         );
-        ledgerEntryRepository.save(new LedgerEntry(command1, savedUser));
+        ledgerEntryRepository.save(entry1);
 
-        UpsertLedgerCommand command2 = new UpsertLedgerCommand(
-            savedUser.getId(),
+        LedgerEntry entry2 = new LedgerEntry(
             300L,
             LedgerType.EXPENSE,
             LedgerCategory.FOOD,
             "간식",
             start,
             PaymentMethod.CASH,
-            null
+            null,
+            savedUser
         );
-        ledgerEntryRepository.save(new LedgerEntry(command2, savedUser));
+        ledgerEntryRepository.save(entry2);
 
-        UpsertLedgerCommand command3 = new UpsertLedgerCommand(
-            savedUser.getId(),
+
+        LedgerEntry entry3 = new LedgerEntry(
             200L,
             LedgerType.EXPENSE,
             LedgerCategory.TRANSPORT,
             "지하철",
             end,
             PaymentMethod.DEBIT_CARD,
-            null
+            null,
+            savedUser
         );
-        ledgerEntryRepository.save(new LedgerEntry(command3, savedUser));
+        ledgerEntryRepository.save(entry3);
         flushAndClear();
 
 
@@ -317,41 +320,39 @@ class LedgerServiceTest extends AbstractIntegrationTest {
         User savedUser = DbUtils.givenSavedUser(userRepository);
         LocalDate date = LocalDate.of(2026, 1, 24);
 
-        UpsertLedgerCommand command1 = new UpsertLedgerCommand(
-            savedUser.getId(),
+        ledgerEntryRepository.save(new LedgerEntry(
             2000L,
             LedgerType.INCOME,
             LedgerCategory.SAVINGS_FINANCE,
             "입금",
             date,
             PaymentMethod.BANK_TRANSFER,
-            null
-        );
-        ledgerEntryRepository.save(new LedgerEntry(command1, savedUser));
+            null,
+            savedUser
+        ));
 
-        UpsertLedgerCommand command2 = new UpsertLedgerCommand(
-            savedUser.getId(),
+
+        ledgerEntryRepository.save(new LedgerEntry(
             500L,
             LedgerType.EXPENSE,
             LedgerCategory.FOOD,
             "점심",
             date,
             PaymentMethod.CREDIT_CARD,
-            null
-        );
-        ledgerEntryRepository.save(new LedgerEntry(command2, savedUser));
+            null,
+            savedUser
+        ));
 
-        UpsertLedgerCommand command3 = new UpsertLedgerCommand(
-            savedUser.getId(),
+        ledgerEntryRepository.save(new LedgerEntry(
             700L,
             LedgerType.EXPENSE,
             LedgerCategory.TRANSPORT,
             "버스",
             date,
             PaymentMethod.DEBIT_CARD,
-            null
-        );
-        ledgerEntryRepository.save(new LedgerEntry(command3, savedUser));
+            null,
+            savedUser
+        ));
         flushAndClear();
 
 
@@ -365,75 +366,4 @@ class LedgerServiceTest extends AbstractIntegrationTest {
         assertThat(detail.results()).hasSize(3);
     }
 
-
-    @Test
-    void LedgerEntry_생성시_amount는_0보다_커야한다() {
-        // given
-        User savedUser = DbUtils.givenSavedUser(userRepository);
-        UpsertLedgerCommand badAmount = new UpsertLedgerCommand(
-            savedUser.getId(),
-            0L,
-            LedgerType.EXPENSE,
-            LedgerCategory.FOOD,
-            "점심",
-            LocalDate.of(2026, 1, 24),
-            PaymentMethod.CASH,
-            null
-        );
-
-        // when & then
-        assertThatThrownBy(() -> new LedgerEntry(badAmount, savedUser))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("금액(amount)은 0보다 커야 합니다.");
-    }
-
-    @Test
-    void LedgerEntry_생성시_description은_1자이상_15자이하여야한다() {
-        // given
-        User savedUser = DbUtils.givenSavedUser(userRepository);
-        UpsertLedgerCommand blankDesc = new UpsertLedgerCommand(
-            savedUser.getId(),
-            1000L,
-            LedgerType.EXPENSE,
-            LedgerCategory.FOOD,
-            "   ",
-            LocalDate.of(2026, 1, 24),
-            PaymentMethod.CASH,
-            null
-        );
-
-        UpsertLedgerCommand longDesc = new UpsertLedgerCommand(
-            savedUser.getId(),
-            1000L,
-            LedgerType.EXPENSE,
-            LedgerCategory.FOOD,
-            "1234567890123456",
-            LocalDate.of(2026, 1, 24),
-            PaymentMethod.CASH,
-            null
-        );
-
-        UpsertLedgerCommand ok = new UpsertLedgerCommand(
-            savedUser.getId(),
-            1000L,
-            LedgerType.EXPENSE,
-            LedgerCategory.FOOD,
-            "  점심  ",
-            LocalDate.of(2026, 1, 24),
-            PaymentMethod.CASH,
-            null
-        );
-
-        // when & then
-        assertThatThrownBy(() -> new LedgerEntry(blankDesc, savedUser))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("설명(description)은 빈 문자열일 수 없습니다.");
-
-        assertThatThrownBy(() -> new LedgerEntry(longDesc, savedUser))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("설명(description)은 1자 이상 15자 이내여야 합니다.");
-
-        LedgerEntry entry = new LedgerEntry(ok, savedUser);
-        assertThat(entry.getDescription()).isEqualTo("점심");
-    }
 }

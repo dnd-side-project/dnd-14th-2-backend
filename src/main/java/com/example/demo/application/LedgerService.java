@@ -29,7 +29,16 @@ public class LedgerService {
     public Long createLedgerEntry(UpsertLedgerCommand command) {
         User user = userRepository.findById(command.userId())
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-        LedgerEntry entry = new LedgerEntry(command, user);
+        LedgerEntry entry = new LedgerEntry(
+            command.amount(),
+            command.type(),
+            command.category(),
+            command.description(),
+            command.occurredOn(),
+            command.paymentMethod(),
+            command.memo(),
+            user
+        );
 
         LedgerEntry saved = ledgerEntryRepository.save(entry);
         return saved.getId();
