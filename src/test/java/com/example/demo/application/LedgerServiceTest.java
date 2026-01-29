@@ -247,7 +247,7 @@ class LedgerServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void 날짜_범위로_일별_요약을_조회할_수_있고_데이터가_없는_날짜는_0으로_채운다() {
+    void 날짜_범위로_내역을_조회할_수_있고_발생일_오름차순_동일일자는_ID_오름차순으로_정렬된다() {
         // given
         User savedUser = DbUtils.givenSavedUser(userRepository);
         LocalDate start = LocalDate.of(2026, 1, 24);
@@ -293,77 +293,38 @@ class LedgerServiceTest extends AbstractIntegrationTest {
 
 
         // when
-        List<DailySummary> result = ledgerService.getSummary(savedUser.getId(), start, end);
+        List<LedgerResult> result = ledgerService.getSummary(savedUser.getId(), start, end);
 
         // then
         assertThat(result).hasSize(3);
 
-        DailySummary d1 = result.get(0);
-        assertThat(d1.date()).isEqualTo(start);
-        assertThat(d1.incomeTotal()).isEqualTo(1000L);
-        assertThat(d1.expenseTotal()).isEqualTo(300L);
+        assertThat(result.get(0).occurredOn()).isEqualTo(start);
+        assertThat(result.get(1).occurredOn()).isEqualTo(start);
+        assertThat(result.get(2).occurredOn()).isEqualTo(end);
+        assertThat(result.get(0).ledgerId()).isLessThan(result.get(1).ledgerId());
 
-        DailySummary d2 = result.get(1);
-        assertThat(d2.date()).isEqualTo(start.plusDays(1));
-        assertThat(d2.incomeTotal()).isEqualTo(0L);
-        assertThat(d2.expenseTotal()).isEqualTo(0L);
+        LedgerResult r1 = result.get(0);
+        assertThat(r1.amount()).isEqualTo(1000L);
+        assertThat(r1.type()).isEqualTo(LedgerType.INCOME);
+        assertThat(r1.category()).isEqualTo(LedgerCategory.SAVINGS_FINANCE);
+        assertThat(r1.description()).isEqualTo("용돈");
+        assertThat(r1.paymentMethod()).isEqualTo(PaymentMethod.BANK_TRANSFER);
+        assertThat(r1.memo()).isNull();
 
-        DailySummary d3 = result.get(2);
-        assertThat(d3.date()).isEqualTo(end);
-        assertThat(d3.incomeTotal()).isEqualTo(0L);
-        assertThat(d3.expenseTotal()).isEqualTo(200L);
+        LedgerResult r2 = result.get(1);
+        assertThat(r2.amount()).isEqualTo(300L);
+        assertThat(r2.type()).isEqualTo(LedgerType.EXPENSE);
+        assertThat(r2.category()).isEqualTo(LedgerCategory.FOOD);
+        assertThat(r2.description()).isEqualTo("간식");
+        assertThat(r2.paymentMethod()).isEqualTo(PaymentMethod.CASH);
+        assertThat(r2.memo()).isNull();
+
+        LedgerResult r3 = result.get(2);
+        assertThat(r3.amount()).isEqualTo(200L);
+        assertThat(r3.type()).isEqualTo(LedgerType.EXPENSE);
+        assertThat(r3.category()).isEqualTo(LedgerCategory.TRANSPORT);
+        assertThat(r3.description()).isEqualTo("지하철");
+        assertThat(r3.paymentMethod()).isEqualTo(PaymentMethod.DEBIT_CARD);
+        assertThat(r3.memo()).isNull();
     }
-
-    @Test
-    void 특정_날짜의_가계부_항목과_수입지출_합계를_조회할_수_있다() {
-        // given
-        User savedUser = DbUtils.givenSavedUser(userRepository);
-        LocalDate date = LocalDate.of(2026, 1, 24);
-
-        ledgerEntryRepository.save(new LedgerEntry(
-            2000L,
-            LedgerType.INCOME,
-            LedgerCategory.SAVINGS_FINANCE,
-            "입금",
-            date,
-            PaymentMethod.BANK_TRANSFER,
-            null,
-            savedUser
-        ));
-
-
-        ledgerEntryRepository.save(new LedgerEntry(
-            500L,
-            LedgerType.EXPENSE,
-            LedgerCategory.FOOD,
-            "점심",
-            date,
-            PaymentMethod.CREDIT_CARD,
-            null,
-            savedUser
-        ));
-
-        ledgerEntryRepository.save(new LedgerEntry(
-            700L,
-            LedgerType.EXPENSE,
-            LedgerCategory.TRANSPORT,
-            "버스",
-            date,
-            PaymentMethod.DEBIT_CARD,
-            null,
-            savedUser
-        ));
-        flushAndClear();
-
-
-        // when
-        DailyLedgerDetail detail = ledgerService.getLedgerEntriesByDate(savedUser.getId(), date);
-
-        // then
-        assertThat(detail.date()).isEqualTo(date);
-        assertThat(detail.incomeTotal()).isEqualTo(2000L);
-        assertThat(detail.expenseTotal()).isEqualTo(1200L);
-        assertThat(detail.results()).hasSize(3);
-    }
-
 }

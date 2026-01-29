@@ -1,6 +1,6 @@
 package com.example.demo.infrastructure.controller.dto;
 
-import com.example.demo.application.dto.DailySummary;
+import com.example.demo.application.dto.LedgerResult;
 import com.example.demo.application.dto.UserInfo;
 
 import java.time.LocalDate;
@@ -14,12 +14,8 @@ public record LedgerSummaryWebResponse(
         UserInfo userInfo,
         LocalDate start,
         LocalDate end,
-        List<DailySummary> result
+        List<LedgerResult> result
     ) {
-        List<DailyLedgerSummary> daily = result.stream()
-            .map(r -> new DailyLedgerSummary(r.date(), r.incomeTotal(), r.expenseTotal()))
-            .toList();
-
         UserBlock user = new UserBlock(
             userInfo.userId(),
             userInfo.nickname(),
@@ -27,7 +23,11 @@ public record LedgerSummaryWebResponse(
             userInfo.profile()
         );
 
-        DataBlock data = new DataBlock(start, end, daily);
+        List<LedgerDetailWebResponse> details = result.stream()
+            .map(LedgerDetailWebResponse::from)
+            .toList();
+
+        DataBlock data = new DataBlock(start, end, details);
         return new LedgerSummaryWebResponse(user, data);
     }
 
@@ -42,14 +42,7 @@ public record LedgerSummaryWebResponse(
     public record DataBlock(
         LocalDate start,
         LocalDate end,
-        List<DailyLedgerSummary> daily
-    ) {
-    }
-
-    public record DailyLedgerSummary(
-        LocalDate date,
-        long incomeTotal,
-        long expenseTotal
+        List<LedgerDetailWebResponse> details
     ) {
     }
 }

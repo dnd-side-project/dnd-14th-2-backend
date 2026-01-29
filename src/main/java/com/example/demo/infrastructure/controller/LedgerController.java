@@ -2,8 +2,14 @@ package com.example.demo.infrastructure.controller;
 
 import com.example.demo.application.LedgerService;
 import com.example.demo.application.UserService;
-import com.example.demo.application.dto.*;
-import com.example.demo.infrastructure.controller.dto.*;
+import com.example.demo.application.dto.DateRange;
+import com.example.demo.application.dto.LedgerResult;
+import com.example.demo.application.dto.UpsertLedgerCommand;
+import com.example.demo.application.dto.UserInfo;
+import com.example.demo.infrastructure.controller.dto.LedgerDetailWebResponse;
+import com.example.demo.infrastructure.controller.dto.LedgerSummaryWebResponse;
+import com.example.demo.infrastructure.controller.dto.UpdateLedgerMemoWebRequest;
+import com.example.demo.infrastructure.controller.dto.UpsertLedgerWebRequest;
 import com.example.demo.infrastructure.interceptor.UserId;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +22,6 @@ import java.net.URI;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -91,19 +96,7 @@ public class LedgerController {
     ) {
         DateRange range = DateRange.resolve(clock, start, end);
         UserInfo userInfo = userService.getUserInfo(userId);
-        List<DailySummary> result = ledgerService.getSummary(userId, range.start(), range.end());
+        List<LedgerResult> result = ledgerService.getSummary(userId, range.start(), range.end());
         return ResponseEntity.ok(LedgerSummaryWebResponse.from(userInfo, range.start(), range.end(), result));
-    }
-
-    @GetMapping("/ledgers/daily")
-    public ResponseEntity<DailyLedgerDetailWebResponse> getDailyDetail(
-        @UserId Long userId,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
-    ) {
-        LocalDate targetDate = Objects.requireNonNullElseGet(date, () -> LocalDate.now(clock));
-        DailyLedgerDetail result = ledgerService.getLedgerEntriesByDate(userId, targetDate);
-        DailyLedgerDetailWebResponse response = new DailyLedgerDetailWebResponse(result);
-
-        return ResponseEntity.ok(response);
     }
 }

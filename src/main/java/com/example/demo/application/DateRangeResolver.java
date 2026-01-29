@@ -32,8 +32,4 @@ public class DateRangeResolver {
         }
         return new DateRange(start, end);
     }
-
-    public LocalDate resolveDate(LocalDate date) {
-        return (date != null) ? date : LocalDate.now(CLOCK);
-    }
 }

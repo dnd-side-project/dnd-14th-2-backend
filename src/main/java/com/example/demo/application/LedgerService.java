@@ -7,6 +7,7 @@ import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
 import com.example.demo.domain.enums.LedgerType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -86,36 +87,13 @@ public class LedgerService {
     }
 
     @Transactional(readOnly = true)
-    public List<DailySummary> getSummary(Long userId, LocalDate start, LocalDate end) {
-        List<DailySumRow> rows = ledgerEntryRepository.findDailySums(userId, start, end);
+    public List<LedgerResult> getSummary(Long userId, LocalDate start, LocalDate end) {
+        List<LedgerEntry> entries = ledgerEntryRepository.findAllByUser_IdAndOccurredOnBetween(
+            userId, start, end, Sort.by(Sort.Order.asc("occurredOn"), Sort.Order.asc("id"))
+        );
 
-        Map<LocalDate, DailySumRow> byDate = rows.stream()
-            .collect(Collectors.toMap(DailySumRow::date, row -> row));
-
-        return start.datesUntil(end.plusDays(1))
-            .map(date -> Optional.ofNullable(byDate.get(date))
-                .map(row -> DailySummary.of(date, row))
-                .orElseGet(() -> DailySummary.of(date))
-            ).toList();
-    }
-
-    @Transactional(readOnly = true)
-    public DailyLedgerDetail getLedgerEntriesByDate(Long userId, LocalDate targetDate) {
-        List<LedgerResult> results = ledgerEntryRepository.findAllByUser_IdAndOccurredOn(userId, targetDate)
-            .stream()
+        return entries.stream()
             .map(LedgerResult::from)
             .toList();
-
-        long incomeTotal = getTotalByType(results, INCOME);
-        long expenseTotal = getTotalByType(results, EXPENSE);
-
-        return new DailyLedgerDetail(targetDate, incomeTotal, expenseTotal, results);
-    }
-
-    private static long getTotalByType(List<LedgerResult> results, LedgerType expense) {
-        return results.stream()
-            .filter(r -> r.type() == expense)
-            .mapToLong(LedgerResult::amount)
-            .sum();
     }
 }

@@ -54,7 +54,7 @@ public record DateRange(LocalDate start, LocalDate end) {
      * start ~ end 둘 다 존재
      */
     private static DateRange between(LocalDate start, LocalDate end) {
-        if (start.isAfter(end)) {
+        if (!start.isBefore(end)) {
             throw new IllegalArgumentException("start는 end보다 클 수 없습니다.");
         }
         return new DateRange(start, end);

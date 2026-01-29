@@ -20,7 +20,7 @@ public class LedgerEntry extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private Long amount;            // 9,223,372,036,854,775,807원까지 가능
+    private Long amount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -12,6 +12,7 @@ import com.example.demo.domain.enums.LedgerType;
 import com.example.demo.domain.enums.PaymentMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -95,7 +96,7 @@ class LedgerDocumentationTest {
                           "amount": 12000,
                           "type": "EXPENSE",
                           "category": "FOOD",
-                          "description": "점심",
+                          "description": "점심", 
                           "occurredOn": "2026-01-24",
                           "paymentMethod": "CREDIT_CARD",
                           "memo": "메모"
@@ -289,10 +290,10 @@ class LedgerDocumentationTest {
         LocalDate start = LocalDate.of(2026, 1, 1);
         LocalDate end = LocalDate.of(2026, 1, 31);
 
-        UserInfo userInfo = org.mockito.Mockito.mock(UserInfo.class);
+        UserInfo userInfo = Mockito.mock(UserInfo.class);
         given(userService.getUserInfo(eq(1L))).willReturn(userInfo);
 
-        List<DailySummary> summaries = List.of(org.mockito.Mockito.mock(DailySummary.class));
+        List<LedgerResult> summaries = List.of(Mockito.mock(LedgerResult.class));
         given(ledgerService.getSummary(eq(1L), eq(start), eq(end))).willReturn(summaries);
 
         mockMvc.perform(
@@ -315,53 +316,6 @@ class LedgerDocumentationTest {
                         parameterWithName("end").optional().description("조회 종료일(yyyy-MM-dd), 미입력 시 기본값 적용")
                     )
                     .responseSchema(Schema.schema("LedgerSummaryWebResponse"))
-                    .build())
-            ));
-    }
-
-    @Test
-    void get_daily_ledger_detail_docs() throws Exception {
-        LocalDate date = LocalDate.of(2026, 1, 24);
-
-        List<LedgerResult> results = List.of(sampleResult(1L));
-        DailyLedgerDetail detail = new DailyLedgerDetail(date, 0L, 12000L, results);
-
-        given(ledgerService.getLedgerEntriesByDate(eq(1L), eq(date))).willReturn(detail);
-
-        mockMvc.perform(
-                get("/ledgers/daily")
-                    .header("Authorization", "Bearer " + accessToken)
-                    .param("date", "2026-01-24")
-                    .accept(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isOk())
-            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.date").value("2026-01-24"))
-            .andExpect(jsonPath("$.incomeTotal").value(0))
-            .andExpect(jsonPath("$.expenseTotal").value(12000))
-            .andExpect(jsonPath("$.entries").isArray())
-            .andDo(document("ledger-daily",
-                preprocessRequest(prettyPrint()),
-                preprocessResponse(prettyPrint()),
-                resource(ResourceSnippetParameters.builder()
-                    .tag("Ledger")
-                    .summary("일별 가계부 상세 조회")
-                    .queryParameters(
-                        parameterWithName("date").optional().description("조회할 날짜(yyyy-MM-dd), 미입력 시 오늘")
-                    )
-                    .responseSchema(Schema.schema("DailyLedgerDetailWebResponse"))
-                    .responseFields(
-                        fieldWithPath("date").type(STRING).description("조회 날짜"),
-                        fieldWithPath("incomeTotal").type(NUMBER).description("해당 일자 수입 합계"),
-                        fieldWithPath("expenseTotal").type(NUMBER).description("해당 일자 지출 합계"),
-                        fieldWithPath("entries").type(ARRAY).description("가계부 항목 목록"),
-                        fieldWithPath("entries[].ledgerId").type(NUMBER).description("가계부 항목 ID"),
-                        fieldWithPath("entries[].amount").type(NUMBER).description("금액"),
-                        fieldWithPath("entries[].type").type(STRING).description("유형(INCOME/EXPENSE)"),
-                        fieldWithPath("entries[].category").type(STRING).description("카테고리"),
-                        fieldWithPath("entries[].description").type(STRING).description("설명"),
-                        fieldWithPath("entries[].paymentMethod").type(STRING).description("결제 수단")
-                    )
                     .build())
             ));
     }
