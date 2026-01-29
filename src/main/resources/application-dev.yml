@@ -47,6 +47,9 @@ oauth:
       audience: ${oauth.kakao.client-id}
       jwks-uri: "https://kauth.kakao.com/.well-known/jwks.json"
 
+server:
+  forward-headers-strategy: framework
+
 management:
   endpoints:
     web:

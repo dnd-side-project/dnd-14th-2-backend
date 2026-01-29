@@ -1,7 +1,7 @@
 name: Backend Dev CD
 
 on:
-  push:
+  pull_request:
     branches: [ main ]
 
 jobs:
@@ -24,7 +24,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Gradle 빌드 (테스트 제외)
-        run: ./gradlew clean bootJar -x test
+        run: ./gradlew clean build -x test
 
       - name: Docker Buildx 설정
         uses: docker/setup-buildx-action@v3
@@ -73,15 +73,16 @@ jobs:
             chmod 600 .env
             
             echo "▶️ 새 서버 시작..."
+            docker compose --env-file .env pull backend
             docker compose --env-file .env up -d --force-recreate backend
             
             echo "🧹 사용하지 않는 이미지 정리..."
-            docker image prune -f
+            docker image prune -a -f
             
             echo "⛑️ 헬스 체크..."
             for i in $(seq 1 15); do
               sleep 3
-              SERVER_STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost:80/actuator/health || echo "000")
+              SERVER_STATUS=$(curl -o /dev/null -s -w "%{http_code}" https://pickledev.duckdns.org/actuator/health || echo "000")
               if [ "$SERVER_STATUS" -eq 200 ]; then
                 echo "✅ 배포 성공! 서버 동작 중..."
                 exit 0
