@@ -1,11 +1,9 @@
 package com.example.demo.infrastructure.controller;
 
 import com.example.demo.application.LedgerService;
-import com.example.demo.application.UserService;
 import com.example.demo.application.dto.DateRange;
 import com.example.demo.application.dto.LedgerResult;
 import com.example.demo.application.dto.UpsertLedgerCommand;
-import com.example.demo.application.dto.UserInfo;
 import com.example.demo.infrastructure.controller.dto.LedgerDetailWebResponse;
 import com.example.demo.infrastructure.controller.dto.LedgerSummaryWebResponse;
 import com.example.demo.infrastructure.controller.dto.UpdateLedgerMemoWebRequest;
@@ -28,7 +26,6 @@ import java.util.List;
 @RestController
 public class LedgerController {
     private final LedgerService ledgerService;
-    private final UserService userService;
     private final Clock clock;
 
     @PostMapping("/ledgers")
@@ -95,8 +92,7 @@ public class LedgerController {
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
     ) {
         DateRange range = DateRange.resolve(clock, start, end);
-        UserInfo userInfo = userService.getUserInfo(userId);
         List<LedgerResult> result = ledgerService.getSummary(userId, range.start(), range.end());
-        return ResponseEntity.ok(LedgerSummaryWebResponse.from(userInfo, range.start(), range.end(), result));
+        return ResponseEntity.ok(LedgerSummaryWebResponse.from(range.start(), range.end(), result));
     }
 }

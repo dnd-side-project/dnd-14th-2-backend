@@ -1,48 +1,24 @@
 package com.example.demo.infrastructure.controller.dto;
 
 import com.example.demo.application.dto.LedgerResult;
-import com.example.demo.application.dto.UserInfo;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public record LedgerSummaryWebResponse(
-    UserBlock user,
-    DataBlock data
+    LocalDate start,
+    LocalDate end,
+    List<LedgerDetailWebResponse> result
 ) {
     public static LedgerSummaryWebResponse from(
-        UserInfo userInfo,
         LocalDate start,
         LocalDate end,
-        List<LedgerResult> result
+        List<LedgerResult> rawResult
     ) {
-        UserBlock user = new UserBlock(
-            userInfo.userId(),
-            userInfo.nickname(),
-            userInfo.level(),
-            userInfo.profile()
-        );
-
-        List<LedgerDetailWebResponse> details = result.stream()
+        List<LedgerDetailWebResponse> result = rawResult.stream()
             .map(LedgerDetailWebResponse::from)
             .toList();
 
-        DataBlock data = new DataBlock(start, end, details);
-        return new LedgerSummaryWebResponse(user, data);
-    }
-
-    public record UserBlock(
-        Long userId,
-        String nickname,
-        Integer level,
-        String profile
-    ) {
-    }
-
-    public record DataBlock(
-        LocalDate start,
-        LocalDate end,
-        List<LedgerDetailWebResponse> details
-    ) {
+        return new LedgerSummaryWebResponse(start, end, result);
     }
 }

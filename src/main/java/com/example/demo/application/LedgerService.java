@@ -1,11 +1,11 @@
 package com.example.demo.application;
 
-import com.example.demo.application.dto.*;
+import com.example.demo.application.dto.LedgerResult;
+import com.example.demo.application.dto.UpsertLedgerCommand;
 import com.example.demo.domain.LedgerEntry;
 import com.example.demo.domain.LedgerEntryRepository;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
-import com.example.demo.domain.enums.LedgerType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -13,12 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static com.example.demo.domain.enums.LedgerType.EXPENSE;
-import static com.example.demo.domain.enums.LedgerType.INCOME;
 
 @RequiredArgsConstructor
 @Service
