@@ -4,11 +4,7 @@ import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.epages.restdocs.apispec.Schema;
 import com.example.demo.application.LedgerService;
 import com.example.demo.application.UserService;
-import com.example.demo.application.dto.DailyLedgerDetail;
-import com.example.demo.application.dto.LedgerResult;
-import com.example.demo.application.dto.UpsertLedgerCommand;
-import com.example.demo.application.dto.DailySummary;
-import com.example.demo.application.dto.UserInfo;
+import com.example.demo.application.dto.*;
 import com.example.demo.application.oauth.TokenProvider;
 import com.example.demo.common.config.ClockTestConfig;
 import com.example.demo.domain.enums.LedgerCategory;
@@ -86,7 +82,8 @@ class LedgerDocumentationTest {
 
     @Test
     void create_ledger_entry_docs() throws Exception {
-        given(ledgerService.createLedgerEntry(any(UpsertLedgerCommand.class))).willReturn(1L);
+        given(ledgerService.createLedgerEntry(any(UpsertLedgerCommand.class)))
+            .willReturn(sampleResult(1L));
 
         mockMvc.perform(
                 post("/ledgers")
@@ -115,7 +112,7 @@ class LedgerDocumentationTest {
                     .tag("Ledger")
                     .summary("가계부 항목 생성")
                     .requestSchema(Schema.schema("UpsertLedgerWebRequest"))
-                    .responseSchema(Schema.schema("CreateLedgerWebResponse"))
+                    .responseSchema(Schema.schema("LedgerDetailWebResponse"))
                     .requestFields(
                         fieldWithPath("amount").type(NUMBER).description("금액"),
                         fieldWithPath("type").type(STRING).description("유형(INCOME/EXPENSE)"),
@@ -126,7 +123,14 @@ class LedgerDocumentationTest {
                         fieldWithPath("memo").type(STRING).optional().description("메모(선택)")
                     )
                     .responseFields(
-                        fieldWithPath("ledgerId").type(NUMBER).description("생성된 가계부 항목 ID")
+                        fieldWithPath("ledgerId").type(NUMBER).description("생성된 가계부 항목 ID"),
+                        fieldWithPath("amount").type(NUMBER).description("금액"),
+                        fieldWithPath("type").type(STRING).description("유형(INCOME/EXPENSE)"),
+                        fieldWithPath("category").type(STRING).description("카테고리"),
+                        fieldWithPath("description").type(STRING).description("설명"),
+                        fieldWithPath("occurredOn").type(STRING).description("발생 일자(yyyy-MM-dd)"),
+                        fieldWithPath("paymentMethod").type(STRING).description("결제 수단"),
+                        fieldWithPath("memo").type(STRING).optional().description("메모(선택)")
                     )
                     .build())
             ));

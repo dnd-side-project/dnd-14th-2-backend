@@ -26,7 +26,7 @@ public class LedgerService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Long createLedgerEntry(UpsertLedgerCommand command) {
+    public LedgerResult createLedgerEntry(UpsertLedgerCommand command) {
         User user = userRepository.findById(command.userId())
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
         LedgerEntry entry = new LedgerEntry(
@@ -41,7 +41,7 @@ public class LedgerService {
         );
 
         LedgerEntry saved = ledgerEntryRepository.save(entry);
-        return saved.getId();
+        return LedgerResult.from(saved);
     }
 
     @Transactional(readOnly = true)

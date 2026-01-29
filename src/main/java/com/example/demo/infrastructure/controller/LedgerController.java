@@ -27,15 +27,15 @@ public class LedgerController {
     private final Clock clock;
 
     @PostMapping("/ledgers")
-    public ResponseEntity<CreateLedgerWebResponse> create(
+    public ResponseEntity<LedgerDetailWebResponse> create(
         @UserId Long userId,
         @Valid @RequestBody UpsertLedgerWebRequest request
     ) {
         UpsertLedgerCommand command = request.toCommand(userId);
-        Long ledgerEntryId = ledgerService.createLedgerEntry(command);
-        CreateLedgerWebResponse response = new CreateLedgerWebResponse(ledgerEntryId);
+        LedgerResult result = ledgerService.createLedgerEntry(command);
+        LedgerDetailWebResponse response = LedgerDetailWebResponse.from(result);
 
-        URI location = URI.create("/ledgers/" + ledgerEntryId);
+        URI location = URI.create("/ledgers/" + response.ledgerId());
         return ResponseEntity.created(location).body(response);
     }
 

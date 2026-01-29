@@ -60,16 +60,16 @@ class LedgerServiceTest extends AbstractIntegrationTest {
         );
 
         // when
-        Long ledgerEntryId = ledgerService.createLedgerEntry(command);
+        LedgerResult result = ledgerService.createLedgerEntry(command);
         flushAndClear();
 
         // then
-        assertThat(ledgerEntryId).isNotNull();
+        assertThat(result).isNotNull();
 
-        LedgerEntry saved = ledgerEntryRepository.findById(ledgerEntryId)
-            .orElseThrow(() -> new AssertionError("저장된 가계부 항목을 찾을 수 없습니다. id=" + ledgerEntryId));
+        LedgerEntry saved = ledgerEntryRepository.findById(result.ledgerId())
+            .orElseThrow(() -> new AssertionError("저장된 가계부 항목을 찾을 수 없습니다. id=" + result.ledgerId()));
 
-        assertThat(saved.getId()).isEqualTo(ledgerEntryId);
+        assertThat(saved.getId()).isEqualTo(result.ledgerId());
         assertThat(saved.getUser().getId()).isEqualTo(savedUser.getId());
         assertThat(saved.getAmount()).isEqualTo(12000L);
         assertThat(saved.getType()).isEqualTo(LedgerType.EXPENSE);
