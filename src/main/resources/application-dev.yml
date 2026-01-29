@@ -25,9 +25,6 @@ spring:
       s3:
         bucket: ${AWS_BUCKET}
 
-server:
-  forward-headers-strategy: framework
-
 jwt:
   secret-key: ${JWT_SECRET_KEY}
 
