@@ -1,11 +1,9 @@
 package com.example.demo.infrastructure.user;
 
 import com.example.demo.application.user.InvitationCodeGenerator;
-import com.example.demo.domain.User;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,15 +12,9 @@ public class RandomUpperInvitationCodeGenerator implements InvitationCodeGenerat
     private static final int CODE_LENGTH = 6;
     private static final char[] CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
 
-    private final String salt;
-
-    public RandomUpperInvitationCodeGenerator(@Value("${invitation.secret-salt}") String salt) {
-        this.salt = salt;
-    }
-
     @Override
-    public String generate(User user) {
-        byte[] hash = sha256(user.getNickname() + salt);
+    public String generate(String seed) {
+        byte[] hash = sha256(seed);
         return toUppercaseCode(hash);
     }
 

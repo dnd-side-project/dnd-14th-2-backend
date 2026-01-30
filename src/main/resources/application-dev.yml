@@ -28,9 +28,6 @@ spring:
 jwt:
   secret-key: ${JWT_SECRET_KEY}
 
-invitation:
-  secret-salt: ${INVITATION_SECRET_SALT}
-
 oauth:
   oidc:
     google:
