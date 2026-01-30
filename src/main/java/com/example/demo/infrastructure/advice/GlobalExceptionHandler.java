@@ -1,6 +1,7 @@
 package com.example.demo.infrastructure.advice;
 
 import com.example.demo.infrastructure.advice.dto.ErrorResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import java.time.OffsetDateTime;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     private static final String STATUS_HEADER = "X-HTTP-Status";
@@ -38,6 +40,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpected(Exception e) {
+        log.info(e.getMessage());
         return error(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
     }
 
