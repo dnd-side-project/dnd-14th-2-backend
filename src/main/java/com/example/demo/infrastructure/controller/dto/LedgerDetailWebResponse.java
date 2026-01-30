@@ -4,7 +4,6 @@ import com.example.demo.application.dto.LedgerResult;
 import com.example.demo.domain.enums.LedgerCategory;
 import com.example.demo.domain.enums.LedgerType;
 import com.example.demo.domain.enums.PaymentMethod;
-
 import java.time.LocalDate;
 
 public record LedgerDetailWebResponse(

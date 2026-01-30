@@ -1,11 +1,10 @@
 package com.example.demo.domain;
 
-import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.Repository;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.Repository;
 
 public interface LedgerEntryRepository extends Repository<LedgerEntry, Long> {
 

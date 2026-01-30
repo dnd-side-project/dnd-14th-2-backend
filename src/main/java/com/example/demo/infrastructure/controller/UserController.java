@@ -1,7 +1,6 @@
 package com.example.demo.infrastructure.controller;
 
 import com.example.demo.application.user.UserService;
-import com.example.demo.infrastructure.controller.dto.InvitationCodeWebRequest;
 import com.example.demo.infrastructure.controller.dto.InvitationCodeWebResponse;
 import com.example.demo.infrastructure.controller.dto.NicknameWebRequest;
 import com.example.demo.infrastructure.interceptor.UserId;
