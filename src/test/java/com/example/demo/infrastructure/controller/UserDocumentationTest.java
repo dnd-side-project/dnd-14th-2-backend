@@ -46,14 +46,12 @@ class UserDocumentationTest {
     TokenProvider tokenProvider;
 
     @Test
-    void registerNickname_docs() throws Exception {
+    void changeNickname_docs() throws Exception {
         // given
         Long userId = 1L;
         String nickname = "name";
-        String invitationCode = "test-invitation-code";
         String accessToken = "test-access-token";
 
-        given(userService.registerNickname(userId, nickname)).willReturn(invitationCode);
         given(tokenProvider.validateToken(accessToken)).willReturn(userId);
 
         // when & then
@@ -64,23 +62,17 @@ class UserDocumentationTest {
                     .content("{\"nickname\":\"" + nickname + "\"}")
                     .accept(MediaType.APPLICATION_JSON)
             )
-            .andExpect(status().isOk())
-            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.invitationCode").value(invitationCode))
-            .andDo(document("register-nickname",
+            .andExpect(status().isNoContent())
+            .andDo(document("change-nickname",
                 preprocessRequest(prettyPrint()),
                 preprocessResponse(prettyPrint()),
                 resource(ResourceSnippetParameters.builder()
                     .tag("User")
-                    .summary("닉네임 등록")
-                    .description("로그인한 사용자의 닉네임을 등록하고 초대코드를 반환합니다.")
+                    .summary("닉네임 변경")
+                    .description("로그인한 사용자의 닉네임을 변경합니다.")
                     .requestSchema(Schema.schema("NicknameWebRequest"))
-                    .responseSchema(Schema.schema("InvitationCodeWebResponse"))
                     .requestFields(
                         fieldWithPath("nickname").type(STRING).description("사용자 입력 닉네임")
-                    )
-                    .responseFields(
-                        fieldWithPath("invitationCode").type(STRING).description("해당 사용자의 초대코드")
                     )
                     .build()
                 )
