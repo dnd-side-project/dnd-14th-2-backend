@@ -26,14 +26,14 @@ public class User extends BaseEntity{
     @AttributeOverride(name = "value", column = @Column(name = "nickname", unique = true))
     private Nickname nickname;
 
-    @Column(unique = true)
-    private String invitationCode;
-
     @Column(nullable = false)
     private String email;
 
     @Column(length = 2048, nullable = false)
     private String profile;
+
+    @Column(length = 6, unique = true)
+    private String invitationCode;
 
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
@@ -53,12 +53,12 @@ public class User extends BaseEntity{
         this.providerId = providerId;
     }
 
-    public void registerNickname(String nickname) {
+    public void registerNickname(Nickname nickname) {
         if (this.nickname != null) {
             throw new IllegalStateException("이미 닉네임이 등록된 사용자입니다.");
         }
 
-        this.nickname = new Nickname(nickname);
+        this.nickname = nickname;
     }
     public void withdraw(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
