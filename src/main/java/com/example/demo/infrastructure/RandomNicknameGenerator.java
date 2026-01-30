@@ -3,7 +3,9 @@ package com.example.demo.infrastructure;
 import com.example.demo.domain.Nickname;
 import com.example.demo.domain.NicknameGenerator;
 import java.util.concurrent.ThreadLocalRandom;
+import org.springframework.stereotype.Component;
 
+@Component
 public class RandomNicknameGenerator implements NicknameGenerator {
 
     private static final int MAX_RETRY = 10;
