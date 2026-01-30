@@ -1,4 +1,4 @@
-package com.example.demo.infrastructure;
+package com.example.demo.infrastructure.user;
 
 import com.example.demo.domain.Nickname;
 import com.example.demo.domain.NicknameGenerator;
