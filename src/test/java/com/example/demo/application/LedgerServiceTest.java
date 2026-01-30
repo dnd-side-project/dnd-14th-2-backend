@@ -5,6 +5,7 @@ import com.example.demo.application.dto.LedgerResult;
 import com.example.demo.application.dto.UpsertLedgerCommand;
 import com.example.demo.domain.LedgerEntry;
 import com.example.demo.domain.LedgerEntryRepository;
+import com.example.demo.domain.Nickname;
 import com.example.demo.domain.Provider;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
@@ -47,7 +48,7 @@ class LedgerServiceTest extends AbstractIntegrationTest {
     @Test
     void 가계부_항목을_생성할_수_있다() {
         // given
-        User savedUser = DbUtils.givenSavedUser(userRepository);
+        User savedUser = DbUtils.givenSavedUser(userRepository, new Nickname("test"), "TEST");
         UpsertLedgerCommand command = new UpsertLedgerCommand(
             savedUser.getId(),
             12000L,
@@ -104,7 +105,7 @@ class LedgerServiceTest extends AbstractIntegrationTest {
     @Test
     void 사용자와_가계부ID로_가계부_항목을_조회할_수_있다() {
         // given
-        User user = DbUtils.givenSavedUser(userRepository);
+        User user = DbUtils.givenSavedUser(userRepository, new Nickname("test"), "TEST");
         LedgerEntry entry = new LedgerEntry(
             5000L,
             LedgerType.EXPENSE,
@@ -135,7 +136,7 @@ class LedgerServiceTest extends AbstractIntegrationTest {
     @Test
     void 다른_사용자의_가계부를_조회하면_예외를_던진다() {
         // given
-        User savedUser1 = DbUtils.givenSavedUser(userRepository);
+        User savedUser1 = DbUtils.givenSavedUser(userRepository, new Nickname("test"), "TEST");
         LedgerEntry entry = new LedgerEntry(
             5000L,
             LedgerType.EXPENSE,
@@ -149,14 +150,7 @@ class LedgerServiceTest extends AbstractIntegrationTest {
         LedgerEntry savedEntry = ledgerEntryRepository.save(entry);
         flushAndClear();
 
-        User savedUser2 = userRepository.save(
-            new User(
-                "test@example.com",
-                "https://profile.com/image.png",
-                Provider.KAKAO,
-                "kakao-test-2"
-            )
-        );
+        User savedUser2 = DbUtils.givenSavedUser(userRepository, new Nickname("test1"), "TESTS");
 
         // when & then
         assertThatThrownBy(() -> ledgerService.getLedgerEntry(savedUser2.getId(), savedEntry.getId()))
@@ -167,7 +161,7 @@ class LedgerServiceTest extends AbstractIntegrationTest {
     @Test
     void 메모를_수정할_수_있다() {
         // given
-        User savedUser = DbUtils.givenSavedUser(userRepository);
+        User savedUser = DbUtils.givenSavedUser(userRepository, new Nickname("test"), "TEST");
         LedgerEntry entry = new LedgerEntry(
             7000L,
             LedgerType.EXPENSE,
@@ -193,7 +187,7 @@ class LedgerServiceTest extends AbstractIntegrationTest {
     @Test
     void 가계부_항목을_수정할_수_있다() {
         // given
-        User savedUser = DbUtils.givenSavedUser(userRepository);
+        User savedUser = DbUtils.givenSavedUser(userRepository, new Nickname("test"), "TEST");
         LedgerEntry entry = new LedgerEntry(
             7000L,
             LedgerType.EXPENSE,
@@ -232,7 +226,7 @@ class LedgerServiceTest extends AbstractIntegrationTest {
     @Test
     void 가계부_항목을_삭제할_수_있다() {
         // given
-        User savedUser = DbUtils.givenSavedUser(userRepository);
+        User savedUser = DbUtils.givenSavedUser(userRepository, new Nickname("test"), "TEST");
         LedgerEntry entry = new LedgerEntry(
             7000L,
             LedgerType.EXPENSE,
@@ -256,7 +250,7 @@ class LedgerServiceTest extends AbstractIntegrationTest {
     @Test
     void 날짜_범위로_내역을_조회할_수_있고_발생일_오름차순_동일일자는_ID_오름차순으로_정렬된다() {
         // given
-        User savedUser = DbUtils.givenSavedUser(userRepository);
+        User savedUser = DbUtils.givenSavedUser(userRepository, new Nickname("test"), "TEST");
         LocalDate start = LocalDate.of(2026, 1, 24);
         LocalDate end = LocalDate.of(2026, 1, 26);
 

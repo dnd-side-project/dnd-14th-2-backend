@@ -45,18 +45,17 @@ public class UserService {
 
     private User createUserWithRetries(Provider provider, OauthUserInfo info) {
         for (int retry = 1; retry <= MAX_RETRY; retry++) {
+            Nickname nickname = nicknameGenerator.generate();
+            String inviteCode = invitationCodeGenerator.generate(nickname.value());
+
             User user = new User(
                 info.email(),
+                nickname,
+                inviteCode,
                 info.picture(),
                 provider,
                 info.providerId()
             );
-
-            Nickname nickname = nicknameGenerator.generate();
-            String inviteCode = invitationCodeGenerator.generate(nickname.value());
-
-            user.registerNickname(nickname);
-            user.registerInvitationCode(inviteCode);
 
             try {
                 // flush를 통해 유니크 제약 조건 검사

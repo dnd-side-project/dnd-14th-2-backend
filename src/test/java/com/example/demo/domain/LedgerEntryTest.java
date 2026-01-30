@@ -44,7 +44,7 @@ class LedgerEntryTest {
             OCCURRED_ON,
             PaymentMethod.CASH,
             null,
-            kakaoUser()
+            kakaoUser(new Nickname("test"), "TEST")
         );
     }
 
@@ -56,11 +56,11 @@ class LedgerEntryTest {
         @Test
         @DisplayName("생성 시 amount가 0 이하면 예외")
         void amount_must_be_positive_on_create() {
-            assertThatThrownBy(() -> entryWithUser(0L, "점심", kakaoUser()))
+            assertThatThrownBy(() -> entryWithUser(0L, "점심", kakaoUser(new Nickname("test"), "TEST")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("금액(amount)은 0보다 커야 합니다.");
 
-            assertThatThrownBy(() -> entryWithUser(-1L, "점심", kakaoUser()))
+            assertThatThrownBy(() -> entryWithUser(-1L, "점심", kakaoUser(new Nickname("test"), "TEST")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("금액(amount)은 0보다 커야 합니다.");
         }
@@ -68,14 +68,14 @@ class LedgerEntryTest {
         @Test
         @DisplayName("생성 시 amount가 1 이상이면 정상 생성")
         void amount_ok_on_create() {
-            LedgerEntry entry = entryWithUser(1L, "점심", kakaoUser());
+            LedgerEntry entry = entryWithUser(1L, "점심", kakaoUser(new Nickname("test"), "TEST"));
             assertThat(entry.getAmount()).isEqualTo(1L);
         }
 
         @Test
         @DisplayName("수정 시 amount가 0 이하면 예외")
         void amount_must_be_positive_on_update() {
-            LedgerEntry entry = entryWithUser(1000L, "점심", kakaoUser());
+            LedgerEntry entry = entryWithUser(1000L, "점심", kakaoUser(new Nickname("test"), "TEST"));
 
             assertThatThrownBy(() -> entry.update(
                 0L,
@@ -156,7 +156,7 @@ class LedgerEntryTest {
         @Test
         @DisplayName("생성 시 description이 null이면 예외")
         void description_is_required_on_create() {
-            assertThatThrownBy(() -> entryWithUser(1000L, null, kakaoUser()))
+            assertThatThrownBy(() -> entryWithUser(1000L, null, kakaoUser(new Nickname("test"), "TEST")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("설명(description)은 필수입니다.");
         }
@@ -164,7 +164,7 @@ class LedgerEntryTest {
         @Test
         @DisplayName("생성 시 description이 공백이면 예외")
         void description_cannot_be_blank_on_create() {
-            assertThatThrownBy(() -> entryWithUser(1000L, "   ", kakaoUser()))
+            assertThatThrownBy(() -> entryWithUser(1000L, "   ", kakaoUser(new Nickname("test"), "TEST")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("설명(description)은 빈 문자열일 수 없습니다.");
         }
@@ -172,11 +172,11 @@ class LedgerEntryTest {
         @Test
         @DisplayName("생성 시 description이 15자를 초과하면 예외 (trim 이후 길이 기준)")
         void description_must_be_at_most_15_chars_on_create() {
-            assertThatThrownBy(() -> entryWithUser(1000L, "두바이쫀득쿠키가맛있을까맛없을까", kakaoUser()))
+            assertThatThrownBy(() -> entryWithUser(1000L, "두바이쫀득쿠키가맛있을까맛없을까", kakaoUser(new Nickname("test"), "TEST")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("설명(description)은 1자 이상 15자 이내여야 합니다.");
 
-            assertThatThrownBy(() -> entryWithUser(1000L, "  든든한제육볶음에밥한그릇에계란까지  ", kakaoUser()))
+            assertThatThrownBy(() -> entryWithUser(1000L, "  든든한제육볶음에밥한그릇에계란까지  ", kakaoUser(new Nickname("test"), "TEST")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("설명(description)은 1자 이상 15자 이내여야 합니다.");
         }
@@ -184,14 +184,14 @@ class LedgerEntryTest {
         @Test
         @DisplayName("생성 시 description은 trim되어 저장된다")
         void description_is_trimmed_on_create() {
-            LedgerEntry entry = entryWithUser(1000L, "  점심  ", kakaoUser());
+            LedgerEntry entry = entryWithUser(1000L, "  점심  ", kakaoUser(new Nickname("test"), "TEST"));
             assertThat(entry.getDescription()).isEqualTo("점심");
         }
 
         @Test
         @DisplayName("수정 시에도 description 검증 및 trim이 적용된다")
         void description_is_trimmed_on_update() {
-            LedgerEntry entry = entryWithUser(1000L, "점심", kakaoUser());
+            LedgerEntry entry = entryWithUser(1000L, "점심", kakaoUser(new Nickname("test"), "TEST"));
             entry.update(
                 1000L,
                 LedgerType.EXPENSE,
@@ -206,7 +206,7 @@ class LedgerEntryTest {
         @Test
         @DisplayName("수정 시에도 description 검증 및 trim이 적용된다")
         void description_is_not_blank_on_update() {
-            LedgerEntry entry = entryWithUser(1000L, "점심", kakaoUser());
+            LedgerEntry entry = entryWithUser(1000L, "점심", kakaoUser(new Nickname("test"), "TEST"));
 
             assertThatThrownBy(() -> entry.update(
                 1000L,
@@ -236,7 +236,7 @@ class LedgerEntryTest {
                 OCCURRED_ON,
                 PaymentMethod.CASH,
                 null,
-                kakaoUser()
+                kakaoUser(new Nickname("test"), "TEST")
             );
             assertThat(entry.getMemo()).isNull();
         }
@@ -244,7 +244,7 @@ class LedgerEntryTest {
         @Test
         @DisplayName("현재 구현에서는 updateMemo로 memo가 변경된다")
         void memo_can_be_updated() {
-            LedgerEntry entry = entryWithUser(1000L, "점심", kakaoUser());
+            LedgerEntry entry = entryWithUser(1000L, "점심", kakaoUser(new Nickname("test"), "TEST"));
             entry.updateMemo("메모");
             assertThat(entry.getMemo()).isEqualTo("메모");
         }
@@ -261,7 +261,7 @@ class LedgerEntryTest {
                 OCCURRED_ON,
                 PaymentMethod.CASH,
                 over100,
-                kakaoUser()
+                kakaoUser(new Nickname("test"), "TEST")
             )).isInstanceOf(IllegalArgumentException.class);
         }
     }

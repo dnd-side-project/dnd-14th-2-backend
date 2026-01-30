@@ -55,6 +55,8 @@ class AuthDocumentationTest {
         String idToken = "test-id-token";
         User user = new User(
                 "test@email.com",
+                new Nickname("test"),
+                "TEST",
                 "https://profile/image.jpg",
                 Provider.KAKAO,
                 "provider-id"

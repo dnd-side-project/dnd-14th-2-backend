@@ -29,11 +29,11 @@ public class User extends BaseEntity{
     @Column(nullable = false)
     private String email;
 
-    @Column(length = 2048, nullable = false)
-    private String profile;
-
     @Column(length = 6, unique = true)
     private String invitationCode;
+
+    @Column(length = 2048, nullable = false)
+    private String profile;
 
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
@@ -46,28 +46,19 @@ public class User extends BaseEntity{
 
     private LocalDateTime deletedAt;
 
-    public User(String email, String profile, Provider provider, String providerId) {
+    public User(String email, Nickname nickname, String invitationCode, String profile, Provider provider, String providerId) {
         this.email = email;
+        this.nickname = nickname;
+        this.invitationCode = invitationCode;
         this.profile = profile;
         this.provider = provider;
         this.providerId = providerId;
     }
 
-    public void registerNickname(Nickname nickname) {
-        if (this.nickname != null) {
-            throw new IllegalStateException("이미 닉네임이 등록된 사용자입니다.");
-        }
-
-        this.nickname = nickname;
-    }
     public void withdraw(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
         this.email = null;
         this.profile = null;
-    }
-
-    public void registerInvitationCode(String invitationCode) {
-        this.invitationCode = invitationCode;
     }
 
     public void changeNickname(String nickname) {
