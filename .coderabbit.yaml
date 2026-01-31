@@ -11,7 +11,7 @@ reviews:
   profile: focused
   request_changes_workflow: false
   changed_files_summary: false
-  sequence_diagrams: false
+  sequence_diagrams: true
   assess_linked_issues: true
   related_issues: false
   related_prs: false
