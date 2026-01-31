@@ -2,10 +2,12 @@ package com.example.demo.application.user;
 
 import com.example.demo.application.dto.OauthUserInfo;
 import com.example.demo.application.dto.UserInfo;
+import com.example.demo.domain.InvitationCode;
 import com.example.demo.domain.RefreshTokenRepository;
 import com.example.demo.domain.Nickname;
 import com.example.demo.domain.NicknameGenerator;
 import com.example.demo.domain.Provider;
+import com.example.demo.domain.RandomBytesSource;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
 import java.time.Clock;
@@ -29,6 +31,7 @@ public class UserService {
     private final InvitationCodeGenerator invitationCodeGenerator;
     private final RefreshTokenRepository refreshTokenRepository;
     private final Clock clock;
+    private final RandomBytesSource randomBytesSource;
 
     @Transactional(readOnly = true)
     public UserInfo getUserInfo(Long userId) {
@@ -45,12 +48,12 @@ public class UserService {
     private User createUserWithRetries(Provider provider, OauthUserInfo info) {
         for (int retry = 1; retry <= MAX_RETRY; retry++) {
             Nickname nickname = nicknameGenerator.generate();
-            String inviteCode = invitationCodeGenerator.generate(nickname.value());
+            InvitationCode invitationCode = InvitationCode.generate(randomBytesSource);
 
             User user = new User(
                 info.email(),
                 nickname,
-                inviteCode,
+                invitationCode,
                 info.picture(),
                 provider,
                 info.providerId()
