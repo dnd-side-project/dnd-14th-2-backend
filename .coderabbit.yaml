@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 # 코드 래빗이 사용할 언어 설정
 language: ko-KR
 # 피드백 성격 및 리뷰 스타일 지정
