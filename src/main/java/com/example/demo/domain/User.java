@@ -11,7 +11,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Table(uniqueConstraints = {
     @UniqueConstraint(
         name = "uk_user_provider_provider_id",
-        columnNames = {"provider", "provider_id", "is_deleted"}
+        columnNames = {"provider", "provider_id"}
     )
 })
 @NoArgsConstructor
