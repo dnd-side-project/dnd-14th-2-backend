@@ -8,7 +8,7 @@ tone_instructions: >
   문제점은 구체적으로 기술하세요.
 early_access: false
 reviews:
-  profile: focused
+  profile: chill
   request_changes_workflow: false
   changed_files_summary: false
   sequence_diagrams: true
@@ -24,14 +24,15 @@ reviews:
     base_branches:
       - "main"
   poem: false
-  instructions: |
-    1. 기본적으로 구글 자바 스타일 가이드를 우선적으로 반영해주세요.
-    2. 팀 내 스타일 통일성도 확인해주세요.
-    3. 각 피드백은 문제점, 대안, 장단점을 짧고 논리적으로 제시하고, 예시 코드가 있다면 간결히 포함해주세요.
-    4. 최신 트렌드, 불필요한 로직, 클린코드, 리팩터링, 서비스/도메인 설계, 공통 예외 처리, 확장성도 함께 확인해주세요.
-    5. 미작성한 테스트 코드 케이스가 있다면, 어떤 테스트가 필요한지 제안해주세요.
-    6. 헥사고날 아키텍처를 잘 유지하는지 평가해주세요.
   path_instructions:
+    - path: "**/*"
+      instructions: |
+        1. 기본적으로 구글 자바 스타일 가이드를 우선적으로 반영해주세요.
+        2. 팀 내 스타일 통일성도 확인해주세요.
+        3. 각 피드백은 문제점, 대안, 장단점을 짧고 논리적으로 제시하고, 예시 코드가 있다면 간결히 포함해주세요.
+        4. 최신 트렌드, 불필요한 로직, 클린코드, 리팩터링, 서비스/도메인 설계, 공통 예외 처리, 확장성도 함께 확인해주세요.
+        5. 미작성한 테스트 코드 케이스가 있다면, 어떤 테스트가 필요한지 제안해주세요.
+        6. 헥사고날 아키텍처를 잘 유지하는지 평가해주세요.
     - path: "src/main/java/**/domain/**"
       instructions: |
         - 도메인 로직의 순수성 확인
