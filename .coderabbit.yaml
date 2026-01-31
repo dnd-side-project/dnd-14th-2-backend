@@ -7,7 +7,7 @@ tone_instructions: >
   문제점은 구체적으로 기술하세요.
 early_access: false
 reviews:
-  profile: chill
+  profile: focused
   request_changes_workflow: false
   changed_files_summary: false
   sequence_diagrams: false
@@ -22,7 +22,7 @@ reviews:
   auto_review:
     base_branches:
       - "main"
-  poem: true
+  poem: false
   path_instructions:
     - path: src/**
       instructions: |
