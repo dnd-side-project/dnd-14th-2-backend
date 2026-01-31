@@ -31,5 +31,18 @@ reviews:
     4. 최신 트렌드, 불필요한 로직, 클린코드, 리팩터링, 서비스/도메인 설계, 공통 예외 처리, 확장성도 함께 확인해주세요.
     5. 미작성한 테스트 코드 케이스가 있다면, 어떤 테스트가 필요한지 제안해주세요.
     6. 헥사고날 아키텍처를 잘 유지하는지 평가해주세요.
+  path_instructions:
+    - path: "src/main/java/**/domain/**"
+      instructions: |
+        - 도메인 로직의 순수성 확인
+        - 외부 의존성 없는지 검증
+    - path: "src/main/java/**/application/**"
+      instructions: |
+        - 유스케이스 명확성 확인
+        - 트랜잭션 경계 적절성 검토
+    - path: "src/test/**"
+      instructions: |
+        - 테스트 커버리지 및 경계값 테스트 확인
+        - Given-When-Then 패턴 준수 여부
 chat:
   auto_reply: true
