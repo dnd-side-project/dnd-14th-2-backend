@@ -8,6 +8,12 @@ import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Entity
+@Table(uniqueConstraints = {
+    @UniqueConstraint(
+        name = "uk_user_provider_provider_id",
+        columnNames = {"provider", "provider_id", "is_deleted"}
+    )
+})
 @NoArgsConstructor
 @SQLRestriction("is_deleted = false")
 public class User extends BaseEntity{

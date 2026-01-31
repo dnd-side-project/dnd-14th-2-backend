@@ -26,10 +26,10 @@ public class UserService {
 
     @Transactional
     public void withdrawUser(Long userId) {
-        refreshTokenRepository.deleteByUserId(userId);
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         user.withdraw(LocalDateTime.now(clock));
+        refreshTokenRepository.deleteByUserId(userId);
     }
 }
