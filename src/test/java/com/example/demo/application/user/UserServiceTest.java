@@ -32,11 +32,11 @@ class UserServiceTest extends AbstractIntegrationTest {
         );
 
         // when
-        UserInfo result = sut.login(Provider.GOOGLE, oauthUserInfo);
+        User result = sut.login(Provider.GOOGLE, oauthUserInfo);
 
         // then
-        assertThat(result.nickname()).isNotNull();
-        assertThat(result.nickname()).isNotEmpty();
+        assertThat(result.getNickname()).isNotNull();
+        assertThat(result.getNickname()).isNotEmpty();
 
         User savedUser = userRepository.findByProviderAndProviderId(Provider.GOOGLE, "google123")
             .orElseThrow();
@@ -55,15 +55,15 @@ class UserServiceTest extends AbstractIntegrationTest {
             "profile.jpg"
         );
 
-        UserInfo firstLogin = sut.login(Provider.KAKAO, oauthUserInfo);
-        String originalNickname = firstLogin.nickname();
+        User firstUser = sut.login(Provider.KAKAO, oauthUserInfo);
+        String originalNickname = firstUser.getNickname();
 
         // when
-        UserInfo secondLogin = sut.login(Provider.KAKAO, oauthUserInfo);
+        User secondUser = sut.login(Provider.KAKAO, oauthUserInfo);
 
         // then
-        assertThat(secondLogin.nickname()).isEqualTo(originalNickname);
-        assertThat(secondLogin.userId()).isEqualTo(firstLogin.userId());
+        assertThat(secondUser.getNickname()).isEqualTo(originalNickname);
+        assertThat(secondUser.getId()).isEqualTo(firstUser.getId());
     }
 
     @Test
@@ -74,14 +74,14 @@ class UserServiceTest extends AbstractIntegrationTest {
         OauthUserInfo user3 = new OauthUserInfo("id3", "user3@example.com", "pic3.jpg");
 
         // when
-        UserInfo result1 = sut.login(Provider.GOOGLE, user1);
-        UserInfo result2 = sut.login(Provider.GOOGLE, user2);
-        UserInfo result3 = sut.login(Provider.GOOGLE, user3);
+        User result1 = sut.login(Provider.GOOGLE, user1);
+        User result2 = sut.login(Provider.GOOGLE, user2);
+        User result3 = sut.login(Provider.GOOGLE, user3);
 
         // then
-        assertThat(result1.nickname()).isNotEqualTo(result2.nickname());
-        assertThat(result2.nickname()).isNotEqualTo(result3.nickname());
-        assertThat(result1.nickname()).isNotEqualTo(result3.nickname());
+        assertThat(result1.getNickname()).isNotEqualTo(result2.getNickname());
+        assertThat(result2.getNickname()).isNotEqualTo(result3.getNickname());
+        assertThat(result1.getNickname()).isNotEqualTo(result3.getNickname());
 
         User savedUser1 = userRepository.findByProviderAndProviderId(Provider.GOOGLE, "id1").orElseThrow();
         User savedUser2 = userRepository.findByProviderAndProviderId(Provider.GOOGLE, "id2").orElseThrow();
@@ -100,12 +100,12 @@ class UserServiceTest extends AbstractIntegrationTest {
         OauthUserInfo kakaoUser = new OauthUserInfo("kakao999", sameEmail, "pic.jpg");
 
         // when
-        UserInfo googleResult = sut.login(Provider.GOOGLE, googleUser);
-        UserInfo kakaoResult = sut.login(Provider.KAKAO, kakaoUser);
+        User googleResult = sut.login(Provider.GOOGLE, googleUser);
+        User kakaoResult = sut.login(Provider.KAKAO, kakaoUser);
 
         // then
-        assertThat(googleResult.userId()).isNotEqualTo(kakaoResult.userId());
-        assertThat(googleResult.nickname()).isNotEqualTo(kakaoResult.nickname());
+        assertThat(googleResult.getId()).isNotEqualTo(kakaoResult.getId());
+        assertThat(googleResult.getNickname()).isNotEqualTo(kakaoResult.getNickname());
     }
 
     @Test
@@ -116,18 +116,16 @@ class UserServiceTest extends AbstractIntegrationTest {
             "profile.jpg",
             "getinfo123"
         );
-        UserInfo created = sut.login(Provider.GOOGLE, oauthUserInfo);
-        User user = DbUtils.givenSavedUser(userRepository);
+        User created = sut.login(Provider.GOOGLE, oauthUserInfo);
 
         // when
-        UserInfo result = sut.getUserInfo(created.userId());
-        sut.withdrawUser(user.getId());
+        UserInfo result = sut.getUserInfo(created.getId());
 
         // then
-        assertThat(result.userId()).isEqualTo(created.userId());
-        assertThat(result.nickname()).isEqualTo(created.nickname());
-        assertThat(result.level()).isEqualTo(created.level());
-        assertThat(result.profile()).isEqualTo(created.profile());
+        assertThat(result.userId()).isEqualTo(created.getId());
+        assertThat(result.nickname()).isEqualTo(created.getNickname());
+        assertThat(result.level()).isEqualTo(created.getLevel());
+        assertThat(result.profile()).isEqualTo(created.getProfile());
     }
 
     @Test

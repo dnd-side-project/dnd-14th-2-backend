@@ -37,10 +37,9 @@ public class UserService {
     }
 
     @Transactional
-    public UserInfo login(Provider provider, OauthUserInfo oauthUserInfo) {
-        User user = userRepository.findByProviderAndProviderId(provider, oauthUserInfo.providerId())
+    public User login(Provider provider, OauthUserInfo oauthUserInfo) {
+        return userRepository.findByProviderAndProviderId(provider, oauthUserInfo.providerId())
             .orElseGet(() -> createUserWithRetries(provider, oauthUserInfo));
-        return new UserInfo(user.getId(), user.getNickname(), user.getLevel(), user.getProfile());
     }
 
     private User createUserWithRetries(Provider provider, OauthUserInfo info) {
