@@ -11,6 +11,7 @@ import com.example.demo.domain.enums.LedgerCategory;
 import com.example.demo.domain.enums.LedgerType;
 import com.example.demo.domain.enums.PaymentMethod;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(LedgerController.class)
 @AutoConfigureRestDocs
+@Tag("restdocs")
 @Import(ClockTestConfig.class)
 class LedgerDocumentationTest {
 
