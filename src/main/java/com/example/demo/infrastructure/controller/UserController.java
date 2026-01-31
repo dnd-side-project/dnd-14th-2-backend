@@ -19,9 +19,9 @@ public class UserController {
 
     @PostMapping("/users/me/nickname")
     public ResponseEntity<InvitationCodeWebResponse> changeNickname(@UserId Long userId,
-                                                                    @RequestBody NicknameWebRequest nickNameWebRequest
+                                                                    @RequestBody NicknameWebRequest nicknameWebRequest
     ) {
-        userService.changeNickname(userId, nickNameWebRequest.nickname());
+        userService.changeNickname(userId, nicknameWebRequest.nickname());
         return ResponseEntity.noContent().build();
     }
 
