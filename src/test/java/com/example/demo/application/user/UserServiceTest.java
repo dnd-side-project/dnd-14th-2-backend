@@ -112,9 +112,9 @@ class UserServiceTest extends AbstractIntegrationTest {
     void 존재하는_userId로_조회하면_유저_정보를_반환한다() {
         // given
         OauthUserInfo oauthUserInfo = new OauthUserInfo(
+            "getinfo123",
             "getinfo@example.com",
-            "profile.jpg",
-            "getinfo123"
+            "profile.jpg"
         );
         User created = sut.login(Provider.GOOGLE, oauthUserInfo);
 
