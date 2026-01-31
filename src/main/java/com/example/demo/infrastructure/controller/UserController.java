@@ -1,9 +1,9 @@
 package com.example.demo.infrastructure.controller;
 
 import com.example.demo.application.user.UserService;
-import com.example.demo.infrastructure.controller.dto.InvitationCodeWebResponse;
 import com.example.demo.infrastructure.controller.dto.NicknameWebRequest;
 import com.example.demo.infrastructure.interceptor.UserId;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,7 +19,7 @@ public class UserController {
 
     @PostMapping("/users/me/nickname")
     public ResponseEntity<Void> changeNickname(@UserId Long userId,
-                                                                    @RequestBody NicknameWebRequest nicknameWebRequest
+                                               @Valid @RequestBody NicknameWebRequest nicknameWebRequest
     ) {
         userService.changeNickname(userId, nicknameWebRequest.nickname());
         return ResponseEntity.noContent().build();
