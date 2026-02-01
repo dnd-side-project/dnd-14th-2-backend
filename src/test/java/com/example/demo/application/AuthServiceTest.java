@@ -17,6 +17,7 @@ import com.example.demo.util.AbstractIntegrationTest;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 class AuthServiceTest extends AbstractIntegrationTest {
 
@@ -28,6 +29,9 @@ class AuthServiceTest extends AbstractIntegrationTest {
 
     @Autowired
     private TokenProvider tokenProvider;
+
+    @Value("${jwt.secret.key}")
+    String secretKey;
 
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
@@ -113,7 +117,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
     @Test
     void 만료된_리프레쉬_토큰이면_예외를_발생시킨다() throws InterruptedException {
         // given
-        TokenProvider expiredTokenProvider = new JwtProvider("test+secret+key+test+secret+key+test+secret+key+test+secret+key+test+secret+key", 3600L, 0L);
+        TokenProvider expiredTokenProvider = new JwtProvider(secretKey, 3600L, 0L);
         Long userId = 1L;
 
         TokenResponse expiredToken = expiredTokenProvider.generateToken(userId);
@@ -123,6 +127,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
 
         // when & then
         assertThatThrownBy(() -> sut.reissueToken(expiredToken.refreshToken()))
-            .isInstanceOf(UnauthorizedException.class);
+            .isInstanceOf(UnauthorizedException.class)
+            .hasMessage("만료된 토큰입니다.");
     }
 }
