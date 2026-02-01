@@ -1,0 +1,128 @@
+package com.example.demo.application;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import com.example.demo.application.dto.TokenResponse;
+import com.example.demo.application.oauth.AuthService;
+import com.example.demo.application.oauth.TokenProvider;
+import com.example.demo.domain.Provider;
+import com.example.demo.domain.RefreshToken;
+import com.example.demo.domain.RefreshTokenRepository;
+import com.example.demo.domain.User;
+import com.example.demo.domain.UserRepository;
+import com.example.demo.infrastructure.UnauthorizedException;
+import com.example.demo.infrastructure.oauth.token.JwtProvider;
+import com.example.demo.util.AbstractIntegrationTest;
+import java.util.Optional;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
+class AuthServiceTest extends AbstractIntegrationTest {
+
+    @Autowired
+    private AuthService sut;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private TokenProvider tokenProvider;
+
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
+
+    @Test
+    void 토큰을_발급_받을_수_있다() {
+        // given
+        User user = new User("test@email.com", "http://test.jpg", Provider.GOOGLE, "test-provider-id");
+        User savedUser = userRepository.save(user);
+
+        // when
+        TokenResponse tokenResponse = sut.issueTokens(savedUser);
+
+        // then
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUserId(savedUser.getId());
+        assertThat(refreshToken.get())
+            .isNotNull();
+        assertThat(refreshToken.get())
+            .extracting("token")
+            .isEqualTo(tokenResponse.refreshToken());
+    }
+
+    @Test
+    void 유효한_리프레쉬_토큰으로_새_토큰을_반환한다() {
+        // given
+        Long userId = 1L;
+        TokenResponse initialToken = tokenProvider.generateToken(userId);
+        refreshTokenRepository.save(new RefreshToken(userId, initialToken.refreshToken()));
+
+        // when
+        TokenResponse result = sut.reissueToken(initialToken.refreshToken());
+
+        // then
+        assertThat(result.accessToken()).isNotNull();
+        assertThat(result.refreshToken()).isNotNull();
+        assertThat(result.accessToken()).isNotEqualTo(initialToken.accessToken());
+        assertThat(result.refreshToken()).isNotEqualTo(initialToken.refreshToken());
+    }
+
+    @Test
+    void 토큰_재발급_시_저장된_리프레쉬_토큰이_변경된다() {
+        // given
+        Long userId = 1L;
+        TokenResponse initialToken = tokenProvider.generateToken(userId);
+        refreshTokenRepository.save(new RefreshToken(userId, initialToken.refreshToken()));
+
+        // when
+        TokenResponse result = sut.reissueToken(initialToken.refreshToken());
+
+        // then
+        RefreshToken stored = refreshTokenRepository.findByUserId(userId).orElseThrow();
+        assertThat(stored.isSameToken(result.refreshToken())).isTrue();
+        assertThat(stored.isSameToken(initialToken.refreshToken())).isFalse();
+    }
+
+    @Test
+    void DB에_리프레쉬_토큰이_없으면_UnauthorizedException을_발생시킨다() {
+        // given
+        Long userId = 1L;
+        TokenResponse initialToken = tokenProvider.generateToken(userId);
+
+        // when & then
+        assertThatThrownBy(() -> sut.reissueToken(initialToken.refreshToken()))
+            .isInstanceOf(UnauthorizedException.class)
+            .hasMessage("인증되지 않은 사용자입니다.");
+    }
+
+    @Test
+    void 전달된_토큰과_DB_저장_토큰이_다르면_UnauthorizedException을_발생시킨다() {
+        // given
+        Long userId1 = 1L;
+        Long userId2 = 2L;
+        TokenResponse legitimateToken = tokenProvider.generateToken(userId1);
+        TokenResponse attackerToken = tokenProvider.generateToken(userId2);
+        refreshTokenRepository.save(new RefreshToken(userId1, legitimateToken.refreshToken()));
+
+        // when & then
+        assertThatThrownBy(() -> sut.reissueToken(attackerToken.refreshToken()))
+            .isInstanceOf(UnauthorizedException.class)
+            .hasMessage("인증되지 않은 사용자입니다.");
+    }
+
+    @Test
+    void 만료된_리프레쉬_토큰이면_예외를_발생시킨다() throws InterruptedException {
+        // given
+        TokenProvider expiredTokenProvider = new JwtProvider("test+secret+key+test+secret+key+test+secret+key+test+secret+key+test+secret+key", 3600L, 0L);
+        Long userId = 1L;
+
+        TokenResponse expiredToken = expiredTokenProvider.generateToken(userId);
+        refreshTokenRepository.save(new RefreshToken(userId, expiredToken.refreshToken()));
+
+        Thread.sleep(100); // 즉시 만료
+
+        // when & then
+        assertThatThrownBy(() -> sut.reissueToken(expiredToken.refreshToken()))
+            .isInstanceOf(UnauthorizedException.class);
+    }
+}
