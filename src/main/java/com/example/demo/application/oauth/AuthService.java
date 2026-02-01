@@ -45,11 +45,8 @@ public class AuthService {
     public TokenResponse reissueToken(String refreshToken) {
         Long userId = tokenProvider.validateToken(refreshToken);
         RefreshToken findRefreshToken = refreshTokenRepository.findByUserId(userId)
+            .filter(token -> token.isSameToken(refreshToken))
             .orElseThrow(() -> new UnauthorizedException("인증되지 않은 사용자입니다."));
-
-        if (!findRefreshToken.isSameToken(refreshToken)) {
-            throw new UnauthorizedException("인증되지 않은 사용자입니다.");
-        }
 
         TokenResponse tokenResponse = tokenProvider.generateToken(userId);
         findRefreshToken.rotate(tokenResponse.refreshToken());
