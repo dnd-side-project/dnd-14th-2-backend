@@ -43,18 +43,18 @@ public class JwtProvider implements TokenProvider {
     }
 
     @Override
-    public Long validateToken(String accessToken) {
+    public Long validateToken(String token) {
         try {
             Claims payload = Jwts.parser()
                 .verifyWith(
                     Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecretKey)))
                 .build()
-                .parseSignedClaims(accessToken)
+                .parseSignedClaims(token)
                 .getPayload();
 
             return payload.get("userId", Long.class);
         } catch (ExpiredJwtException e) {
-            throw new UnauthorizedException("인증되지 않은 사용자입니다.");
+            throw new UnauthorizedException("만료된 토큰입니다.");
         } catch (JwtException e) {
             throw new UnauthorizedException("유효하지 않은 토큰 정보입니다.");
         }

@@ -6,5 +6,5 @@ public interface TokenProvider {
 
     TokenResponse generateToken(Long userId);
 
-    Long validateToken(String accessToken);
+    Long validateToken(String token);
 }
