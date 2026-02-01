@@ -118,4 +118,47 @@ class AuthDocumentationTest {
             ));
         then(authService).should().logout(userId);
     }
+
+    @Test
+    void reissue_docs() throws Exception {
+        // given
+        long userId = 1L;
+        String refreshToken = "jwt.refresh.token";
+        String newAccessToken = "jwt.new-access.token";
+        String newRefreshToken = "jwt.new-refresh.token";
+
+        given(tokenProvider.validateToken(refreshToken)).willReturn(userId);
+        given(authService.reissueToken(refreshToken)).willReturn(new TokenResponse(newAccessToken, newRefreshToken));
+
+        // when & then
+        mockMvc.perform(
+                post("/token")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"refreshToken\":\"" + refreshToken + "\"}")
+                    .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.accessToken").value(newAccessToken))
+            .andExpect(jsonPath("$.refreshToken").value(newRefreshToken))
+            .andDo(document("reissue",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                resource(ResourceSnippetParameters.builder()
+                    .tag("Auth")
+                    .summary("엑세스 토큰 재발급")
+                    .requestSchema(Schema.schema("ReissueTokenWebRequest"))
+                    .responseSchema(Schema.schema("AuthTokenWebResponse"))
+                    .requestFields(
+                        fieldWithPath("refreshToken").type(STRING).description("사용자의 refresh token(JWT)")
+                    )
+                    .responseFields(
+                        fieldWithPath("accessToken").type(STRING).description("새로운 access token(JWT)"),
+                        fieldWithPath("refreshToken").type(STRING).description("새로운 refresh token(JWT)")
+                    )
+                    .build()
+                )
+            ));
+        then(authService).should().reissueToken(refreshToken);
+    }
 }

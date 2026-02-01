@@ -34,7 +34,7 @@ public class AuthController {
     }
 
     @PostMapping("/token")
-    public ResponseEntity<AuthTokenWebResponse> tokenReissue(@Valid @RequestBody ReissueTokenWebRequest request) {
+    public ResponseEntity<AuthTokenWebResponse> tokenReissue(@RequestBody ReissueTokenWebRequest request) {
         TokenResponse tokenResponse = authService.reissueToken(request.refreshToken());
 
         return ResponseEntity.ok(AuthTokenWebResponse.from(tokenResponse));
