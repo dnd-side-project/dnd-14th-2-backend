@@ -19,7 +19,12 @@ spring:
         bucket: my-local-bucket-name
 
 jwt:
-  secret-key: test+test+test+test+test+test+test+test+test+test
+  secret:
+    key: test+test+test+test+test+test+test+test+test+test
+    access:
+      expire-range: 43200000
+    refresh:
+      expire-range: 5260000000
 
 oauth:
   oidc:

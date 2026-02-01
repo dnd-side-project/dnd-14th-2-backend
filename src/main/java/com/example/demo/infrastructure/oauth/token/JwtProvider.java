@@ -11,6 +11,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.util.Date;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -18,24 +19,34 @@ import org.springframework.stereotype.Component;
 public class JwtProvider implements TokenProvider {
 
     private final String jwtSecretKey;
+    private final Long accessTokenExpireRange;
+    private final Long refreshTokenExpireRange;
 
-    public JwtProvider(@Value("${jwt.secret-key}") String jwtSecretKey) {
+    public JwtProvider(@Value("${jwt.secret.key}") String jwtSecretKey,
+                       @Value("${jwt.secret.access.expire-range}") Long accessTokenExpireRange,
+                       @Value("${jwt.secret.refresh.expire-range}") Long refreshTokenExpireRange) {
         this.jwtSecretKey = jwtSecretKey;
+        this.accessTokenExpireRange = accessTokenExpireRange;
+        this.refreshTokenExpireRange = refreshTokenExpireRange;
     }
 
     public TokenResponse generateToken(Long userId) {
         long now = System.currentTimeMillis();
         String accessToken = Jwts.builder()
+            .id(UUID.randomUUID().toString())
             .claim("userId", userId)
+            .claim("typ", "access")
             .issuedAt(new Date(now))
-            .expiration(new Date(now + 43200000))
+            .expiration(new Date(now + accessTokenExpireRange))
             .signWith(SignatureAlgorithm.HS256, jwtSecretKey)
             .compact();
 
         String refreshToken = Jwts.builder()
+            .id(UUID.randomUUID().toString())
             .claim("userId", userId)
+            .claim("typ", "refresh")
             .issuedAt(new Date(now))
-            .expiration(new Date(now + 5260000000L))
+            .expiration(new Date(now + refreshTokenExpireRange))
             .signWith(SignatureAlgorithm.HS256, jwtSecretKey)
             .compact();
 
