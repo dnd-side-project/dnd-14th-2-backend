@@ -27,14 +27,9 @@ public class UserService {
 
     @Transactional
     public void withdrawUser(Long userId) {
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if (optionalUser.isEmpty()) {
-            return;
-        }
-
-        User user = optionalUser.get();
-
-        user.withdraw(LocalDateTime.now(clock));
-        refreshTokenRepository.deleteByUserId(userId);
+        userRepository.findById(userId).ifPresent(user -> {
+            user.withdraw(LocalDateTime.now(clock));
+            refreshTokenRepository.deleteByUserId(userId);
+        });
     }
 }
