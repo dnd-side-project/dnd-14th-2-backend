@@ -28,6 +28,6 @@ public class RefreshToken {
     }
 
     public boolean isSameToken(String token) {
-        return this.token.equals(token);
+        return this.token != null && this.token.equals(token);
     }
 }
