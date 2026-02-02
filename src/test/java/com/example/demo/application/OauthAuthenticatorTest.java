@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 
 import com.example.demo.application.dto.OauthUserInfo;
 import com.example.demo.application.oauth.IdTokenVerifier;
-import com.example.demo.application.oauth.OauthService;
+import com.example.demo.application.oauth.OauthAuthenticator;
 import com.example.demo.domain.Provider;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-public class OauthServiceTest extends AbstractIntegrationTest {
+public class OauthAuthenticatorTest extends AbstractIntegrationTest {
 
     @MockitoBean
     private IdTokenVerifier OidcIdTokenVerifierService;
@@ -26,7 +26,7 @@ public class OauthServiceTest extends AbstractIntegrationTest {
     private UserRepository userRepository;
 
     @Autowired
-    private OauthService sut;
+    private OauthAuthenticator sut;
 
 
     @Test

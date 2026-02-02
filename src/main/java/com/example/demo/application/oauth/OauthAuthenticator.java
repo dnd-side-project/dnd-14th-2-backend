@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Component
-public class OauthService {
+public class OauthAuthenticator {
 
     private final IdTokenVerifier idTokenVerifier;
     private final UserRepository userRepository;
