@@ -74,7 +74,7 @@ public class JwtProvider implements TokenProvider {
                 .getPayload();
 
             validateTokenType(type, payload.get("typ", String.class));
-            return payload.get("userId", Long.class);
+            return getUserIdAndValidate(payload);
         } catch (ExpiredJwtException e) {
             throw new UnauthorizedException("만료된 토큰입니다.");
         } catch (JwtException e) {
@@ -86,5 +86,14 @@ public class JwtProvider implements TokenProvider {
         if (!type.equals(payloadType)) {
             throw new UnauthorizedException("잘못된 토큰 타입입니다.");
         }
+    }
+
+    private Long getUserIdAndValidate(Claims payload) {
+        Long userId = payload.get("userId", Long.class);
+        if (userId == null) {
+            throw new UnauthorizedException("유효하지 않은 토큰 정보입니다.");
+        }
+
+        return userId;
     }
 }
