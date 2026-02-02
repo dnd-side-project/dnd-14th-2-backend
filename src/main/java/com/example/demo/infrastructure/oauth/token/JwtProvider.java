@@ -82,7 +82,7 @@ public class JwtProvider implements TokenProvider {
     }
 
     private void validateTokenType(String type, String payloadType) {
-        if (type.equals(payloadType)) {
+        if (!type.equals(payloadType)) {
             throw new UnauthorizedException("잘못된 토큰 타입입니다.");
         }
     }
