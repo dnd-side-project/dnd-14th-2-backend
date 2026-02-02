@@ -15,7 +15,7 @@ import org.hibernate.annotations.SQLRestriction;
     )
 })
 @NoArgsConstructor
-@SQLRestriction("is_deleted = false")
+@SQLRestriction("deleted_at IS NULL")
 public class User extends BaseEntity{
 
     @Id
@@ -36,8 +36,6 @@ public class User extends BaseEntity{
 
     private Integer level = 0;
 
-    private boolean isDeleted = false;
-
     private LocalDateTime deletedAt;
 
     public User(String email, String profile, Provider provider, String providerId) {
@@ -48,7 +46,8 @@ public class User extends BaseEntity{
     }
 
     public void withdraw(LocalDateTime deletedAt) {
-        this.isDeleted = true;
         this.deletedAt = deletedAt;
+        this.email = null;
+        this.profile = null;
     }
 }
