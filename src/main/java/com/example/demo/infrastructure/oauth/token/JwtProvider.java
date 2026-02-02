@@ -55,7 +55,16 @@ public class JwtProvider implements TokenProvider {
     }
 
     @Override
-    public Long validateToken(String token) {
+    public Long validateAccessToken(String accessToken) {
+        return validateToken(accessToken, "access");
+    }
+
+    @Override
+    public Long validateRefreshToken(String refreshToken) {
+        return validateToken(refreshToken, "refresh");
+    }
+
+    private Long validateToken(String token, String type) {
         try {
             Claims payload = Jwts.parser()
                 .verifyWith(jwtSecretKey)
@@ -63,11 +72,18 @@ public class JwtProvider implements TokenProvider {
                 .parseSignedClaims(token)
                 .getPayload();
 
+            validateTokenType(type, payload.get("typ", String.class));
             return payload.get("userId", Long.class);
         } catch (ExpiredJwtException e) {
             throw new UnauthorizedException("만료된 토큰입니다.");
         } catch (JwtException e) {
             throw new UnauthorizedException("유효하지 않은 토큰 정보입니다.");
+        }
+    }
+
+    private void validateTokenType(String type, String payloadType) {
+        if (type.equals(payloadType)) {
+            throw new UnauthorizedException("잘못된 토큰 타입입니다.");
         }
     }
 }

@@ -43,7 +43,7 @@ public class AuthService {
 
     @Transactional
     public TokenResponse reissueToken(String refreshToken) {
-        Long userId = tokenProvider.validateToken(refreshToken);
+        Long userId = tokenProvider.validateRefreshToken(refreshToken);
         RefreshToken findRefreshToken = refreshTokenRepository.findByUserId(userId)
             .filter(token -> token.isSameToken(refreshToken))
             .orElseThrow(() -> new UnauthorizedException("인증되지 않은 사용자입니다."));

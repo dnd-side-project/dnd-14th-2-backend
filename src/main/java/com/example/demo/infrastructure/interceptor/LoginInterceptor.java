@@ -30,8 +30,8 @@ public class LoginInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        String token = authorization.substring("Bearer ".length());
-        Long userId = tokenProvider.validateToken(token);
+        String accessToken = authorization.substring("Bearer ".length());
+        Long userId = tokenProvider.validateAccessToken(accessToken);
 
         request.setAttribute("userId", userId);
         return true;
