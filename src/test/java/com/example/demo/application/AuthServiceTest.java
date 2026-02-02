@@ -129,4 +129,19 @@ class AuthServiceTest extends AbstractIntegrationTest {
             .isInstanceOf(UnauthorizedException.class)
             .hasMessage("만료된 토큰입니다.");
     }
+
+    @Test
+    void 재발급_후_이전_토큰_재사용은_실패한다() {
+        // given
+        Long userId = 1L;
+        TokenResponse initial = tokenProvider.generateToken(userId);
+        refreshTokenRepository.save(new RefreshToken(userId, initial.refreshToken()));
+
+        // when
+        sut.reissueToken(initial.refreshToken());
+
+        // then
+        assertThatThrownBy(() -> sut.reissueToken(initial.refreshToken()))
+            .isInstanceOf(UnauthorizedException.class);
+    }
 }
