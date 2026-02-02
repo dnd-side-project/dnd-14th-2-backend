@@ -12,20 +12,21 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.util.Date;
 import java.util.UUID;
+import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class JwtProvider implements TokenProvider {
 
-    private final String jwtSecretKey;
+    private final SecretKey jwtSecretKey;
     private final Long accessTokenExpireRange;
     private final Long refreshTokenExpireRange;
 
     public JwtProvider(@Value("${jwt.secret.key}") String jwtSecretKey,
                        @Value("${jwt.secret.access.expire-range}") Long accessTokenExpireRange,
                        @Value("${jwt.secret.refresh.expire-range}") Long refreshTokenExpireRange) {
-        this.jwtSecretKey = jwtSecretKey;
+        this.jwtSecretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecretKey));
         this.accessTokenExpireRange = accessTokenExpireRange;
         this.refreshTokenExpireRange = refreshTokenExpireRange;
     }
@@ -38,7 +39,7 @@ public class JwtProvider implements TokenProvider {
             .claim("typ", "access")
             .issuedAt(new Date(now))
             .expiration(new Date(now + accessTokenExpireRange))
-            .signWith(SignatureAlgorithm.HS256, jwtSecretKey)
+            .signWith(jwtSecretKey)
             .compact();
 
         String refreshToken = Jwts.builder()
@@ -47,7 +48,7 @@ public class JwtProvider implements TokenProvider {
             .claim("typ", "refresh")
             .issuedAt(new Date(now))
             .expiration(new Date(now + refreshTokenExpireRange))
-            .signWith(SignatureAlgorithm.HS256, jwtSecretKey)
+            .signWith(jwtSecretKey)
             .compact();
 
         return new TokenResponse(accessToken, refreshToken);
@@ -57,8 +58,7 @@ public class JwtProvider implements TokenProvider {
     public Long validateToken(String token) {
         try {
             Claims payload = Jwts.parser()
-                .verifyWith(
-                    Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecretKey)))
+                .verifyWith(jwtSecretKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
