@@ -11,7 +11,7 @@ import com.example.demo.domain.RefreshToken;
 import com.example.demo.domain.RefreshTokenRepository;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
-import com.example.demo.infrastructure.UnauthorizedException;
+import com.example.demo.application.exception.UnauthorizedException;
 import com.example.demo.infrastructure.oauth.token.JwtProvider;
 import com.example.demo.util.AbstractIntegrationTest;
 import java.util.Optional;

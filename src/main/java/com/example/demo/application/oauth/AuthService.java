@@ -7,7 +7,7 @@ import com.example.demo.domain.Provider;
 import com.example.demo.domain.RefreshToken;
 import com.example.demo.domain.RefreshTokenRepository;
 import com.example.demo.domain.User;
-import com.example.demo.infrastructure.UnauthorizedException;
+import com.example.demo.application.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;

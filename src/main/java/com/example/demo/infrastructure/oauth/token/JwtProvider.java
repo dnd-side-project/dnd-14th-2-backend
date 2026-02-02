@@ -1,6 +1,7 @@
 package com.example.demo.infrastructure.oauth.token;
 
 import com.example.demo.application.dto.TokenResponse;
+import com.example.demo.application.exception.UnauthorizedException;
 import com.example.demo.application.oauth.TokenProvider;
 import com.example.demo.infrastructure.UnauthorizedException;
 import io.jsonwebtoken.Claims;

@@ -1,6 +1,6 @@
 package com.example.demo.infrastructure.advice;
 
-import com.example.demo.infrastructure.UnauthorizedException;
+import com.example.demo.application.exception.UnauthorizedException;
 import com.example.demo.infrastructure.advice.dto.ErrorResponse;
 import java.time.OffsetDateTime;
 import lombok.extern.slf4j.Slf4j;
