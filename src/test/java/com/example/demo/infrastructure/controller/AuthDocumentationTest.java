@@ -146,7 +146,7 @@ class AuthDocumentationTest {
                 preprocessResponse(prettyPrint()),
                 resource(ResourceSnippetParameters.builder()
                     .tag("Auth")
-                    .summary("엑세스 토큰 재발급")
+                    .summary("액세스 토큰 재발급")
                     .requestSchema(Schema.schema("ReissueTokenWebRequest"))
                     .responseSchema(Schema.schema("AuthTokenWebResponse"))
                     .requestFields(
