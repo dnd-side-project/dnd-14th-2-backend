@@ -147,7 +147,7 @@ class AuthDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.accessToken").value(newAccessToken))
                 .andExpect(jsonPath("$.refreshToken").value(newRefreshToken))
-                .andDo(document("reissue",
+                .andDo(document("재발행",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -186,7 +186,7 @@ class AuthDocumentationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("유효하지 않은 토큰 정보입니다."))
-                .andDo(document("reissue-fail-invalid-refresh-token",
+                .andDo(document("재발행 - 유효하지 않은 토큰",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -221,7 +221,7 @@ class AuthDocumentationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("만료된 토큰입니다."))
-                .andDo(document("reissue-fail-expired-refresh-token",
+                .andDo(document("재발행 - 만료된 토큰",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -256,7 +256,7 @@ class AuthDocumentationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("잘못된 토큰 타입입니다."))
-                .andDo(document("reissue-fail-token-type",
+                .andDo(document("재발행 - 토큰 타입 불일치",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -291,7 +291,7 @@ class AuthDocumentationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("인증되지 않은 사용자입니다."))
-                .andDo(document("reissue-fail-unauthorized",
+                .andDo(document("재발행 - 인증되지 않은 사용자",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
