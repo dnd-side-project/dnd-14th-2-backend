@@ -20,7 +20,7 @@ spring:
 
 jwt:
   secret:
-    key: test+test+test+test+test+test+test+test+test+test
+    key: dGVzdCt0ZXN0K3Rlc3QrdGVzdCt0ZXN0K3Rlc3QrdGVzdCt0ZXN0K3Rlc3QrdGVzdA==
     access:
       expire-range: 43200000
     refresh:
