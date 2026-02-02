@@ -9,12 +9,14 @@ import com.example.demo.domain.RefreshTokenRepository;
 import com.example.demo.domain.User;
 import com.example.demo.application.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final OauthAuthenticator oauthAuthenticator;
@@ -47,6 +49,8 @@ public class AuthService {
         RefreshToken findRefreshToken = refreshTokenRepository.findByUserId(userId)
             .filter(token -> token.isSameToken(refreshToken))
             .orElseThrow(() -> new UnauthorizedException("인증되지 않은 사용자입니다."));
+
+        log.info("토큰 재발급 요청 userId: {}", userId);
 
         TokenResponse tokenResponse = tokenProvider.generateToken(userId);
         findRefreshToken.rotate(tokenResponse.refreshToken());
