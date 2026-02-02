@@ -123,8 +123,6 @@ class AuthServiceTest extends AbstractIntegrationTest {
         TokenResponse expiredToken = expiredTokenProvider.generateToken(userId);
         refreshTokenRepository.save(new RefreshToken(userId, expiredToken.refreshToken()));
 
-        Thread.sleep(100); // 즉시 만료
-
         // when & then
         assertThatThrownBy(() -> sut.reissueToken(expiredToken.refreshToken()))
             .isInstanceOf(UnauthorizedException.class)
