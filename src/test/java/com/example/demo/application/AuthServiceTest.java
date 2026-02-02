@@ -100,16 +100,17 @@ class AuthServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void 전달된_토큰과_DB_저장_토큰이_다르면_UnauthorizedException을_발생시킨다() {
+    void 저장된_토큰과_다른_토큰으로_재발급_요청시_예외가_발생한다() {
         // given
-        Long userId1 = 1L;
-        Long userId2 = 2L;
-        TokenResponse legitimateToken = tokenProvider.generateToken(userId1);
-        TokenResponse attackerToken = tokenProvider.generateToken(userId2);
-        refreshTokenRepository.save(new RefreshToken(userId1, legitimateToken.refreshToken()));
+        Long userId = 1L;
+        TokenResponse originalToken = tokenProvider.generateToken(userId);
+        refreshTokenRepository.save(new RefreshToken(userId, originalToken.refreshToken()));
+
+        // when
+        TokenResponse invalidAttemptToken = tokenProvider.generateToken(userId);
 
         // when & then
-        assertThatThrownBy(() -> sut.reissueToken(attackerToken.refreshToken()))
+        assertThatThrownBy(() -> sut.reissueToken(invalidAttemptToken.refreshToken()))
             .isInstanceOf(UnauthorizedException.class)
             .hasMessage("인증되지 않은 사용자입니다.");
     }
