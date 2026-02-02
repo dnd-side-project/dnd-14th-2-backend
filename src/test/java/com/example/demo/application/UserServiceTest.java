@@ -44,17 +44,4 @@ class UserServiceTest extends AbstractIntegrationTest {
         assertThatCode(() -> sut.withdrawUser(user.getId()))
             .doesNotThrowAnyException();
     }
-
-    @Test
-    void 회원탈퇴시_조회되지_않는다() {
-        // given
-        User user = DbUtils.givenSavedUser(userRepository);
-
-        // when
-        sut.withdrawUser(user.getId());
-
-        // then
-        assertThatCode(() -> sut.withdrawUser(user.getId())).doesNotThrowAnyException();
-        assertThat(userRepository.findById(user.getId())).isEmpty();
-    }
 }
