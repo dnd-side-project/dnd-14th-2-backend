@@ -47,7 +47,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
         TokenResponse tokenResponse = sut.login(Provider.GOOGLE, idToken);
 
         // then
-        assertThat(refreshTokenRepository.findByUserId(user.getId()))
+        assertThat(refreshTokenRepository.findByUserId(savedUser.getId()))
             .hasValueSatisfying(refreshToken -> {
                 assertThat(refreshToken).isNotNull();
                 assertThat(refreshToken)
@@ -68,16 +68,16 @@ class AuthServiceTest extends AbstractIntegrationTest {
         TokenResponse tokenResponse = sut.login(Provider.GOOGLE, idToken);
 
         // then
-        assertThat(userRepository.findByProviderAndProviderId(Provider.GOOGLE, "test-provider-id"))
-            .hasValueSatisfying(user -> {
+        Long userId = userRepository.findByProviderAndProviderId(Provider.GOOGLE, "test-provider-id")
+            .orElseThrow()
+            .getId();
 
-                assertThat(refreshTokenRepository.findByUserId(user.getId()))
-                    .hasValueSatisfying(refreshToken -> {
-                        assertThat(refreshToken).isNotNull();
-                        assertThat(refreshToken)
-                            .extracting("token")
-                            .isEqualTo(tokenResponse.refreshToken());
-                    });
+        assertThat(refreshTokenRepository.findByUserId(userId))
+            .hasValueSatisfying(refreshToken -> {
+                assertThat(refreshToken).isNotNull();
+                assertThat(refreshToken)
+                    .extracting("token")
+                    .isEqualTo(tokenResponse.refreshToken());
             });
     }
 }
