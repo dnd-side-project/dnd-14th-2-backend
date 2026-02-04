@@ -20,6 +20,8 @@ import com.example.demo.application.dto.TokenResponse;
 import com.example.demo.application.oauth.AuthService;
 import com.example.demo.application.oauth.OauthAuthenticator;
 import com.example.demo.application.oauth.TokenProvider;
+import com.example.demo.domain.InvitationCode;
+import com.example.demo.domain.Nickname;
 import com.example.demo.domain.Provider;
 import com.example.demo.domain.User;
 import org.junit.jupiter.api.Tag;
@@ -56,7 +58,7 @@ class AuthDocumentationTest {
         User user = new User(
                 "test@email.com",
                 new Nickname("test"),
-                "TEST",
+                new InvitationCode("ABCDEF"),
                 "https://profile/image.jpg",
                 Provider.KAKAO,
                 "provider-id"

@@ -1,4 +1,4 @@
-package com.example.demo.application;
+package com.example.demo.application.oauth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -7,6 +7,8 @@ import com.example.demo.application.dto.OauthUserInfo;
 import com.example.demo.application.dto.TokenResponse;
 import com.example.demo.application.oauth.AuthService;
 import com.example.demo.application.oauth.IdTokenVerifier;
+import com.example.demo.domain.InvitationCode;
+import com.example.demo.domain.Nickname;
 import com.example.demo.domain.Provider;
 import com.example.demo.domain.RefreshToken;
 import com.example.demo.domain.RefreshTokenRepository;
@@ -40,7 +42,14 @@ class AuthServiceTest extends AbstractIntegrationTest {
             new OauthUserInfo("test-provider-id", "test@email.com", "http://test.jpg")
         );
 
-        User user = new User("test@email.com", "http://test.jpg", Provider.GOOGLE, "test-provider-id");
+        User user = new User(
+            "test@email.com",
+            new Nickname("test"),
+            new InvitationCode("ABCDEF"),
+            "http://test.jpg",
+            Provider.GOOGLE,
+            "test-provider-id"
+        );
         User savedUser = userRepository.save(user);
 
         // when

@@ -6,11 +6,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 import com.example.demo.application.dto.OauthUserInfo;
-<<<<<<<< HEAD:src/test/java/com/example/demo/application/OauthAuthenticatorTest.java
-import com.example.demo.application.oauth.IdTokenVerifier;
-import com.example.demo.application.oauth.OauthAuthenticator;
-========
->>>>>>>> 565ae56 (test: 패키지 이동):src/test/java/com/example/demo/application/oauth/OauthServiceTest.java
+import com.example.demo.domain.InvitationCode;
+import com.example.demo.domain.Nickname;
 import com.example.demo.domain.Provider;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
@@ -19,7 +16,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 public class OauthAuthenticatorTest extends AbstractIntegrationTest {
 
     @MockitoBean
@@ -66,9 +65,11 @@ public class OauthAuthenticatorTest extends AbstractIntegrationTest {
         String providerId = "google-existing-user";
         String email = "existing@example.com";
         String picture = "https://example.com/existing.jpg";
+        Nickname nickname = new Nickname("test");
+        InvitationCode invitationCode = new InvitationCode("ABCDEF");
 
         // 기존 사용자 DB에 저장
-        User existingUser = userRepository.save(new User(email, picture, provider, providerId));
+        User existingUser = userRepository.save(new User(email, nickname, invitationCode, picture, provider, providerId));
         OauthUserInfo oauthUserInfo = new OauthUserInfo(providerId, email, picture);
 
         given(idTokenVerifier.verifyAndGetUserInfo(provider, idToken)).willReturn(oauthUserInfo);

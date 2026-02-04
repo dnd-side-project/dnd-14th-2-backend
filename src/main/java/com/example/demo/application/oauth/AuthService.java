@@ -4,6 +4,7 @@ import com.example.demo.application.dto.TokenResponse;
 import com.example.demo.domain.Provider;
 import com.example.demo.domain.RefreshToken;
 import com.example.demo.domain.RefreshTokenRepository;
+import com.example.demo.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
