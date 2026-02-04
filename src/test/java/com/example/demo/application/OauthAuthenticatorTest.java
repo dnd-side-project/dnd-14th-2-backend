@@ -20,7 +20,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 public class OauthAuthenticatorTest extends AbstractIntegrationTest {
 
     @MockitoBean
-    private IdTokenVerifier OidcIdTokenVerifierService;
+    private IdTokenVerifier idTokenVerifier;
 
     @Autowired
     private UserRepository userRepository;
@@ -39,7 +39,7 @@ public class OauthAuthenticatorTest extends AbstractIntegrationTest {
         String picture = "https://example.com/picture.jpg";
 
         OauthUserInfo oauthUserInfo = new OauthUserInfo(providerId, email, picture);
-        given(OidcIdTokenVerifierService.verifyAndGetUserInfo(provider, idToken)).willReturn(oauthUserInfo);
+        given(idTokenVerifier.verifyAndGetUserInfo(provider, idToken)).willReturn(oauthUserInfo);
 
         // when
         User result = sut.getUserInfo(provider, idToken);
@@ -52,7 +52,7 @@ public class OauthAuthenticatorTest extends AbstractIntegrationTest {
                 .isPresent()
                 .hasValueSatisfying(user -> assertThat(user.getId()).isEqualTo(result.getId()));
 
-        verify(OidcIdTokenVerifierService).verifyAndGetUserInfo(provider, idToken);
+        verify(idTokenVerifier).verifyAndGetUserInfo(provider, idToken);
     }
 
     @Test
@@ -68,7 +68,7 @@ public class OauthAuthenticatorTest extends AbstractIntegrationTest {
         User existingUser = userRepository.save(new User(email, picture, provider, providerId));
         OauthUserInfo oauthUserInfo = new OauthUserInfo(providerId, email, picture);
 
-        given(OidcIdTokenVerifierService.verifyAndGetUserInfo(provider, idToken)).willReturn(oauthUserInfo);
+        given(idTokenVerifier.verifyAndGetUserInfo(provider, idToken)).willReturn(oauthUserInfo);
 
         // when
         User result = sut.getUserInfo(provider, idToken);
@@ -77,7 +77,7 @@ public class OauthAuthenticatorTest extends AbstractIntegrationTest {
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(existingUser.getId());
 
-        verify(OidcIdTokenVerifierService).verifyAndGetUserInfo(provider, idToken);
+        verify(idTokenVerifier).verifyAndGetUserInfo(provider, idToken);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class OauthAuthenticatorTest extends AbstractIntegrationTest {
         Provider provider = Provider.GOOGLE;
         String idToken = "invalid-id-token";
 
-        given(OidcIdTokenVerifierService.verifyAndGetUserInfo(provider, idToken))
+        given(idTokenVerifier.verifyAndGetUserInfo(provider, idToken))
                 .willThrow(new IllegalArgumentException("ID토큰 검증에 실패했습니다."));
 
         // when & then
@@ -95,6 +95,6 @@ public class OauthAuthenticatorTest extends AbstractIntegrationTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("ID토큰 검증에 실패했습니다.");
 
-        verify(OidcIdTokenVerifierService).verifyAndGetUserInfo(provider, idToken);
+        verify(idTokenVerifier).verifyAndGetUserInfo(provider, idToken);
     }
 }
