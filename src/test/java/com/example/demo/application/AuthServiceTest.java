@@ -33,7 +33,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
     private IdTokenVerifier idTokenVerifier;
 
     @Test
-    void 토큰을_발급_받을_수_있다() {
+    void 기존_사용자는_로그인_할_수_있다() {
         // given
         String idToken = "test-id-token";
         given(idTokenVerifier.verifyAndGetUserInfo(Provider.GOOGLE, idToken)).willReturn(
@@ -47,11 +47,37 @@ class AuthServiceTest extends AbstractIntegrationTest {
         TokenResponse tokenResponse = sut.login(Provider.GOOGLE, idToken);
 
         // then
-        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUserId(savedUser.getId());
-        assertThat(refreshToken.get())
-            .isNotNull();
-        assertThat(refreshToken.get())
-            .extracting("token")
-            .isEqualTo(tokenResponse.refreshToken());
+        assertThat(refreshTokenRepository.findByUserId(user.getId()))
+            .hasValueSatisfying(refreshToken -> {
+                assertThat(refreshToken).isNotNull();
+                assertThat(refreshToken)
+                    .extracting("token")
+                    .isEqualTo(tokenResponse.refreshToken());
+            });
+    }
+
+    @Test
+    void 새로운_사용자가_로그인하면_자동_회원가입_된다() {
+        // given
+        String idToken = "test-id-token";
+        given(idTokenVerifier.verifyAndGetUserInfo(Provider.GOOGLE, idToken)).willReturn(
+            new OauthUserInfo("test-provider-id", "test@email.com", "http://test.jpg")
+        );
+
+        // when
+        TokenResponse tokenResponse = sut.login(Provider.GOOGLE, idToken);
+
+        // then
+        assertThat(userRepository.findByProviderAndProviderId(Provider.GOOGLE, "test-provider-id"))
+            .hasValueSatisfying(user -> {
+
+                assertThat(refreshTokenRepository.findByUserId(user.getId()))
+                    .hasValueSatisfying(refreshToken -> {
+                        assertThat(refreshToken).isNotNull();
+                        assertThat(refreshToken)
+                            .extracting("token")
+                            .isEqualTo(tokenResponse.refreshToken());
+                    });
+            });
     }
 }
