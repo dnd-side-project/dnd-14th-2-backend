@@ -1,7 +1,6 @@
 package com.example.demo.infrastructure.controller;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
-import static com.epages.restdocs.apispec.ResourceDocumentation.headerWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -19,7 +18,7 @@ import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.epages.restdocs.apispec.Schema;
 import com.example.demo.application.dto.TokenResponse;
 import com.example.demo.application.oauth.AuthService;
-import com.example.demo.application.oauth.OauthService;
+import com.example.demo.application.oauth.OauthAuthenticator;
 import com.example.demo.application.oauth.TokenProvider;
 import com.example.demo.domain.Provider;
 import com.example.demo.domain.User;
@@ -33,16 +32,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(OauthController.class)
+@WebMvcTest(AuthController.class)
 @AutoConfigureRestDocs
 @Tag("restdocs")
-class OauthDocumentationTest {
+class AuthDocumentationTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockitoBean
-    private OauthService oauthService;
+    private OauthAuthenticator oauthAuthenticator;
 
     @MockitoBean
     private AuthService authService;
@@ -63,8 +62,7 @@ class OauthDocumentationTest {
         String accessToken = "jwt.access.token";
         String refreshToken = "jwt.refresh.token";
 
-        given(oauthService.getUserInfo(Provider.KAKAO, idToken)).willReturn(user);
-        given(authService.issueTokens(user)).willReturn(new TokenResponse(accessToken, refreshToken));
+        given(authService.login(Provider.KAKAO, idToken)).willReturn(new TokenResponse(accessToken, refreshToken));
 
         // when & then
         mockMvc.perform(
@@ -81,7 +79,7 @@ class OauthDocumentationTest {
                         preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()),
                         resource(ResourceSnippetParameters.builder()
-                                .tag("OAuth")
+                                .tag("Auth")
                                 .summary("소셜 로그인")
                                 .requestSchema(Schema.schema("OauthLoginWebRequest"))
                                 .responseSchema(Schema.schema("AuthTokenWebResponse"))
