@@ -1,7 +1,9 @@
 package com.example.demo.domain;
 
+import jakarta.persistence.Embeddable;
 import java.util.regex.Pattern;
 
+@Embeddable
 public record InvitationCode(
     String value
 ) {
