@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.time.LocalDate;
 
+import static org.springframework.format.annotation.DateTimeFormat.*;
+
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -85,8 +87,8 @@ public class LedgerController {
     @GetMapping("/ledgers/summary")
     public ResponseEntity<LedgerSummaryWebResponse> getSummary(
         @UserId Long userId,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
+        @RequestParam @DateTimeFormat(iso = ISO.DATE) LocalDate start,
+        @RequestParam @DateTimeFormat(iso = ISO.DATE) LocalDate end
     ) {
         LedgerEntriesByDateRangeResponse response = ledgerService.getSummary(userId, start, end);
         return ResponseEntity.ok(LedgerSummaryWebResponse.from(response));
