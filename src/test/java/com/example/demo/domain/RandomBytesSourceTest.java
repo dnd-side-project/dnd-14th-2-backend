@@ -2,7 +2,7 @@ package com.example.demo.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.example.demo.infrastructure.user.SecureRandomBytesSource;
+import com.example.demo.application.user.SecureRandomBytesSource;
 import org.junit.jupiter.api.Test;
 
 class RandomBytesSourceTest {

@@ -2,7 +2,7 @@ package com.example.demo.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.example.demo.infrastructure.user.RandomNicknameGenerator;
+import com.example.demo.application.user.RandomNicknameGenerator;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.Test;

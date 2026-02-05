@@ -35,12 +35,12 @@ public class User extends BaseEntity{
     @AttributeOverride(name = "value", column = @Column(name = "nickname", unique = true, length = 5))
     private Nickname nickname;
 
-    @Column(nullable = false)
-    private String email;
-
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "invitation_code", unique = true, length = 6))
     private InvitationCode invitationCode;
+
+    @Column(nullable = false)
+    private String email;
 
     @Column(length = 2048, nullable = false)
     private String profile;
@@ -56,10 +56,10 @@ public class User extends BaseEntity{
 
     private LocalDateTime deletedAt;
 
-    public User(String email, Nickname nickname, InvitationCode invitationCode, String profile, Provider provider, String providerId) {
-        this.email = email;
+    public User(Nickname nickname, InvitationCode invitationCode, String email, String profile, Provider provider, String providerId) {
         this.nickname = nickname;
         this.invitationCode = invitationCode;
+        this.email = email;
         this.profile = profile;
         this.provider = provider;
         this.providerId = providerId;
