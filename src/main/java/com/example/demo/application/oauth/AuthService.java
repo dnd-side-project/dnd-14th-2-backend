@@ -33,7 +33,7 @@ public class AuthService {
     private TokenResponse issueTokens(Long userId) {
         TokenResponse token = tokenProvider.generateToken(userId);
 
-        RefreshToken refreshToken = refreshTokenRepository.findByUserId((userId))
+        RefreshToken refreshToken = refreshTokenRepository.findByUserId(userId)
             .orElseGet(() -> new RefreshToken(userId, token.refreshToken()));
 
         refreshToken.rotate(token.refreshToken());
