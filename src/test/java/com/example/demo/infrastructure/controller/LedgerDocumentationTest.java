@@ -11,6 +11,7 @@ import com.example.demo.domain.enums.LedgerCategory;
 import com.example.demo.domain.enums.LedgerType;
 import com.example.demo.domain.enums.PaymentMethod;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
@@ -35,13 +38,16 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.JsonFieldType.NUMBER;
 import static org.springframework.restdocs.payload.JsonFieldType.STRING;
+import static org.springframework.restdocs.payload.JsonFieldType.ARRAY;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.restdocs.snippet.Attributes.key;
 
 @WebMvcTest(LedgerController.class)
 @AutoConfigureRestDocs
+@Tag("restdocs")
 @Import(ClockTestConfig.class)
 class LedgerDocumentationTest {
 
@@ -67,6 +73,26 @@ class LedgerDocumentationTest {
     void setUpAuth() {
         final long userId = 1L;
         given(tokenProvider.validateToken(accessToken)).willReturn(userId);
+    }
+
+    private static String enumNames(Class<? extends Enum<?>> enumType) {
+        return Arrays.stream(enumType.getEnumConstants())
+            .map(Enum::name)
+            .collect(Collectors.joining(", "));
+    }
+
+    private static String allowedValues(Class<? extends Enum<?>> enumType) {
+        return "허용 값: [" + enumNames(enumType) + "]";
+    }
+
+    private static List<String> enumList(Class<? extends Enum<?>> enumType) {
+        return Arrays.stream(enumType.getEnumConstants())
+            .map(Enum::name)
+            .collect(Collectors.toList());
+    }
+
+    private static String dateExample() {
+        return "2026-01-24";
     }
 
     private LedgerResult sampleResult(Long ledgerId) {
@@ -97,7 +123,7 @@ class LedgerDocumentationTest {
                           "amount": 12000,
                           "type": "EXPENSE",
                           "category": "FOOD",
-                          "description": "점심", 
+                          "description": "점심",
                           "occurredOn": "2026-01-24",
                           "paymentMethod": "CREDIT_CARD",
                           "memo": "메모"
@@ -116,23 +142,94 @@ class LedgerDocumentationTest {
                     .requestSchema(Schema.schema("UpsertLedgerWebRequest"))
                     .responseSchema(Schema.schema("LedgerDetailWebResponse"))
                     .requestFields(
-                        fieldWithPath("amount").type(NUMBER).description("금액"),
-                        fieldWithPath("type").type(STRING).description("유형(INCOME/EXPENSE)"),
-                        fieldWithPath("category").type(STRING).description("카테고리"),
-                        fieldWithPath("description").type(STRING).description("설명"),
-                        fieldWithPath("occurredOn").type(STRING).description("발생 일자(yyyy-MM-dd)"),
-                        fieldWithPath("paymentMethod").type(STRING).description("결제 수단"),
-                        fieldWithPath("memo").type(STRING).optional().description("메모(선택)")
+                        fieldWithPath("amount").type(NUMBER)
+                            .attributes(
+                                key("format").value("int64"),
+                                key("example").value(12000)
+                            )
+                            .description("금액 (1원 이상 ~ 9,223,372,036,854,775,807원 이하 금액만 가능)"),
+                        fieldWithPath("type").type(STRING)
+                            .attributes(
+                                key("enum").value(enumList(LedgerType.class)),
+                                key("example").value(LedgerType.EXPENSE.name())
+                            )
+                            .description("유형. " + allowedValues(LedgerType.class)),
+                        fieldWithPath("category").type(STRING)
+                            .attributes(
+                                key("enum").value(enumList(LedgerCategory.class)),
+                                key("example").value(LedgerCategory.FOOD.name())
+                            )
+                            .description("카테고리. " + allowedValues(LedgerCategory.class)),
+                        fieldWithPath("description").type(STRING)
+                            .attributes(
+                                key("example").value("점심")
+                            )
+                            .description("가계부 내용"),
+                        fieldWithPath("occurredOn").type(STRING)
+                            .attributes(
+                                key("format").value("date"),
+                                key("example").value(dateExample())
+                            )
+                            .description("소비/지출 일자 (yyyy-MM-dd)"),
+                        fieldWithPath("paymentMethod").type(STRING)
+                            .attributes(
+                                key("enum").value(enumList(PaymentMethod.class)),
+                                key("example").value(PaymentMethod.CREDIT_CARD.name())
+                            )
+                            .description("결제 수단. " + allowedValues(PaymentMethod.class)),
+                        fieldWithPath("memo").type(STRING).optional()
+                            .attributes(
+                                key("example").value("메모")
+                            )
+                            .description("메모(선택)")
                     )
                     .responseFields(
-                        fieldWithPath("ledgerId").type(NUMBER).description("생성된 가계부 항목 ID"),
-                        fieldWithPath("amount").type(NUMBER).description("금액"),
-                        fieldWithPath("type").type(STRING).description("유형(INCOME/EXPENSE)"),
-                        fieldWithPath("category").type(STRING).description("카테고리"),
-                        fieldWithPath("description").type(STRING).description("설명"),
-                        fieldWithPath("occurredOn").type(STRING).description("발생 일자(yyyy-MM-dd)"),
-                        fieldWithPath("paymentMethod").type(STRING).description("결제 수단"),
-                        fieldWithPath("memo").type(STRING).optional().description("메모(선택)")
+                        fieldWithPath("ledgerId").type(NUMBER)
+                            .attributes(
+                                key("format").value("int64"),
+                                key("example").value(1)
+                            )
+                            .description("생성된 가계부 항목 ID"),
+                        fieldWithPath("amount").type(NUMBER)
+                            .attributes(
+                                key("format").value("int64"),
+                                key("example").value(12000)
+                            )
+                            .description("금액 (1원 이상 ~ 9,223,372,036,854,775,807원 이하 금액만 가능)"),
+                        fieldWithPath("type").type(STRING)
+                            .attributes(
+                                key("enum").value(enumList(LedgerType.class)),
+                                key("example").value(LedgerType.EXPENSE.name())
+                            )
+                            .description("유형. " + allowedValues(LedgerType.class)),
+                        fieldWithPath("category").type(STRING)
+                            .attributes(
+                                key("enum").value(enumList(LedgerCategory.class)),
+                                key("example").value(LedgerCategory.FOOD.name())
+                            )
+                            .description("카테고리. " + allowedValues(LedgerCategory.class)),
+                        fieldWithPath("description").type(STRING)
+                            .attributes(
+                                key("example").value("점심")
+                            )
+                            .description("가계부 내용"),
+                        fieldWithPath("occurredOn").type(STRING)
+                            .attributes(
+                                key("format").value("date"),
+                                key("example").value(dateExample())
+                            )
+                            .description("소비/지출 일자(yyyy-MM-dd)"),
+                        fieldWithPath("paymentMethod").type(STRING)
+                            .attributes(
+                                key("enum").value(enumList(PaymentMethod.class)),
+                                key("example").value(PaymentMethod.CREDIT_CARD.name())
+                            )
+                            .description("결제 수단. " + allowedValues(PaymentMethod.class)),
+                        fieldWithPath("memo").type(STRING).optional()
+                            .attributes(
+                                key("example").value("메모")
+                            )
+                            .description("메모(선택)")
                     )
                     .build())
             ));
@@ -162,14 +259,52 @@ class LedgerDocumentationTest {
                     )
                     .responseSchema(Schema.schema("LedgerDetailWebResponse"))
                     .responseFields(
-                        fieldWithPath("ledgerId").type(NUMBER).description("가계부 항목 ID"),
-                        fieldWithPath("amount").type(NUMBER).description("금액"),
-                        fieldWithPath("type").type(STRING).description("유형(INCOME/EXPENSE)"),
-                        fieldWithPath("category").type(STRING).description("카테고리"),
-                        fieldWithPath("description").type(STRING).description("설명"),
-                        fieldWithPath("occurredOn").type(STRING).optional().description("발생 일자(yyyy-MM-dd)"),
-                        fieldWithPath("paymentMethod").type(STRING).description("결제 수단"),
-                        fieldWithPath("memo").type(STRING).optional().description("메모(선택)")
+                        fieldWithPath("ledgerId").type(NUMBER)
+                            .attributes(
+                                key("format").value("int64"),
+                                key("example").value(1)
+                            )
+                            .description("가계부 항목 ID"),
+                        fieldWithPath("amount").type(NUMBER)
+                            .attributes(
+                                key("format").value("int64"),
+                                key("example").value(12000)
+                            )
+                            .description("금액 (1원 이상 ~ 9,223,372,036,854,775,807원 이하 금액만 가능)"),
+                        fieldWithPath("type").type(STRING)
+                            .attributes(
+                                key("enum").value(enumList(LedgerType.class)),
+                                key("example").value(LedgerType.EXPENSE.name())
+                            )
+                            .description("유형. " + allowedValues(LedgerType.class)),
+                        fieldWithPath("category").type(STRING)
+                            .attributes(
+                                key("enum").value(enumList(LedgerCategory.class)),
+                                key("example").value(LedgerCategory.FOOD.name())
+                            )
+                            .description("카테고리. " + allowedValues(LedgerCategory.class)),
+                        fieldWithPath("description").type(STRING)
+                            .attributes(
+                                key("example").value("점심")
+                            )
+                            .description("가계부 내용"),
+                        fieldWithPath("occurredOn").type(STRING)
+                            .attributes(
+                                key("format").value("date"),
+                                key("example").value(dateExample())
+                            )
+                            .description("소비/지출 일자(yyyy-MM-dd)"),
+                        fieldWithPath("paymentMethod").type(STRING)
+                            .attributes(
+                                key("enum").value(enumList(PaymentMethod.class)),
+                                key("example").value(PaymentMethod.CREDIT_CARD.name())
+                            )
+                            .description("결제 수단. " + allowedValues(PaymentMethod.class)),
+                        fieldWithPath("memo").type(STRING).optional()
+                            .attributes(
+                                key("example").value("메모")
+                            )
+                            .description("메모(선택)")
                     )
                     .build())
             ));
@@ -198,7 +333,9 @@ class LedgerDocumentationTest {
                     )
                     .requestSchema(Schema.schema("UpdateLedgerMemoWebRequest"))
                     .requestFields(
-                        fieldWithPath("memo").type(STRING).description("메모")
+                        fieldWithPath("memo").type(STRING)
+                            .attributes(key("example").value("새 메모"))
+                            .description("메모")
                     )
                     .build())
             ));
@@ -241,23 +378,94 @@ class LedgerDocumentationTest {
                     .requestSchema(Schema.schema("UpsertLedgerWebRequest"))
                     .responseSchema(Schema.schema("LedgerDetailWebResponse"))
                     .requestFields(
-                        fieldWithPath("amount").type(NUMBER).description("금액"),
-                        fieldWithPath("type").type(STRING).description("유형(INCOME/EXPENSE)"),
-                        fieldWithPath("category").type(STRING).description("카테고리"),
-                        fieldWithPath("description").type(STRING).description("설명"),
-                        fieldWithPath("occurredOn").type(STRING).description("발생 일자(yyyy-MM-dd)"),
-                        fieldWithPath("paymentMethod").type(STRING).description("결제 수단"),
-                        fieldWithPath("memo").type(STRING).optional().description("메모(선택)")
+                        fieldWithPath("amount").type(NUMBER)
+                            .attributes(
+                                key("format").value("int64"),
+                                key("example").value(12000)
+                            )
+                            .description("금액 (1원 이상 ~ 9,223,372,036,854,775,807원 이하 금액만 가능)"),
+                        fieldWithPath("type").type(STRING)
+                            .attributes(
+                                key("enum").value(enumList(LedgerType.class)),
+                                key("example").value(LedgerType.EXPENSE.name())
+                            )
+                            .description("유형. " + allowedValues(LedgerType.class)),
+                        fieldWithPath("category").type(STRING)
+                            .attributes(
+                                key("enum").value(enumList(LedgerCategory.class)),
+                                key("example").value(LedgerCategory.FOOD.name())
+                            )
+                            .description("카테고리. " + allowedValues(LedgerCategory.class)),
+                        fieldWithPath("description").type(STRING)
+                            .attributes(
+                                key("example").value("점심")
+                            )
+                            .description("가계부 내용"),
+                        fieldWithPath("occurredOn").type(STRING)
+                            .attributes(
+                                key("format").value("date"),
+                                key("example").value(dateExample())
+                            )
+                            .description("소비/지출 일자(yyyy-MM-dd)"),
+                        fieldWithPath("paymentMethod").type(STRING)
+                            .attributes(
+                                key("enum").value(enumList(PaymentMethod.class)),
+                                key("example").value(PaymentMethod.CREDIT_CARD.name())
+                            )
+                            .description("결제 수단. " + allowedValues(PaymentMethod.class)),
+                        fieldWithPath("memo").type(STRING).optional()
+                            .attributes(
+                                key("example").value("메모")
+                            )
+                            .description("메모(선택)")
                     )
                     .responseFields(
-                        fieldWithPath("ledgerId").type(NUMBER).description("가계부 항목 ID"),
-                        fieldWithPath("amount").type(NUMBER).description("금액"),
-                        fieldWithPath("type").type(STRING).description("유형(INCOME/EXPENSE)"),
-                        fieldWithPath("category").type(STRING).description("카테고리"),
-                        fieldWithPath("description").type(STRING).description("설명"),
-                        fieldWithPath("occurredOn").type(STRING).optional().description("발생 일자(yyyy-MM-dd)"),
-                        fieldWithPath("paymentMethod").type(STRING).description("결제 수단"),
-                        fieldWithPath("memo").type(STRING).optional().description("메모(선택)")
+                        fieldWithPath("ledgerId").type(NUMBER)
+                            .attributes(
+                                key("format").value("int64"),
+                                key("example").value(1)
+                            )
+                            .description("가계부 항목 ID"),
+                        fieldWithPath("amount").type(NUMBER)
+                            .attributes(
+                                key("format").value("int64"),
+                                key("example").value(12000)
+                            )
+                            .description("금액 (1원 이상 ~ 9,223,372,036,854,775,807원 이하 금액만 가능)"),
+                        fieldWithPath("type").type(STRING)
+                            .attributes(
+                                key("enum").value(enumList(LedgerType.class)),
+                                key("example").value(LedgerType.EXPENSE.name())
+                            )
+                            .description("유형. " + allowedValues(LedgerType.class)),
+                        fieldWithPath("category").type(STRING)
+                            .attributes(
+                                key("enum").value(enumList(LedgerCategory.class)),
+                                key("example").value(LedgerCategory.FOOD.name())
+                            )
+                            .description("카테고리. " + allowedValues(LedgerCategory.class)),
+                        fieldWithPath("description").type(STRING)
+                            .attributes(
+                                key("example").value("점심")
+                            )
+                            .description("가계부 내용"),
+                        fieldWithPath("occurredOn").type(STRING)
+                            .attributes(
+                                key("format").value("date"),
+                                key("example").value(dateExample())
+                            )
+                            .description("소비/지출 일자(yyyy-MM-dd)"),
+                        fieldWithPath("paymentMethod").type(STRING)
+                            .attributes(
+                                key("enum").value(enumList(PaymentMethod.class)),
+                                key("example").value(PaymentMethod.CREDIT_CARD.name())
+                            )
+                            .description("결제 수단. " + allowedValues(PaymentMethod.class)),
+                        fieldWithPath("memo").type(STRING).optional()
+                            .attributes(
+                                key("example").value("메모")
+                            )
+                            .description("메모(선택)")
                     )
                     .build())
             ));
@@ -324,6 +532,69 @@ class LedgerDocumentationTest {
                         parameterWithName("end").optional().description("조회 종료일(yyyy-MM-dd), 미입력 시 기본값 적용")
                     )
                     .responseSchema(Schema.schema("LedgerSummaryWebResponse"))
+                    .responseFields(
+                        fieldWithPath("start").type(STRING)
+                            .attributes(
+                                key("format").value("date"),
+                                key("example").value("2026-01-01")
+                            )
+                            .description("조회 시작일(yyyy-MM-dd)"),
+                        fieldWithPath("end").type(STRING)
+                            .attributes(
+                                key("format").value("date"),
+                                key("example").value("2026-01-31")
+                            )
+                            .description("조회 종료일(yyyy-MM-dd)"),
+                        fieldWithPath("result").type(ARRAY)
+                            .description("일자 범위 내 가계부 항목 목록"),
+
+                        fieldWithPath("result[].ledgerId").type(NUMBER)
+                            .attributes(
+                                key("format").value("int64"),
+                                key("example").value(1)
+                            )
+                            .description("가계부 항목 ID"),
+                        fieldWithPath("result[].amount").type(NUMBER)
+                            .attributes(
+                                key("format").value("int64"),
+                                key("example").value(12000)
+                            )
+                            .description("금액 (1원 이상 ~ 9,223,372,036,854,775,807원 이하 금액만 가능)"),
+                        fieldWithPath("result[].type").type(STRING)
+                            .attributes(
+                                key("enum").value(enumList(LedgerType.class)),
+                                key("example").value(LedgerType.EXPENSE.name())
+                            )
+                            .description("유형. " + allowedValues(LedgerType.class)),
+                        fieldWithPath("result[].category").type(STRING)
+                            .attributes(
+                                key("enum").value(enumList(LedgerCategory.class)),
+                                key("example").value(LedgerCategory.FOOD.name())
+                            )
+                            .description("카테고리. " + allowedValues(LedgerCategory.class)),
+                        fieldWithPath("result[].description").type(STRING)
+                            .attributes(
+                                key("example").value("점심")
+                            )
+                            .description("가계부 내용"),
+                        fieldWithPath("result[].occurredOn").type(STRING)
+                            .attributes(
+                                key("format").value("date"),
+                                key("example").value(dateExample())
+                            )
+                            .description("소비/지출 일자(yyyy-MM-dd)"),
+                        fieldWithPath("result[].paymentMethod").type(STRING)
+                            .attributes(
+                                key("enum").value(enumList(PaymentMethod.class)),
+                                key("example").value(PaymentMethod.CREDIT_CARD.name())
+                            )
+                            .description("결제 수단. " + allowedValues(PaymentMethod.class)),
+                        fieldWithPath("result[].memo").type(STRING).optional()
+                            .attributes(
+                                key("example").value("메모")
+                            )
+                            .description("메모(선택)")
+                    )
                     .build())
             ));
     }
