@@ -3,19 +3,14 @@ package com.example.demo.application.user;
 import com.example.demo.application.dto.OauthUserInfo;
 import com.example.demo.application.dto.UserInfo;
 import com.example.demo.domain.InvitationCode;
-import com.example.demo.domain.RefreshTokenRepository;
 import com.example.demo.domain.Nickname;
 import com.example.demo.domain.NicknameGenerator;
 import com.example.demo.domain.Provider;
 import com.example.demo.domain.RandomBytesSource;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
-import java.time.Clock;
-import java.time.LocalDateTime;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,14 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class UserService {
 
-    private static final int MAX_RETRY = 10;
-
     private final UserRepository userRepository;
-    private final NicknameGenerator nicknameGenerator;
-    private final InvitationCodeGenerator invitationCodeGenerator;
-    private final RefreshTokenRepository refreshTokenRepository;
-    private final Clock clock;
     private final RandomBytesSource randomBytesSource;
+    private final NicknameGenerator nicknameGenerator;
 
     @Transactional(readOnly = true)
     public UserInfo getUserInfo(Long userId) {
@@ -40,52 +30,24 @@ public class UserService {
     }
 
     @Transactional
-    public User login(Provider provider, OauthUserInfo oauthUserInfo) {
+    public User findOrCreateUser(Provider provider, OauthUserInfo oauthUserInfo) {
+        InvitationCode invitationCode = InvitationCode.generate(randomBytesSource);
+        Nickname nickname = nicknameGenerator.generate();
+
         return userRepository.findByProviderAndProviderId(provider, oauthUserInfo.providerId())
-            .orElseGet(() -> createUserWithRetries(provider, oauthUserInfo));
-    }
+            .orElseGet(() -> {
+                    User user = new User(
+                        nickname,
+                        invitationCode,
+                        oauthUserInfo.email(),
+                        oauthUserInfo.picture(),
+                        provider,
+                        oauthUserInfo.providerId()
+                    );
 
-    private User createUserWithRetries(Provider provider, OauthUserInfo info) {
-        for (int retry = 1; retry <= MAX_RETRY; retry++) {
-            Nickname nickname = nicknameGenerator.generate();
-            InvitationCode invitationCode = InvitationCode.generate(randomBytesSource);
-
-            User user = new User(
-                info.email(),
-                nickname,
-                invitationCode,
-                info.picture(),
-                provider,
-                info.providerId()
-            );
-
-            try {
-                // flush를 통해 유니크 제약 조건 검사
-                return userRepository.saveAndFlush(user);
-            } catch (DataIntegrityViolationException e) {
-                // 동시 로그인 경쟁으로 provider/providerId 유저가 이미 생성됐을 수 있음
-                Optional<User> existing = userRepository.findByProviderAndProviderId(provider, info.providerId());
-                if (existing.isPresent()) {
-                    return existing.get();
+                    return userRepository.save(user);
                 }
-                // 아직 없으면 닉네임/초대코드 유니크 충돌 가능성이 높으니 retry
-                log.warn("유저 닉네임/초대코드 중복으로 인한 재시도 횟수: {}/{}, userProvider: {}, userProviderId: {}",
-                    retry, MAX_RETRY, provider.name(), info.providerId(), e);
-            }
-        }
-        throw new IllegalStateException(
-            String.format(
-                "닉네임/초대코드 중복으로 인해 유저 생성에 실패했습니다. userProvider: %s, userProviderId: %s",
-                provider.name(), info.providerId()
-            )
-        );
-        return invitationCode;
-    }
-
-    private void validateIsDuplicateNickname(String nickname) {
-        if (userRepository.existsByNickname(nickname)) {
-            throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
-        }
+            );
     }
 
     @Transactional

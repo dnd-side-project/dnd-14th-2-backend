@@ -56,12 +56,12 @@ class AuthDocumentationTest {
         // given
         String idToken = "test-id-token";
         User user = new User(
-                "test@email.com",
-                new Nickname("test"),
-                new InvitationCode("ABCDEF"),
-                "https://profile/image.jpg",
-                Provider.KAKAO,
-                "provider-id"
+            new Nickname("test"),
+            new InvitationCode("ABCDEF"),
+            "test@email.com",
+            "https://profile/image.jpg",
+            Provider.KAKAO,
+            "provider-id"
         );
         String accessToken = "jwt.access.token";
         String refreshToken = "jwt.refresh.token";

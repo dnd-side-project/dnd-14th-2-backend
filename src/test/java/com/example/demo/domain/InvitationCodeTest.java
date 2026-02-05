@@ -3,7 +3,7 @@ package com.example.demo.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.example.demo.infrastructure.user.SecureRandomBytesSource;
+import com.example.demo.application.user.SecureRandomBytesSource;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.Test;

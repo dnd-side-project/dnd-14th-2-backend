@@ -5,17 +5,13 @@ import static org.mockito.BDDMockito.given;
 
 import com.example.demo.application.dto.OauthUserInfo;
 import com.example.demo.application.dto.TokenResponse;
-import com.example.demo.application.oauth.AuthService;
-import com.example.demo.application.oauth.IdTokenVerifier;
 import com.example.demo.domain.InvitationCode;
 import com.example.demo.domain.Nickname;
 import com.example.demo.domain.Provider;
-import com.example.demo.domain.RefreshToken;
 import com.example.demo.domain.RefreshTokenRepository;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
 import com.example.demo.util.AbstractIntegrationTest;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -43,9 +39,9 @@ class AuthServiceTest extends AbstractIntegrationTest {
         );
 
         User user = new User(
-            "test@email.com",
             new Nickname("test"),
             new InvitationCode("ABCDEF"),
+            "test@email.com",
             "http://test.jpg",
             Provider.GOOGLE,
             "test-provider-id"
