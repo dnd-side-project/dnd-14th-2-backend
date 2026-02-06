@@ -20,11 +20,11 @@ import org.hibernate.annotations.SQLRestriction;
 @Table(uniqueConstraints = {
     @UniqueConstraint(
         name = "uk_user_provider_provider_id",
-        columnNames = {"provider", "provider_id"}
+        columnNames = {"provider", "provider_id", "is_deleted"}
     )
 })
 @NoArgsConstructor
-@SQLRestriction("deleted_at IS NULL")
+@SQLRestriction("is_deleted = 0")
 public class User extends BaseEntity{
 
     @Id
@@ -54,6 +54,8 @@ public class User extends BaseEntity{
 
     private Integer level = 0;
 
+    private boolean isDeleted;
+
     private LocalDateTime deletedAt;
 
     public User(Nickname nickname, InvitationCode invitationCode, String email, String profile, Provider provider, String providerId) {
@@ -63,12 +65,12 @@ public class User extends BaseEntity{
         this.profile = profile;
         this.provider = provider;
         this.providerId = providerId;
+        this.isDeleted = false;
     }
 
     public void withdraw(LocalDateTime deletedAt) {
+        this.isDeleted = true;
         this.deletedAt = deletedAt;
-        this.email = null;
-        this.profile = null;
     }
 
     public void changeNickname(String nickname) {

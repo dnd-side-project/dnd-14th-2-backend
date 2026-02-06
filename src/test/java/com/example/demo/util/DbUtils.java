@@ -7,18 +7,18 @@ import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
 
 public class DbUtils {
-    public static User kakaoUser(Nickname nickname, InvitationCode invitationCode) {
+    public static User kakaoUser(String providerId, Nickname nickname, InvitationCode invitationCode) {
         return new User(
             nickname,
             invitationCode,
             "test@example.com",
             "https://profile.com/image.png",
             Provider.KAKAO,
-            "kakao-test-1"
+            providerId
         );
     }
 
-    public static User givenSavedUser(UserRepository repo, Nickname nickname, InvitationCode invitationCode) {
-        return repo.save(kakaoUser(nickname, invitationCode));
+    public static User givenSavedUser(UserRepository repo, String providerId, Nickname nickname, InvitationCode invitationCode) {
+        return repo.save(kakaoUser(providerId, nickname, invitationCode));
     }
 }

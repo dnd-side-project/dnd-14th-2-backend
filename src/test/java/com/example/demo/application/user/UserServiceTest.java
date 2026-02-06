@@ -2,11 +2,13 @@ package com.example.demo.application.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.example.demo.application.dto.OauthUserInfo;
 import com.example.demo.application.dto.UserInfo;
+import com.example.demo.domain.InvitationCode;
+import com.example.demo.domain.Nickname;
 import com.example.demo.domain.Provider;
-import com.example.demo.application.user.UserService;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
 import com.example.demo.util.AbstractIntegrationTest;
@@ -133,7 +135,7 @@ class UserServiceTest extends AbstractIntegrationTest {
     @Test
     void 회원탈퇴를_할_수_있다() {
         // given
-        User user = DbUtils.givenSavedUser(userRepository);
+        User user = DbUtils.givenSavedUser(userRepository, "kakao-test-1", new Nickname("test"), new InvitationCode("INCODE"));
 
         // when
         sut.withdrawUser(user.getId());
@@ -151,7 +153,7 @@ class UserServiceTest extends AbstractIntegrationTest {
         assertThatThrownBy(() -> sut.getUserInfo(nonExistentId))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("존재하지 않는 사용자입니다.");
-        assertThat(userRepository.findById(user.getId())).isEmpty();
+        assertThat(userRepository.findById(nonExistentId)).isEmpty();
     }
 
     @Test
@@ -161,7 +163,7 @@ class UserServiceTest extends AbstractIntegrationTest {
 
     @Test
     void 이미_탈퇴한_유저를_다시_탈퇴해도_멱등성이_지켜진다() {
-        User user = DbUtils.givenSavedUser(userRepository);
+        User user = DbUtils.givenSavedUser(userRepository, "kakao-test-1", new Nickname("test"), new InvitationCode("INCODE"));
 
         sut.withdrawUser(user.getId());
 
