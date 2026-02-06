@@ -7,8 +7,11 @@ import com.example.demo.domain.Nickname;
 import com.example.demo.domain.NicknameGenerator;
 import com.example.demo.domain.Provider;
 import com.example.demo.domain.RandomBytesSource;
+import com.example.demo.domain.RefreshTokenRepository;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
+import java.time.Clock;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final RandomBytesSource randomBytesSource;
     private final NicknameGenerator nicknameGenerator;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final Clock clock;
 
     @Transactional(readOnly = true)
     public UserInfo getUserInfo(Long userId) {
