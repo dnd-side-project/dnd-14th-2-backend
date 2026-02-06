@@ -5,6 +5,7 @@ import com.example.demo.application.dto.LedgerResult;
 import com.example.demo.application.dto.UpsertLedgerCommand;
 import com.example.demo.domain.LedgerEntry;
 import com.example.demo.domain.LedgerEntryRepository;
+import com.example.demo.domain.Provider;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
 import com.example.demo.domain.enums.LedgerCategory;
@@ -148,7 +149,14 @@ class LedgerServiceTest extends AbstractIntegrationTest {
         LedgerEntry savedEntry = ledgerEntryRepository.save(entry);
         flushAndClear();
 
-        User savedUser2 = DbUtils.givenSavedUser(userRepository);
+        User savedUser2 = userRepository.save(
+            new User(
+                "test@example.com",
+                "https://profile.com/image.png",
+                Provider.KAKAO,
+                "kakao-test-2"
+            )
+        );
 
         // when & then
         assertThatThrownBy(() -> ledgerService.getLedgerEntry(savedUser2.getId(), savedEntry.getId()))
@@ -276,7 +284,6 @@ class LedgerServiceTest extends AbstractIntegrationTest {
         );
         ledgerEntryRepository.save(entry2);
 
-
         LedgerEntry entry3 = new LedgerEntry(
             200L,
             LedgerType.EXPENSE,
@@ -289,7 +296,6 @@ class LedgerServiceTest extends AbstractIntegrationTest {
         );
         ledgerEntryRepository.save(entry3);
         flushAndClear();
-
 
         // when
         LedgerEntriesByDateRangeResponse response = ledgerService.getSummary(savedUser.getId(), start, end);
