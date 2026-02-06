@@ -74,6 +74,8 @@ class UserDocumentationTest {
                     .build()
                 )
             ));
+
+        verify(userService).changeNickname(eq(userId), eq(nickname));
     }
 
     @Test

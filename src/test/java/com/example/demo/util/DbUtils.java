@@ -7,6 +7,25 @@ import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
 
 public class DbUtils {
+
+    private static int userCounter = 0;
+
+    public static User kakaoUser() {
+        userCounter++;
+        return kakaoUser(
+            "kakao-test-" + userCounter,
+            new Nickname("usr" + String.format("%02d", userCounter)),
+            new InvitationCode("CODE" + twoLetterSuffix(userCounter))
+        );
+    }
+
+    private static String twoLetterSuffix(int value) {
+        int v = value % (26 * 26);
+        char first = (char) ('A' + (v / 26));
+        char second = (char) ('A' + (v % 26));
+        return "" + first + second;
+    }
+
     public static User kakaoUser(String providerId, Nickname nickname, InvitationCode invitationCode) {
         return new User(
             nickname,
@@ -18,7 +37,7 @@ public class DbUtils {
         );
     }
 
-    public static User givenSavedUser(UserRepository repo, String providerId, Nickname nickname, InvitationCode invitationCode) {
-        return repo.save(kakaoUser(providerId, nickname, invitationCode));
+    public static User givenSavedUser(UserRepository repo) {
+        return repo.save(kakaoUser());
     }
 }

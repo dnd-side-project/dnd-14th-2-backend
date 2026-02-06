@@ -135,7 +135,7 @@ class UserServiceTest extends AbstractIntegrationTest {
     @Test
     void 회원탈퇴를_할_수_있다() {
         // given
-        User user = DbUtils.givenSavedUser(userRepository, "kakao-test-1", new Nickname("test"), new InvitationCode("INCODE"));
+        User user = DbUtils.givenSavedUser(userRepository);
 
         // when
         sut.withdrawUser(user.getId());
@@ -163,7 +163,7 @@ class UserServiceTest extends AbstractIntegrationTest {
 
     @Test
     void 이미_탈퇴한_유저를_다시_탈퇴해도_멱등성이_지켜진다() {
-        User user = DbUtils.givenSavedUser(userRepository, "kakao-test-1", new Nickname("test"), new InvitationCode("INCODE"));
+        User user = DbUtils.givenSavedUser(userRepository);
 
         sut.withdrawUser(user.getId());
 
