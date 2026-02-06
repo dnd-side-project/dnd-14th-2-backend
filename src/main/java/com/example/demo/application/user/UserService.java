@@ -31,23 +31,24 @@ public class UserService {
 
     @Transactional
     public User findOrCreateUser(Provider provider, OauthUserInfo oauthUserInfo) {
+        return userRepository.findByProviderAndProviderId(provider, oauthUserInfo.providerId())
+            .orElseGet(() -> createUser(provider, oauthUserInfo));
+    }
+
+    private User createUser(Provider provider, OauthUserInfo oauthUserInfo) {
         InvitationCode invitationCode = InvitationCode.generate(randomBytesSource);
         Nickname nickname = nicknameGenerator.generate();
 
-        return userRepository.findByProviderAndProviderId(provider, oauthUserInfo.providerId())
-            .orElseGet(() -> {
-                    User user = new User(
-                        nickname,
-                        invitationCode,
-                        oauthUserInfo.email(),
-                        oauthUserInfo.picture(),
-                        provider,
-                        oauthUserInfo.providerId()
-                    );
+        User user = new User(
+            nickname,
+            invitationCode,
+            oauthUserInfo.email(),
+            oauthUserInfo.picture(),
+            provider,
+            oauthUserInfo.providerId()
+        );
 
-                    return userRepository.save(user);
-                }
-            );
+        return userRepository.save(user);
     }
 
     @Transactional
