@@ -155,26 +155,26 @@ class UserServiceTest extends AbstractIntegrationTest {
         @Test
         void 사용자는_닉네임_변경을_할_수_있다() {
             // given
-            Nickname newNickname = new Nickname("users");
+            String newNickname = "users";
             User user = DbUtils.givenSavedUser(userRepository);
 
             // when
-            sut.changeNickname(user.getId(), newNickname.value());
+            sut.changeNickname(user.getId(), newNickname);
 
             // then
             assertThat(userRepository.findById(user.getId()))
-                .hasValueSatisfying(findUser -> assertThat(findUser.getNickname()).isEqualTo(newNickname.value()));
-            assertThat(userRepository.existsByNickname_Value(newNickname.value())).isTrue();
+                .hasValueSatisfying(findUser -> assertThat(findUser.getNickname()).isEqualTo(newNickname));
+            assertThat(userRepository.existsByNickname_Value(newNickname)).isTrue();
         }
 
         @Test
         void 없는_사용자는_닉네임_변경을_할_수_없다() {
             // given
             Long wrongUserId = 999L;
-            Nickname newNickname = new Nickname("test");
+            String newNickname = "test";
 
             // when
-            assertThatThrownBy(() -> sut.changeNickname(wrongUserId, newNickname.value()))
+            assertThatThrownBy(() -> sut.changeNickname(wrongUserId, newNickname))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("존재하지 않는 사용자입니다.");
         }
@@ -182,12 +182,12 @@ class UserServiceTest extends AbstractIntegrationTest {
         @Test
         void 중복_닉네임으로_변경할_수_없다() {
             // given
-            Nickname user1Nickname = new Nickname("test");
-            DbUtils.givenSavedUser(userRepository, user1Nickname, new InvitationCode("INCODE"));
+            String user1Nickname = "test";
+            DbUtils.givenSavedUser(userRepository, new Nickname(user1Nickname), new InvitationCode("INCODE"));
             User user2 = DbUtils.givenSavedUser(userRepository);
 
             // when
-            assertThatThrownBy(() -> sut.changeNickname(user2.getId(), user1Nickname.value()))
+            assertThatThrownBy(() -> sut.changeNickname(user2.getId(), user1Nickname))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("중복되는 닉네임입니다.");
         }

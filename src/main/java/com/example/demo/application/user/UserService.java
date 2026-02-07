@@ -74,7 +74,7 @@ public class UserService {
         }
 
         try {
-            user.changeNickname(nickname);
+            user.changeNickname(new Nickname(nickname));
         } catch (DataIntegrityViolationException e) {
             throw new IllegalArgumentException("중복되는 닉네임입니다.");
         }

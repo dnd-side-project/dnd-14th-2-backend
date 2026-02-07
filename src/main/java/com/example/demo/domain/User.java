@@ -55,6 +55,7 @@ public class User extends BaseEntity{
 
     private Integer level = 0;
 
+    @Column(name = "is_deleted")
     private boolean isDeleted;
 
     private LocalDateTime deletedAt;
@@ -74,8 +75,8 @@ public class User extends BaseEntity{
         this.deletedAt = deletedAt;
     }
 
-    public void changeNickname(String nickname) {
-        this.nickname = new Nickname(nickname);
+    public void changeNickname(Nickname nickname) {
+        this.nickname = nickname;
     }
 
     public String getNickname() {
