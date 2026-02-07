@@ -14,6 +14,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,7 +69,15 @@ public class UserService {
     public void changeNickname(Long userId, String nickname) {
         User user = findUserById(userId);
 
-        user.changeNickname(nickname);
+        if (userRepository.existsByNickname_Value(nickname)) {
+            throw new IllegalArgumentException("중복되는 닉네임입니다.");
+        }
+
+        try {
+            user.changeNickname(nickname);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException("중복되는 닉네임입니다.");
+        }
     }
 
     private User findUserById(Long userId) {

@@ -12,4 +12,6 @@ public interface UserRepository extends Repository<User, Long> {
     Optional<User> findById(Long userId);
 
     Optional<User> findByProviderAndProviderId(Provider provider, String providerId);
+
+    boolean existsByNickname_Value(String nickname);
 }
