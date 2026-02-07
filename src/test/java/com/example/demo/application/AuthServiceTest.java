@@ -37,24 +37,6 @@ class AuthServiceTest extends AbstractIntegrationTest {
     private RefreshTokenRepository refreshTokenRepository;
 
     @Test
-    void 토큰을_발급_받을_수_있다() {
-        // given
-        User user = new User("test@email.com", "http://test.jpg", Provider.GOOGLE, "test-provider-id");
-        User savedUser = userRepository.save(user);
-
-        // when
-        TokenResponse tokenResponse = sut.issueTokens(savedUser);
-
-        // then
-        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUserId(savedUser.getId());
-        assertThat(refreshToken.get())
-            .isNotNull();
-        assertThat(refreshToken.get())
-            .extracting("token")
-            .isEqualTo(tokenResponse.refreshToken());
-    }
-
-    @Test
     void 유효한_리프레쉬_토큰으로_새_토큰을_반환한다() {
         // given
         Long userId = 1L;

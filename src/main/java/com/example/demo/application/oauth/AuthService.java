@@ -21,6 +21,7 @@ public class AuthService {
 
     private final OauthAuthenticator oauthAuthenticator;
     private final UserService userService;
+    private final TokenProvider tokenProvider;
     private final TokenIssuer tokenIssuer;
     private final RefreshTokenRepository refreshTokenRepository;
 
@@ -52,10 +53,6 @@ public class AuthService {
 
         log.info("토큰 재발급 요청 userId: {}", userId);
 
-        TokenResponse tokenResponse = tokenProvider.generateToken(userId);
-        findRefreshToken.rotate(tokenResponse.refreshToken());
-        refreshTokenRepository.save(findRefreshToken);
-
-        return tokenResponse;
+        return tokenIssuer.reissueTokens(findRefreshToken);
     }
 }
