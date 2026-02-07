@@ -9,6 +9,7 @@ import com.example.demo.domain.RefreshTokenRepository;
 import com.example.demo.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,8 +29,12 @@ public class AuthService {
 
     @Transactional
     public TokenResponse processLogin(Provider provider, OauthUserInfo userInfo) {
-        User user = userService.findOrCreateUser(provider, userInfo);
-        return issueTokens(user.getId());
+        try {
+            User user = userService.findOrCreateUser(provider, userInfo);
+            return issueTokens(user.getId());
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalStateException("닉네임/초대코드 중복으로 인해 새로운 유저 생성에 실패했습니다.");
+        }
     }
 
     private TokenResponse issueTokens(Long userId) {
