@@ -133,8 +133,8 @@ class AuthDocumentationTest {
             String newAccessToken = "jwt.new.access.token";
             String newRefreshToken = "jwt.new.refresh.token";
 
-            given(tokenProvider.validateRefreshToken(refreshToken)).willReturn(userId);
-            given(authService.reissueToken(refreshToken)).willReturn(new TokenResponse(newAccessToken, newRefreshToken));
+            given(authService.reissueToken(refreshToken))
+                .willReturn(new TokenResponse(newAccessToken, newRefreshToken));
 
             // when & then
             mockMvc.perform(
