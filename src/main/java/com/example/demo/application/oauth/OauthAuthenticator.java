@@ -12,7 +12,6 @@ public class OauthAuthenticator {
 
     private final IdTokenVerifier idTokenVerifier;
 
-    @Transactional
     public OauthUserInfo authenticate(Provider provider, String idToken) {
         return idTokenVerifier.verifyAndGetUserInfo(provider, idToken);
     }
