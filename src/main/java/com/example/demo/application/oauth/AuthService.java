@@ -22,11 +22,14 @@ public class AuthService {
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    @Transactional
     public TokenResponse login(Provider provider, String idToken) {
         OauthUserInfo userInfo = oauthAuthenticator.authenticate(provider, idToken);
-        User user = userService.findOrCreateUser(provider, userInfo);
+        return processLogin(provider, userInfo);
+    }
 
+    @Transactional
+    public TokenResponse processLogin(Provider provider, OauthUserInfo userInfo) {
+        User user = userService.findOrCreateUser(provider, userInfo);
         return issueTokens(user.getId());
     }
 
