@@ -1,11 +1,14 @@
 package com.example.demo.application.oauth;
 
+import com.example.demo.application.dto.OauthUserInfo;
 import com.example.demo.application.dto.TokenResponse;
+import com.example.demo.application.user.UserService;
 import com.example.demo.domain.Provider;
 import com.example.demo.domain.RefreshToken;
 import com.example.demo.domain.RefreshTokenRepository;
 import com.example.demo.domain.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,25 +17,22 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final OauthAuthenticator oauthAuthenticator;
-    private final TokenProvider tokenProvider;
+    private final UserService userService;
+    private final TokenIssuer tokenIssuer;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    @Transactional
     public TokenResponse login(Provider provider, String idToken) {
-        User user = oauthAuthenticator.getUserInfo(provider, idToken);
-        return issueTokens(user);
+        OauthUserInfo userInfo = oauthAuthenticator.authenticate(provider, idToken);
+        return processLogin(provider, userInfo);
     }
 
-    private TokenResponse issueTokens(User user) {
-        TokenResponse token = tokenProvider.generateToken(user.getId());
-
-        RefreshToken refreshToken = refreshTokenRepository.findByUserId((user.getId()))
-            .orElseGet(() -> new RefreshToken(user.getId(), token.refreshToken()));
-
-        refreshToken.rotate(token.refreshToken());
-        refreshTokenRepository.save(refreshToken);
-
-        return token;
+    private TokenResponse processLogin(Provider provider, OauthUserInfo userInfo) {
+        try {
+            User user = userService.findOrCreateUser(provider, userInfo);
+            return tokenIssuer.issueTokens(user.getId());
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalStateException("닉네임/초대코드 중복으로 인해 새로운 유저 생성에 실패했습니다.", e);
+        }
     }
 
     @Transactional

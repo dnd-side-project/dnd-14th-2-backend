@@ -30,6 +30,15 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.BAD_REQUEST, msg);
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException e) {
+        String msg = e.getMessage();
+        if (msg == null || msg.isBlank()) {
+            msg = "요청 값이 올바르지 않습니다.";
+        }
+        return error(HttpStatus.INTERNAL_SERVER_ERROR, msg);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
         String message = validationMessage(e);

@@ -1,7 +1,6 @@
 package com.example.demo.infrastructure.controller.dto;
 
 import com.example.demo.application.dto.LedgerEntriesByDateRangeResponse;
-
 import java.time.LocalDate;
 import java.util.List;
 

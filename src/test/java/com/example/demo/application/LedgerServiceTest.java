@@ -1,11 +1,13 @@
 package com.example.demo.application;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import com.example.demo.application.dto.LedgerEntriesByDateRangeResponse;
 import com.example.demo.application.dto.LedgerResult;
 import com.example.demo.application.dto.UpsertLedgerCommand;
 import com.example.demo.domain.LedgerEntry;
 import com.example.demo.domain.LedgerEntryRepository;
-import com.example.demo.domain.Provider;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
 import com.example.demo.domain.enums.LedgerCategory;
@@ -14,15 +16,11 @@ import com.example.demo.domain.enums.PaymentMethod;
 import com.example.demo.util.AbstractIntegrationTest;
 import com.example.demo.util.DbUtils;
 import jakarta.persistence.EntityManager;
+import java.time.LocalDate;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Transactional
 class LedgerServiceTest extends AbstractIntegrationTest {
@@ -149,14 +147,7 @@ class LedgerServiceTest extends AbstractIntegrationTest {
         LedgerEntry savedEntry = ledgerEntryRepository.save(entry);
         flushAndClear();
 
-        User savedUser2 = userRepository.save(
-            new User(
-                "test@example.com",
-                "https://profile.com/image.png",
-                Provider.KAKAO,
-                "kakao-test-2"
-            )
-        );
+        User savedUser2 = DbUtils.givenSavedUser(userRepository);
 
         // when & then
         assertThatThrownBy(() -> ledgerService.getLedgerEntry(savedUser2.getId(), savedEntry.getId()))

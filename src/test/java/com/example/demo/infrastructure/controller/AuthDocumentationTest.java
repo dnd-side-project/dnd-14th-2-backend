@@ -20,6 +20,8 @@ import com.example.demo.application.dto.TokenResponse;
 import com.example.demo.application.oauth.AuthService;
 import com.example.demo.application.oauth.OauthAuthenticator;
 import com.example.demo.application.oauth.TokenProvider;
+import com.example.demo.domain.InvitationCode;
+import com.example.demo.domain.Nickname;
 import com.example.demo.domain.Provider;
 import com.example.demo.domain.User;
 import org.junit.jupiter.api.Tag;
@@ -53,12 +55,6 @@ class AuthDocumentationTest {
     void oauthLogin_docs() throws Exception {
         // given
         String idToken = "test-id-token";
-        User user = new User(
-                "test@email.com",
-                "https://profile/image.jpg",
-                Provider.KAKAO,
-                "provider-id"
-        );
         String accessToken = "jwt.access.token";
         String refreshToken = "jwt.refresh.token";
 

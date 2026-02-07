@@ -1,19 +1,17 @@
-package com.example.demo.application;
+package com.example.demo.application.oauth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 import com.example.demo.application.dto.OauthUserInfo;
 import com.example.demo.application.dto.TokenResponse;
-import com.example.demo.application.oauth.AuthService;
-import com.example.demo.application.oauth.IdTokenVerifier;
+import com.example.demo.domain.InvitationCode;
+import com.example.demo.domain.Nickname;
 import com.example.demo.domain.Provider;
-import com.example.demo.domain.RefreshToken;
 import com.example.demo.domain.RefreshTokenRepository;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
 import com.example.demo.util.AbstractIntegrationTest;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -40,7 +38,14 @@ class AuthServiceTest extends AbstractIntegrationTest {
             new OauthUserInfo("test-provider-id", "test@email.com", "http://test.jpg")
         );
 
-        User user = new User("test@email.com", "http://test.jpg", Provider.GOOGLE, "test-provider-id");
+        User user = new User(
+            new Nickname("test"),
+            new InvitationCode("ABCDEF"),
+            "test@email.com",
+            "http://test.jpg",
+            Provider.GOOGLE,
+            "test-provider-id"
+        );
         User savedUser = userRepository.save(user);
 
         // when
@@ -68,16 +73,17 @@ class AuthServiceTest extends AbstractIntegrationTest {
         TokenResponse tokenResponse = sut.login(Provider.GOOGLE, idToken);
 
         // then
-        Long userId = userRepository.findByProviderAndProviderId(Provider.GOOGLE, "test-provider-id")
-            .orElseThrow()
-            .getId();
+        User user = userRepository.findByProviderAndProviderId(Provider.GOOGLE, "test-provider-id")
+            .orElseThrow();
 
-        assertThat(refreshTokenRepository.findByUserId(userId))
+        assertThat(refreshTokenRepository.findByUserId(user.getId()))
             .hasValueSatisfying(refreshToken -> {
                 assertThat(refreshToken).isNotNull();
                 assertThat(refreshToken)
                     .extracting("token")
                     .isEqualTo(tokenResponse.refreshToken());
             });
+        assertThat(user.getNickname()).isNotNull();
+        assertThat(user.getInvitationCode()).isNotNull();
     }
 }

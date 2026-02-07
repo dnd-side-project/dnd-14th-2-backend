@@ -4,7 +4,6 @@ import com.example.demo.domain.FileStorage;
 import java.io.InputStream;
 import java.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.core.exception.SdkException;
 import software.amazon.awssdk.core.sync.RequestBody;
