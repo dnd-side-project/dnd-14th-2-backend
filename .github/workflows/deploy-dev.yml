@@ -46,6 +46,9 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/backend-app:dev
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          provenance: false
+          sbom: false
+          outputs: type=image
 
   deploy:
     name: 개발서버 배포
