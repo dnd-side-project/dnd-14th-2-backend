@@ -18,11 +18,18 @@ public record InvitationCode(
     }
 
     public static InvitationCode generate(RandomBytesSource randomBytesSource) {
-        byte[] b = randomBytesSource.bytes(CODE_LENGTH);
         StringBuilder sb = new StringBuilder(CODE_LENGTH);
 
         for (int i = 0; i < CODE_LENGTH; i++) {
-            int idx = Byte.toUnsignedInt(b[i]) % CHARSET.length;
+            int randomValue;
+            // 0부터 255까지의 바이트 값 중, CHARSET.length(26)의 배수인 234 미만의 값만 사용합니다.
+            // (Byte.MAX_VALUE + 1)은 256입니다.
+            // unbiasedLimit = (256 / 26) * 26 = 9 * 26 = 234
+            int unbiasedLimit = (Byte.MAX_VALUE + 1) / CHARSET.length * CHARSET.length;
+            do {
+                randomValue = Byte.toUnsignedInt(randomBytesSource.bytes(1)[0]);
+            } while (randomValue >= unbiasedLimit); // 편향 없는 범위(0~233)를 벗어나면 재시도합니다.
+            int idx = randomValue % CHARSET.length;
             sb.append(CHARSET[idx]);
         }
 
