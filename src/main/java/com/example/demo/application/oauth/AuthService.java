@@ -49,7 +49,10 @@ public class AuthService {
         Long userId = tokenProvider.validateRefreshToken(refreshToken);
         RefreshToken findRefreshToken = refreshTokenRepository.findByUserId(userId)
             .filter(token -> token.isSameToken(refreshToken))
-            .orElseThrow(() -> new UnauthorizedException("인증되지 않은 사용자입니다."));
+            .orElseThrow(() -> {
+                log.warn("리프레시 토큰 인증에 실패했습니다. userId: {}", userId);
+                throw new UnauthorizedException("인증되지 않은 사용자입니다.");
+            });
 
         TokenResponse tokenResponse = tokenIssuer.reissueTokens(findRefreshToken);
         log.info("토큰 재발급 완료 userId: {}", userId);
