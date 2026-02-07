@@ -48,4 +48,21 @@ class TokenIssuerTest extends AbstractIntegrationTest {
         assertThat(updated.getToken()).isEqualTo(token.refreshToken());
         assertThat(updated.getToken()).isNotEqualTo("old-refresh");
     }
+
+    @Test
+    void reissueTokens는_새_토큰을_생성하고_refreshToken을_rotate_후_저장한다() {
+        // given
+        Long userId = 1L;
+        RefreshToken saved = refreshTokenRepository.save(new RefreshToken(userId, "old-refresh"));
+
+        // when
+        TokenResponse response = sut.reissueTokens(saved);
+
+        // then
+        RefreshToken reloaded = refreshTokenRepository.findByUserId(userId).orElseThrow();
+
+        assertThat(response.refreshToken()).isEqualTo(reloaded.getToken());
+        assertThat(reloaded.getToken()).isNotEqualTo("old-refresh");
+        assertThat(reloaded.getUserId()).isEqualTo(userId);
+    }
 }
