@@ -33,7 +33,7 @@ public class User extends BaseEntity{
     private Long id;
 
     @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "nickname", unique = true, length = 5))
+    @AttributeOverride(name = "value", column = @Column(name = "nickname", unique = true))
     private Nickname nickname;
 
     @Embedded

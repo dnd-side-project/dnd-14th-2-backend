@@ -35,7 +35,7 @@ public class DbUtils {
         userCounter++;
         return kakaoUser(
             "kakao-test-" + userCounter,
-            new Nickname("usr" + String.format("%02d", userCounter)),
+            new Nickname("u" + String.format("%04d", userCounter % 10000)),
             new InvitationCode("CODE" + twoLetterSuffix(userCounter))
         );
     }
