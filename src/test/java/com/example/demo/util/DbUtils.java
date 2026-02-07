@@ -10,6 +10,27 @@ public class DbUtils {
 
     private static int userCounter = 0;
 
+    public static User kakaoUser(String providerId, Nickname nickname, InvitationCode invitationCode) {
+        return new User(
+            nickname,
+            invitationCode,
+            "test@example.com",
+            "https://profile.com/image.png",
+            Provider.KAKAO,
+            providerId
+        );
+    }
+
+    public static User kakaoUser(Nickname nickname, InvitationCode invitationCode) {
+        userCounter++;
+        return kakaoUser(
+            "kakao-test-" + userCounter,
+            nickname,
+            invitationCode
+        );
+    }
+
+
     public static User kakaoUser() {
         userCounter++;
         return kakaoUser(
@@ -26,18 +47,11 @@ public class DbUtils {
         return "" + first + second;
     }
 
-    public static User kakaoUser(String providerId, Nickname nickname, InvitationCode invitationCode) {
-        return new User(
-            nickname,
-            invitationCode,
-            "test@example.com",
-            "https://profile.com/image.png",
-            Provider.KAKAO,
-            providerId
-        );
-    }
-
     public static User givenSavedUser(UserRepository repo) {
         return repo.save(kakaoUser());
+    }
+
+    public static User givenSavedUser(UserRepository repo, Nickname nickname, InvitationCode invitationCode) {
+        return repo.save(kakaoUser(nickname, invitationCode));
     }
 }
