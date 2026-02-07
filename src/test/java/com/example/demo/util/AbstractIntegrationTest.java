@@ -29,7 +29,7 @@ public abstract class AbstractIntegrationTest {
                 """, String.class);
 
             for (String table : tables) {
-                jdbcTemplate.execute("TRUNCATE TABLE " + table);
+                jdbcTemplate.execute("TRUNCATE TABLE `" + table + "`");
             }
         } finally {
             // 외래키 체크 활성화
