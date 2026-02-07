@@ -1,4 +1,4 @@
-package com.example.demo.application.user;
+package com.example.demo.infrastructure.random;
 
 import com.example.demo.domain.RandomBytesSource;
 import java.security.SecureRandom;
