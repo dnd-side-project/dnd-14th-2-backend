@@ -72,7 +72,7 @@ class LedgerDocumentationTest {
     @BeforeEach
     void setUpAuth() {
         final long userId = 1L;
-        given(tokenProvider.validateToken(accessToken)).willReturn(userId);
+        given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
     }
 
     private static String enumNames(Class<? extends Enum<?>> enumType) {

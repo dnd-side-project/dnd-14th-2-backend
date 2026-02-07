@@ -118,7 +118,8 @@ tasks.register("patchOpenApiSecurity") {
 
         // ✅ 공개 엔드포인트 목록 (여기만 추가하면 됨)
         def publicPaths = [
-                "/oauth/login"
+                "/oauth/login",
+                "/token"
         ] as Set
 
         // 1) securitySchemes.bearerAuth 보장 (Authorize 버튼)

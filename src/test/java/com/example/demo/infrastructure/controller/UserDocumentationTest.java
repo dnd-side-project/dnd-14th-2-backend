@@ -58,7 +58,7 @@ class UserDocumentationTest {
             String nickname = "name";
             String accessToken = "test-access-token";
 
-            given(tokenProvider.validateToken(accessToken)).willReturn(userId);
+            given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
 
             // when & then
             mockMvc.perform(
@@ -94,7 +94,7 @@ class UserDocumentationTest {
             String nickname = "name";
             String accessToken = "test-access-token";
 
-            given(tokenProvider.validateToken(accessToken)).willReturn(userId);
+            given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
             doThrow(new IllegalArgumentException("존재하지 않는 사용자입니다."))
                 .when(userService)
                 .changeNickname(userId, nickname);
@@ -138,7 +138,7 @@ class UserDocumentationTest {
             String nickname = "name";
             String accessToken = "test-access-token";
 
-            given(tokenProvider.validateToken(accessToken)).willReturn(userId);
+            given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
             doThrow(new IllegalArgumentException("중복되는 닉네임입니다."))
                 .when(userService)
                 .changeNickname(userId, nickname);
@@ -182,7 +182,7 @@ class UserDocumentationTest {
             String nickname = "";
             String accessToken = "test-access-token";
 
-            given(tokenProvider.validateToken(accessToken)).willReturn(userId);
+            given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
 
             // when & then
             mockMvc.perform(
@@ -221,7 +221,7 @@ class UserDocumentationTest {
             String nickname = "name1234567";
             String accessToken = "test-access-token";
 
-            given(tokenProvider.validateToken(accessToken)).willReturn(userId);
+            given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
             doThrow(new IllegalArgumentException("닉네임은 5자 이내여야 합니다."))
                 .when(userService)
                 .changeNickname(userId, nickname);
@@ -265,7 +265,7 @@ class UserDocumentationTest {
             String nickname = "NAME$";
             String accessToken = "test-access-token";
 
-            given(tokenProvider.validateToken(accessToken)).willReturn(userId);
+            given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
             doThrow(new IllegalArgumentException("닉네임은 한글, 숫자, 영어 소문자로만 이루어져야 합니다."))
                 .when(userService)
                 .changeNickname(userId, nickname);
@@ -313,7 +313,7 @@ class UserDocumentationTest {
             Long userId = 1L;
             String accessToken = "test-access-token";
 
-            given(tokenProvider.validateToken(accessToken)).willReturn(userId);
+            given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
 
             // when & then
             mockMvc.perform(

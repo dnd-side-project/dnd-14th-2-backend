@@ -20,17 +20,20 @@ public abstract class AbstractIntegrationTest {
         jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
 
         // 모든 테이블 truncate
-        List<String> tables = jdbcTemplate.queryForList("""
-            SELECT table_name
-            FROM information_schema.tables
-            WHERE table_schema = DATABASE()
-        """, String.class);
+        try {
+            List<String> tables = jdbcTemplate.queryForList("""
+                    SELECT table_name
+                    FROM information_schema.tables
+                    WHERE table_schema = DATABASE()
+                        AND table_type = 'BASE TABLE'
+                """, String.class);
 
-        for (String table : tables) {
-            jdbcTemplate.execute("TRUNCATE TABLE " + table);
+            for (String table : tables) {
+                jdbcTemplate.execute("TRUNCATE TABLE `" + table + "`");
+            }
+        } finally {
+            // 외래키 체크 활성화
+            jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
-
-        // 외래키 체크 활성화
-        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
     }
 }

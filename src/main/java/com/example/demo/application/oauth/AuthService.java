@@ -7,17 +7,21 @@ import com.example.demo.domain.Provider;
 import com.example.demo.domain.RefreshToken;
 import com.example.demo.domain.RefreshTokenRepository;
 import com.example.demo.domain.User;
+import com.example.demo.application.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final OauthAuthenticator oauthAuthenticator;
     private final UserService userService;
+    private final TokenProvider tokenProvider;
     private final TokenIssuer tokenIssuer;
     private final RefreshTokenRepository refreshTokenRepository;
 
@@ -38,5 +42,20 @@ public class AuthService {
     @Transactional
     public void logout(Long userId) {
         refreshTokenRepository.deleteByUserId(userId);
+    }
+
+    @Transactional
+    public TokenResponse reissueToken(String refreshToken) {
+        Long userId = tokenProvider.validateRefreshToken(refreshToken);
+        RefreshToken findRefreshToken = refreshTokenRepository.findByUserId(userId)
+            .filter(token -> token.isSameToken(refreshToken))
+            .orElseThrow(() -> {
+                log.warn("리프레시 토큰 인증에 실패했습니다. userId: {}", userId);
+                throw new UnauthorizedException("인증되지 않은 사용자입니다.");
+            });
+
+        TokenResponse tokenResponse = tokenIssuer.reissueTokens(findRefreshToken);
+        log.info("토큰 재발급 완료 userId: {}", userId);
+        return tokenResponse;
     }
 }

@@ -1,5 +1,6 @@
 package com.example.demo.infrastructure.advice;
 
+import com.example.demo.application.exception.UnauthorizedException;
 import com.example.demo.infrastructure.advice.dto.ErrorResponse;
 import java.time.OffsetDateTime;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,11 @@ public class GlobalExceptionHandler {
         String message = validationMessage(e);
         log.warn("[400] MethodArgumentNotValidException: {}", message, e);
         return error(HttpStatus.BAD_REQUEST, message);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorized(UnauthorizedException e) {
+        return error(HttpStatus.UNAUTHORIZED, e.getMessage());
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)

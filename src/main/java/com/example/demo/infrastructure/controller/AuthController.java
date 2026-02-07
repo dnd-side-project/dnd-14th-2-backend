@@ -4,6 +4,7 @@ import com.example.demo.application.dto.TokenResponse;
 import com.example.demo.application.oauth.AuthService;
 import com.example.demo.infrastructure.controller.dto.AuthTokenWebResponse;
 import com.example.demo.infrastructure.controller.dto.OauthLoginWebRequest;
+import com.example.demo.infrastructure.controller.dto.ReissueTokenWebRequest;
 import com.example.demo.infrastructure.interceptor.UserId;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,5 +31,12 @@ public class AuthController {
         authService.logout(userId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/token")
+    public ResponseEntity<AuthTokenWebResponse> tokenReissue(@Valid @RequestBody ReissueTokenWebRequest request) {
+        TokenResponse tokenResponse = authService.reissueToken(request.refreshToken());
+
+        return ResponseEntity.ok(AuthTokenWebResponse.from(tokenResponse));
     }
 }

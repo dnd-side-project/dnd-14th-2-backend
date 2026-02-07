@@ -26,7 +26,12 @@ spring:
         bucket: ${AWS_BUCKET}
 
 jwt:
-  secret-key: ${JWT_SECRET_KEY}
+  secret:
+    key: ${JWT_SECRET_KEY}
+    access:
+      expire-range: ${JWT_ACCESS_EXPIRE_RANGE}
+    refresh:
+      expire-range: ${JWT_REFRESH_EXPIRE_RANGE}
 
 oauth:
   oidc:

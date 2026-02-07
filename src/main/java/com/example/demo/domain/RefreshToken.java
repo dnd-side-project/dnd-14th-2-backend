@@ -4,9 +4,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class RefreshToken {
 
@@ -17,9 +20,6 @@ public class RefreshToken {
     private Long userId;
     private String token;
 
-    protected RefreshToken() {
-    }
-
     public RefreshToken(Long userId, String token) {
         this.userId = userId;
         this.token = token;
@@ -27,5 +27,9 @@ public class RefreshToken {
 
     public void rotate(String refreshToken) {
         this.token = refreshToken;
+    }
+
+    public boolean isSameToken(String token) {
+        return this.token != null && this.token.equals(token);
     }
 }

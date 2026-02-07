@@ -29,4 +29,13 @@ public class TokenIssuer {
 
         return token;
     }
+
+    @Transactional
+    public TokenResponse reissueTokens(RefreshToken refreshToken) {
+        TokenResponse tokenResponse = tokenProvider.generateToken(refreshToken.getUserId());
+        refreshToken.rotate(tokenResponse.refreshToken());
+        refreshTokenRepository.save(refreshToken);
+
+        return tokenResponse;
+    }
 }
