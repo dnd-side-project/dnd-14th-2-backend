@@ -31,7 +31,6 @@ public record UpsertLedgerWebRequest(
     @NotNull(message = "결제 수단(paymentMethod)은 필수입니다.")
     PaymentMethod paymentMethod,
 
-    @NotBlank(message = "메모(memo)는 공백일 수 없습니다.")
     @Size(max = 100, message = "메모(memo)는 최대 100자까지 입력할 수 있습니다.")
     String memo
 ) {
