@@ -18,10 +18,9 @@ public class AuthService {
 
     private final OauthAuthenticator oauthAuthenticator;
     private final UserService userService;
-    private final TokenProvider tokenProvider;
+    private final TokenIssuer tokenIssuer;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    @Transactional
     public TokenResponse login(Provider provider, String idToken) {
         OauthUserInfo userInfo = oauthAuthenticator.authenticate(provider, idToken);
         return processLogin(provider, userInfo);
@@ -30,25 +29,10 @@ public class AuthService {
     private TokenResponse processLogin(Provider provider, OauthUserInfo userInfo) {
         try {
             User user = userService.findOrCreateUser(provider, userInfo);
-            return issueTokens(user.getId());
+            return tokenIssuer.issueTokens(user.getId());
         } catch (DataIntegrityViolationException e) {
             throw new IllegalStateException("닉네임/초대코드 중복으로 인해 새로운 유저 생성에 실패했습니다.", e);
         }
-    }
-
-    private TokenResponse issueTokens(Long userId) {
-        TokenResponse token = tokenProvider.generateToken(userId);
-
-        RefreshToken refreshToken = refreshTokenRepository.findByUserId(userId)
-            .map(exists -> {
-                exists.rotate(token.refreshToken());
-                return exists;
-            })
-            .orElseGet(() -> new RefreshToken(userId, token.refreshToken()));
-
-        refreshTokenRepository.save(refreshToken);
-
-        return token;
     }
 
     @Transactional
