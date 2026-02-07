@@ -55,14 +55,6 @@ class AuthDocumentationTest {
     void oauthLogin_docs() throws Exception {
         // given
         String idToken = "test-id-token";
-        User user = new User(
-            new Nickname("test"),
-            new InvitationCode("ABCDEF"),
-            "test@email.com",
-            "https://profile/image.jpg",
-            Provider.KAKAO,
-            "provider-id"
-        );
         String accessToken = "jwt.access.token";
         String refreshToken = "jwt.refresh.token";
 

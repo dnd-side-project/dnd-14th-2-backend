@@ -34,9 +34,12 @@ public class AuthService {
         TokenResponse token = tokenProvider.generateToken(userId);
 
         RefreshToken refreshToken = refreshTokenRepository.findByUserId(userId)
+            .map(exists -> {
+                exists.rotate(token.refreshToken());
+                return exists;
+            })
             .orElseGet(() -> new RefreshToken(userId, token.refreshToken()));
 
-        refreshToken.rotate(token.refreshToken());
         refreshTokenRepository.save(refreshToken);
 
         return token;
