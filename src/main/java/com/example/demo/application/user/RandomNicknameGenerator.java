@@ -17,7 +17,7 @@ public class RandomNicknameGenerator implements NicknameGenerator {
         "호수", "산들", "바람", "햇살", "별빛", "달빛", "노을", "바다", "파랑", "하늘",
         "숲속", "들꽃", "나무", "잎새", "이슬", "윤기", "온기", "미풍", "은빛", "여명",
         "봄비", "여울", "물결", "잔향", "고요", "평온", "설렘", "기쁨", "행복", "미래",
-        "소원", "희망", "꿈결", "미소", "웃음", "사랑", "마음", "순수", "청춘", "찬란",
+        "소원", "희망", "꿈결", "커피", "웃음", "사랑", "마음", "순수", "청춘", "찬란",
         "설탕", "우주", "별똥", "빛결", "아련", "포근", "달콤", "말랑", "반짝", "샛별"
     };
     private static final String SUFFIX = "0123456789abcdefghijklmnopqrstuvwxyz";
@@ -26,11 +26,10 @@ public class RandomNicknameGenerator implements NicknameGenerator {
     public Nickname generate() {
         ThreadLocalRandom rnd = ThreadLocalRandom.current();
 
-        String words = WORDS[rnd.nextInt(WORDS.length)];
-
-        for (int t = 0; t < 3; t++) {
-            words += SUFFIX.charAt(rnd.nextInt(SUFFIX.length()));
+        StringBuilder name = new StringBuilder(WORDS[rnd.nextInt(WORDS.length)]);
+        for (int i = 0; i < 3; i++) {
+            name.append(SUFFIX.charAt(rnd.nextInt(SUFFIX.length())));
         }
-        return new Nickname(words);
+        return new Nickname(name.toString());
     }
 }
