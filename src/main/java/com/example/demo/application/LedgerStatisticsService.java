@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,7 +56,7 @@ public class LedgerStatisticsService {
             endDate
         );
 
-        return total != null ? total : 0L;
+        return Objects.requireNonNullElse(total, 0L);
     }
 
     private List<CategoryAmountDto> fetchCurrentMonthCategoryAmounts(
