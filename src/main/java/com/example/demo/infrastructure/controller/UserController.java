@@ -37,7 +37,7 @@ public class UserController {
     @GetMapping("/users/me")
     public ResponseEntity<UserInfoWebResponse> getUserInfo(@UserId Long userId) {
         UserInfo userInfo = userService.getUserInfo(userId);
-        UserInfoWebResponse response = new UserInfoWebResponse(userInfo.nickname());
+        UserInfoWebResponse response = UserInfoWebResponse.from(userInfo);
 
         return ResponseEntity.ok(response);
     }

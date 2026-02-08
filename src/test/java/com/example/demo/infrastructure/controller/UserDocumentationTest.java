@@ -346,9 +346,7 @@ class UserDocumentationTest {
         // given
         Long userId = 1L;
         String accessToken = "test-access-token";
-
-        UserInfo userInfo = org.mockito.Mockito.mock(UserInfo.class);
-        given(userInfo.nickname()).willReturn("파란너구리");
+        UserInfo userInfo = new UserInfo(userId, "파란너구리", 1, "profile.jpg");
 
         given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
         given(userService.getUserInfo(userId)).willReturn(userInfo);
