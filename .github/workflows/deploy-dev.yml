@@ -86,7 +86,7 @@ jobs:
               sleep 3
               SERVER_STATUS=$(curl -o /dev/null -s -w "%{http_code}" \
                 --connect-timeout 3 --max-time 5 \
-                https://pickledev.duckdns.org/actuator/health || echo "000")
+                "${{ secrets.DEV_HEALTHCHECK_URL }}" || echo "000")
           
               if [[ "$SERVER_STATUS" == "200" ]]; then
                 echo "✅ 배포 성공! 서버 동작 중... (status=$SERVER_STATUS)"
