@@ -3,6 +3,7 @@ package com.example.demo.infrastructure.controller;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.epages.restdocs.apispec.Schema;
 import com.example.demo.application.LedgerService;
+import com.example.demo.application.LedgerStatisticsService;
 import com.example.demo.application.UserService;
 import com.example.demo.application.dto.*;
 import com.example.demo.application.oauth.TokenProvider;
@@ -10,6 +11,8 @@ import com.example.demo.common.config.ClockTestConfig;
 import com.example.demo.domain.enums.LedgerCategory;
 import com.example.demo.domain.enums.LedgerType;
 import com.example.demo.domain.enums.PaymentMethod;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -18,6 +21,7 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -36,8 +40,11 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.JsonFieldType.NUMBER;
 import static org.springframework.restdocs.payload.JsonFieldType.STRING;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(LedgerController.class)
@@ -50,6 +57,9 @@ class LedgerDocumentationTest {
 
     @MockitoBean
     private LedgerService ledgerService;
+
+    @MockitoBean
+    private LedgerStatisticsService ledgerStatisticsService;
 
     @MockitoBean
     private UserService userService;
@@ -328,4 +338,58 @@ class LedgerDocumentationTest {
             ));
     }
 
+
+    @Test
+    void get_monthly_statistics_docs() throws Exception {
+        Map<String, Long> categoryAmounts = new LinkedHashMap<>();
+        categoryAmounts.put("FOOD", 350000L);
+        categoryAmounts.put("TRANSPORT", 120000L);
+        categoryAmounts.put("SHOPPING", 85000L);
+        categoryAmounts.put("LEISURE_HOBBY", 50000L);
+        categoryAmounts.put("HEALTH_MEDICAL", 30000L);
+
+        LedgerStatisticsResponse response = new LedgerStatisticsResponse(
+            LedgerType.EXPENSE,
+            categoryAmounts,
+            635000L,
+            580000L
+        );
+
+        given(ledgerStatisticsService.getMonthlyStatistics(eq(1L), eq(LedgerType.EXPENSE)))
+            .willReturn(response);
+
+        // when & then
+        mockMvc.perform(
+            get("/ledgers/statistics/monthly")
+                .header("Authorization", "Bearer " + accessToken)
+                .param("type", "EXPENSE")
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.type").value("EXPENSE"))
+            .andExpect(jsonPath("$.categoryAmounts.FOOD").value(350000))
+            .andExpect(jsonPath("$.currentMonthTotal").value(635000))
+            .andExpect(jsonPath("$.lastMonthTotal").value(580000))
+            .andDo(document("ledger-statistics-monthly-expense",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                queryParameters(
+                    parameterWithName("type").description("가계부 타입 (EXPENSE: 지출, INCOME: 수입)")
+                ),
+                responseFields(
+                    fieldWithPath("type").type(JsonFieldType.STRING).description("조회 타입 (EXPENSE: 지출, INCOME: 수입)"),
+                    fieldWithPath("categoryAmounts").type(JsonFieldType.OBJECT).description("이번 달 카테고리별 금액 (금액 내림차순 정렬)"),
+                    fieldWithPath("categoryAmounts.FOOD").type(JsonFieldType.NUMBER).description("식비").optional(),
+                    fieldWithPath("categoryAmounts.TRANSPORT").type(JsonFieldType.NUMBER).description("교통비").optional(),
+                    fieldWithPath("categoryAmounts.HOUSING").type(JsonFieldType.NUMBER).description("주거비").optional(),
+                    fieldWithPath("categoryAmounts.SHOPPING").type(JsonFieldType.NUMBER).description("쇼핑").optional(),
+                    fieldWithPath("categoryAmounts.HEALTH_MEDICAL").type(JsonFieldType.NUMBER).description("건강/의료").optional(),
+                    fieldWithPath("categoryAmounts.EDUCATION_SELF_DEVELOPMENT").type(JsonFieldType.NUMBER).description("교육/자기계발").optional(),
+                    fieldWithPath("categoryAmounts.LEISURE_HOBBY").type(JsonFieldType.NUMBER).description("여가/취미").optional(),
+                    fieldWithPath("categoryAmounts.SAVINGS_FINANCE").type(JsonFieldType.NUMBER).description("저축/금융").optional(),
+                    fieldWithPath("currentMonthTotal").type(JsonFieldType.NUMBER).description("이번 달 총 금액"),
+                    fieldWithPath("lastMonthTotal").type(JsonFieldType.NUMBER).description("지난 달 총 금액")
+                )
+            ));
+    }
 }
