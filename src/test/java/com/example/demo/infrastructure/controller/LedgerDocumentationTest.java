@@ -655,33 +655,55 @@ class LedgerDocumentationTest {
             .andDo(document("ledger-statistics-monthly-expense",
                 preprocessRequest(prettyPrint()),
                 preprocessResponse(prettyPrint()),
-                queryParameters(
-                    parameterWithName("type").description("가계부 타입 (EXPENSE: 지출, INCOME: 수입)")
-                ),
-                responseFields(
-                    fieldWithPath("type").type(JsonFieldType.STRING).description("조회 타입 (EXPENSE: 지출, INCOME: 수입)"),
-                    fieldWithPath("categoryAmounts").type(JsonFieldType.OBJECT)
-                        .description("이번 달 카테고리별 금액 (금액 내림차순 정렬) "
-                            + "type = EXPENSE 인 경우 = " + String.join(", ", ledgerCategoryNamesByType(LedgerType.EXPENSE))
-                            + ", type = INCOME 인 경우 = " + String.join(", ", ledgerCategoryNamesByType(LedgerType.INCOME))
-                        ),
-                    fieldWithPath("categoryAmounts.FOOD").type(JsonFieldType.NUMBER).description("식비").optional(),
-                    fieldWithPath("categoryAmounts.TRANSPORT").type(JsonFieldType.NUMBER).description("교통비").optional(),
-                    fieldWithPath("categoryAmounts.HOUSING").type(JsonFieldType.NUMBER).description("주거비").optional(),
-                    fieldWithPath("categoryAmounts.SHOPPING").type(JsonFieldType.NUMBER).description("쇼핑").optional(),
-                    fieldWithPath("categoryAmounts.HEALTH_MEDICAL").type(JsonFieldType.NUMBER).description("건강/의료").optional(),
-                    fieldWithPath("categoryAmounts.EDUCATION_SELF_DEVELOPMENT").type(JsonFieldType.NUMBER).description("교육/자기계발").optional(),
-                    fieldWithPath("categoryAmounts.LEISURE_HOBBY").type(JsonFieldType.NUMBER).description("여가/취미").optional(),
-                    fieldWithPath("categoryAmounts.SAVINGS_FINANCE").type(JsonFieldType.NUMBER).description("저축/금융").optional(),
-                    fieldWithPath("currentMonthTotalAmount").type(JsonFieldType.NUMBER).description("이번 달 총 금액"),
-                    fieldWithPath("lastMonthTotalAmount").type(JsonFieldType.NUMBER).description("지난 달 총 금액")
-                )
+                resource(ResourceSnippetParameters.builder()
+                    .tag("Ledger")
+                    .summary("월간 통계 조회")
+                    .queryParameters(
+                        parameterWithName("type").description("가계부 타입 (EXPENSE: 지출, INCOME: 수입)")
+                    )
+                    .responseSchema(Schema.schema("LedgerStatisticsWebResponse"))
+                    .responseFields(
+                        fieldWithPath("type").type(JsonFieldType.STRING).description("조회 타입 (EXPENSE: 지출, INCOME: 수입)"),
+                        fieldWithPath("categoryAmounts").type(JsonFieldType.OBJECT)
+                            .description("이번 달 카테고리별 금액 (금액 내림차순 정렬)"
+                                + "[type = EXPENSE 인 경우 = " + String.join(", ", ledgerCategoryNamesByType(LedgerType.EXPENSE))
+                                + "] [type = INCOME 인 경우 = " + String.join(", ", ledgerCategoryNamesByType(LedgerType.INCOME) + "]")
+                            ),
+
+                        fieldWithPath("categoryAmounts.OTHER").type(JsonFieldType.NUMBER).description("기타 (INCOME, EXPENSE 모두에 해당 가능)").optional(),
+
+                        // EXPENSE categories
+                        fieldWithPath("categoryAmounts.FOOD").type(JsonFieldType.NUMBER).description("식비 (EXPENSE)").optional(),
+                        fieldWithPath("categoryAmounts.TRANSPORT").type(JsonFieldType.NUMBER).description("교통비 (EXPENSE)").optional(),
+                        fieldWithPath("categoryAmounts.HOUSING").type(JsonFieldType.NUMBER).description("주거비 (EXPENSE)").optional(),
+                        fieldWithPath("categoryAmounts.SHOPPING").type(JsonFieldType.NUMBER).description("쇼핑 (EXPENSE)").optional(),
+                        fieldWithPath("categoryAmounts.HEALTH_MEDICAL").type(JsonFieldType.NUMBER).description("건강/의료 (EXPENSE)").optional(),
+                        fieldWithPath("categoryAmounts.EDUCATION_SELF_DEVELOPMENT").type(JsonFieldType.NUMBER).description("교육/자기계발 (EXPENSE)").optional(),
+                        fieldWithPath("categoryAmounts.LEISURE_HOBBY").type(JsonFieldType.NUMBER).description("여가/취미 (EXPENSE)").optional(),
+                        fieldWithPath("categoryAmounts.SAVINGS_FINANCE").type(JsonFieldType.NUMBER).description("저축/금융 (EXPENSE)").optional(),
+
+                        // INCOME categories
+                        fieldWithPath("categoryAmounts.SALARY").type(JsonFieldType.NUMBER).description("월급 (INCOME)").optional(),
+                        fieldWithPath("categoryAmounts.SIDE_INCOME").type(JsonFieldType.NUMBER).description("부수입 (INCOME)").optional(),
+                        fieldWithPath("categoryAmounts.BONUS").type(JsonFieldType.NUMBER).description("상여 (INCOME)").optional(),
+                        fieldWithPath("categoryAmounts.ALLOWANCE").type(JsonFieldType.NUMBER).description("용돈 (INCOME)").optional(),
+                        fieldWithPath("categoryAmounts.PART_TIME").type(JsonFieldType.NUMBER).description("아르바이트 (INCOME)").optional(),
+                        fieldWithPath("categoryAmounts.FINANCIAL_INCOME").type(JsonFieldType.NUMBER).description("금융수입 (INCOME)").optional(),
+                        fieldWithPath("categoryAmounts.DUTCH_PAY").type(JsonFieldType.NUMBER).description("더치페이 (INCOME)").optional(),
+                        fieldWithPath("categoryAmounts.TRANSFER").type(JsonFieldType.NUMBER).description("이체 (INCOME)").optional(),
+
+                        fieldWithPath("currentMonthTotalAmount").type(JsonFieldType.NUMBER).description("이번 달 총 금액"),
+                        fieldWithPath("lastMonthTotalAmount").type(JsonFieldType.NUMBER).description("지난 달 총 금액")
+                    )
+                    .build())
             ));
     }
 
     private static List<String> ledgerCategoryNamesByType(LedgerType type) {
         return Arrays.stream(LedgerCategory.values())
-            .filter(c -> c.fixedType().isEmpty() || c.fixedType().get() == type)
+            .filter(c -> c == LedgerCategory.OTHER ||
+                (c.fixedType().isPresent() && c.fixedType().get() == type)
+            )
             .map(Enum::name)
             .collect(Collectors.toList());
     }
