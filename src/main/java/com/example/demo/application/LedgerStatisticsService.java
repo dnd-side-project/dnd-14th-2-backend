@@ -31,16 +31,31 @@ public class LedgerStatisticsService {
             userId, type, currentMonth
         );
 
-        Long currentMonthTotal = calculateTotalAmount(categoryAmounts);
-        Long lastMonthTotal = fetchLastMonthTotal(userId, type, lastMonth);
+        long currentMonthTotalAmount = calculateTotalAmount(categoryAmounts);
+        long lastMonthTotalAmount = findTotalAmount(userId, type, lastMonth);
+
         Map<String, Long> categoryMap = buildCategoryMap(categoryAmounts);
 
         return new LedgerStatisticsResponse(
             type,
             categoryMap,
-            currentMonthTotal,
-            lastMonthTotal
+            currentMonthTotalAmount,
+            lastMonthTotalAmount
         );
+    }
+
+    private long findTotalAmount(Long userId, LedgerType type, YearMonth month) {
+        LocalDate startDate = month.atDay(1);
+        LocalDate endDate = month.atEndOfMonth();
+
+        Long total = ledgerEntryRepository.findTotalAmountByUserAndTypeAndPeriod(
+            userId,
+            type,
+            startDate,
+            endDate
+        );
+
+        return total != null ? total : 0L;
     }
 
     private List<CategoryAmountDto> fetchCurrentMonthCategoryAmounts(
@@ -63,20 +78,6 @@ public class LedgerStatisticsService {
         return categoryAmounts.stream()
             .mapToLong(CategoryAmountDto::totalAmount)
             .sum();
-    }
-
-    private Long fetchLastMonthTotal(Long userId, LedgerType type, YearMonth lastMonth) {
-        LocalDate startDate = lastMonth.atDay(1);
-        LocalDate endDate = lastMonth.atEndOfMonth();
-
-        Long total = ledgerEntryRepository.findTotalAmountByUserAndTypeAndPeriod(
-            userId,
-            type,
-            startDate,
-            endDate
-        );
-
-        return total != null ? total : 0L;
     }
 
     private Map<String, Long> buildCategoryMap(List<CategoryAmountDto> categoryAmounts) {

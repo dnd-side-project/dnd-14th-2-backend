@@ -8,6 +8,8 @@ import com.example.demo.domain.LedgerEntry;
 import com.example.demo.domain.LedgerEntryRepository;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
+import java.time.LocalDate;
+import java.util.List;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
@@ -85,7 +87,7 @@ public class LedgerService {
 
     @Transactional(readOnly = true)
     public LedgerEntriesByDateRangeResponse getSummary(Long userId, LocalDate start, LocalDate end) {
-        DateRange range = DateRange.resolve(clock, start, end);
+        DateRange range = DateRange.resolve(start, end);
 
         List<LedgerEntry> entries = ledgerEntryRepository.findAllByUser_IdAndOccurredOnBetween(
             userId,
@@ -100,5 +102,4 @@ public class LedgerService {
 
         return new LedgerEntriesByDateRangeResponse(range, results);
     }
-
 }

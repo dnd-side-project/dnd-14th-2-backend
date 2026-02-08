@@ -7,15 +7,15 @@ import java.util.Map;
 public record LedgerStatisticsWebResponse(
     LedgerType type,
     Map<String, Long> categoryAmounts,
-    Long currentMonthTotal,
-    Long lastMonthTotal
+    Long currentMonthTotalAmount,
+    Long lastMonthTotalAmount
 ) {
     public static LedgerStatisticsWebResponse from(LedgerStatisticsResponse response) {
         return new LedgerStatisticsWebResponse(
             response.type(),
             response.categoryAmounts(),
-            response.currentMonthTotal(),
-            response.lastMonthTotal()
+            response.currentMonthTotalAmount(),
+            response.lastMonthTotalAmount()
         );
     }
 }

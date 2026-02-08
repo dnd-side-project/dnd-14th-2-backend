@@ -1,5 +1,8 @@
 package com.example.demo.application;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import com.example.demo.application.dto.LedgerEntriesByDateRangeResponse;
 import com.example.demo.application.dto.LedgerResult;
 import com.example.demo.application.dto.UpsertLedgerCommand;
@@ -13,15 +16,11 @@ import com.example.demo.domain.enums.PaymentMethod;
 import com.example.demo.util.AbstractIntegrationTest;
 import com.example.demo.util.DbUtils;
 import jakarta.persistence.EntityManager;
+import java.time.LocalDate;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Transactional
 class LedgerServiceTest extends AbstractIntegrationTest {
@@ -276,7 +275,6 @@ class LedgerServiceTest extends AbstractIntegrationTest {
         );
         ledgerEntryRepository.save(entry2);
 
-
         LedgerEntry entry3 = new LedgerEntry(
             200L,
             LedgerType.EXPENSE,
@@ -289,7 +287,6 @@ class LedgerServiceTest extends AbstractIntegrationTest {
         );
         ledgerEntryRepository.save(entry3);
         flushAndClear();
-
 
         // when
         LedgerEntriesByDateRangeResponse response = ledgerService.getSummary(savedUser.getId(), start, end);

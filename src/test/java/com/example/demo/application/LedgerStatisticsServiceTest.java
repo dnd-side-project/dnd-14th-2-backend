@@ -86,8 +86,8 @@ class LedgerStatisticsServiceTest {
             .containsEntry("FOOD", 350000L)
             .containsEntry("TRANSPORT", 120000L)
             .containsEntry("SHOPPING", 85000L);
-        assertThat(response.currentMonthTotal()).isEqualTo(555000L);
-        assertThat(response.lastMonthTotal()).isEqualTo(580000L);
+        assertThat(response.currentMonthTotalAmount()).isEqualTo(555000L);
+        assertThat(response.lastMonthTotalAmount()).isEqualTo(580000L);
 
         // Repository 호출 검증
         verify(ledgerEntryRepository).findCategoryAmountsByUserAndTypeAndPeriod(
@@ -128,8 +128,8 @@ class LedgerStatisticsServiceTest {
         // then
         assertThat(response.type()).isEqualTo(LedgerType.INCOME);
         assertThat(response.categoryAmounts()).hasSize(3);
-        assertThat(response.currentMonthTotal()).isEqualTo(4500000L);
-        assertThat(response.lastMonthTotal()).isEqualTo(3500000L);
+        assertThat(response.currentMonthTotalAmount()).isEqualTo(4500000L);
+        assertThat(response.lastMonthTotalAmount()).isEqualTo(3500000L);
     }
 
     @Test
@@ -151,8 +151,8 @@ class LedgerStatisticsServiceTest {
 
         // then
         assertThat(response.categoryAmounts()).isEmpty();
-        assertThat(response.currentMonthTotal()).isEqualTo(0L);
-        assertThat(response.lastMonthTotal()).isEqualTo(580000L);
+        assertThat(response.currentMonthTotalAmount()).isEqualTo(0L);
+        assertThat(response.lastMonthTotalAmount()).isEqualTo(580000L);
     }
 
     @Test
@@ -177,8 +177,8 @@ class LedgerStatisticsServiceTest {
             .getMonthlyStatistics(USER_ID, type);
 
         // then
-        assertThat(response.currentMonthTotal()).isEqualTo(200000L);
-        assertThat(response.lastMonthTotal()).isEqualTo(0L);  // null이 0으로 변환
+        assertThat(response.currentMonthTotalAmount()).isEqualTo(200000L);
+        assertThat(response.lastMonthTotalAmount()).isEqualTo(0L);  // null이 0으로 변환
     }
 
     @Test
@@ -200,8 +200,8 @@ class LedgerStatisticsServiceTest {
 
         // then
         assertThat(response.categoryAmounts()).isEmpty();
-        assertThat(response.currentMonthTotal()).isEqualTo(0L);
-        assertThat(response.lastMonthTotal()).isEqualTo(0L);
+        assertThat(response.currentMonthTotalAmount()).isEqualTo(0L);
+        assertThat(response.lastMonthTotalAmount()).isEqualTo(0L);
     }
 
 
@@ -336,7 +336,7 @@ class LedgerStatisticsServiceTest {
             .getMonthlyStatistics(USER_ID, type);
 
         // then
-        assertThat(response.currentMonthTotal()).isEqualTo(200000L);
+        assertThat(response.currentMonthTotalAmount()).isEqualTo(200000L);
     }
 
     @Test
@@ -361,7 +361,7 @@ class LedgerStatisticsServiceTest {
             .getMonthlyStatistics(USER_ID, type);
 
         // then
-        assertThat(response.currentMonthTotal()).isEqualTo(500000L);
+        assertThat(response.currentMonthTotalAmount()).isEqualTo(500000L);
         assertThat(response.categoryAmounts()).hasSize(1);
     }
 

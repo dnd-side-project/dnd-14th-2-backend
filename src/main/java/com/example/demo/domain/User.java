@@ -1,37 +1,85 @@
 package com.example.demo.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Entity
+@Table(uniqueConstraints = {
+    @UniqueConstraint(
+        name = "uk_user_provider_provider_id",
+        columnNames = {"provider", "provider_id", "is_deleted"}
+    )
+})
 @NoArgsConstructor
+@SQLRestriction("is_deleted = 0")
 public class User extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nickname;
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "nickname", unique = true))
+    private Nickname nickname;
 
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "invitation_code", unique = true, length = 6))
+    private InvitationCode invitationCode;
+
+    @Column(nullable = false)
     private String email;
 
-    @Column(length = 2048)
+    @Column(length = 2048, nullable = false)
     private String profile;
 
     @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
     private Provider provider;
 
+    @Column(nullable = false)
     private String providerId;
 
     private Integer level = 0;
 
-    public User(String email, String profile, Provider provider, String providerId) {
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
+
+    private LocalDateTime deletedAt;
+
+    public User(Nickname nickname, InvitationCode invitationCode, String email, String profile, Provider provider, String providerId) {
+        this.nickname = nickname;
+        this.invitationCode = invitationCode;
         this.email = email;
         this.profile = profile;
         this.provider = provider;
         this.providerId = providerId;
+        this.isDeleted = false;
     }
 
+    public void withdraw(LocalDateTime deletedAt) {
+        this.isDeleted = true;
+        this.deletedAt = deletedAt;
+    }
+
+    public void changeNickname(Nickname nickname) {
+        this.nickname = nickname;
+    }
+
+    public String getNickname() {
+        return nickname.value();
+    }
 }

@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -97,8 +98,8 @@ public class LedgerController {
     @GetMapping("/ledgers/summary")
     public ResponseEntity<LedgerSummaryWebResponse> getSummary(
         @UserId Long userId,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
+        @RequestParam @DateTimeFormat(iso = ISO.DATE) LocalDate start,
+        @RequestParam @DateTimeFormat(iso = ISO.DATE) LocalDate end
     ) {
         LedgerEntriesByDateRangeResponse response = ledgerService.getSummary(userId, start, end);
         return ResponseEntity.ok(LedgerSummaryWebResponse.from(response));
@@ -109,7 +110,6 @@ public class LedgerController {
         @UserId Long userId,
         @RequestParam LedgerType type
     ) {
-        log.info("[getMonthlyStatistics]");
         LedgerStatisticsResponse statistics = ledgerStatisticsService.getMonthlyStatistics(userId, type);
         LedgerStatisticsWebResponse response = LedgerStatisticsWebResponse.from(statistics);
         return ResponseEntity.ok(response);

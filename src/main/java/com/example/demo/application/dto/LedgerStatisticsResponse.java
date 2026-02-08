@@ -6,7 +6,7 @@ import java.util.Map;
 public record LedgerStatisticsResponse (
     LedgerType type,
     Map<String, Long> categoryAmounts,
-    Long currentMonthTotal,
-    Long lastMonthTotal
+    Long currentMonthTotalAmount,
+    Long lastMonthTotalAmount
 ){
 }
