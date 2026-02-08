@@ -1,6 +1,5 @@
 package com.example.demo.domain;
 
-import com.example.demo.application.dto.CategoryAmountDto;
 import com.example.demo.domain.enums.LedgerType;
 import java.time.LocalDate;
 import java.util.List;
@@ -25,19 +24,13 @@ public interface LedgerEntryRepository extends Repository<LedgerEntry, Long> {
     Optional<LedgerEntry> findById(Long ledgerId);
 
     @Query("""
-            SELECT new com.example.demo.application.dto.CategoryAmountDto(
-                le.category, 
-                SUM(le.amount)
-            )
+            SELECT le
             FROM LedgerEntry le
             WHERE le.user.id = :userId
                 AND le.type = :type
-                AND le.occurredOn >= :startDate
-                AND le.occurredOn <= :endDate
-            GROUP BY le.category
-            ORDER BY SUM(le.amount) DESC
+                AND le.occurredOn BETWEEN :startDate AND :endDate
         """)
-    List<CategoryAmountDto> findCategoryAmountsByUserAndTypeAndPeriod(
+    List<LedgerEntry> findAllByUserAndTypeAndOccurredOnBetween(
         @Param("userId") Long userId,
         @Param("type") LedgerType type,
         @Param("startDate") LocalDate startDate,

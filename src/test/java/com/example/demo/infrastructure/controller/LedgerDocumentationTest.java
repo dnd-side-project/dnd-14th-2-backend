@@ -53,9 +53,7 @@ import static org.springframework.restdocs.payload.JsonFieldType.ARRAY;
 import static org.springframework.restdocs.payload.JsonFieldType.NUMBER;
 import static org.springframework.restdocs.payload.JsonFieldType.STRING;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -623,18 +621,22 @@ class LedgerDocumentationTest {
 
     @Test
     void get_monthly_statistics_docs() throws Exception {
-        Map<String, Long> categoryAmounts = new LinkedHashMap<>();
-        categoryAmounts.put("FOOD", 350000L);
-        categoryAmounts.put("TRANSPORT", 120000L);
-        categoryAmounts.put("SHOPPING", 85000L);
-        categoryAmounts.put("LEISURE_HOBBY", 50000L);
-        categoryAmounts.put("HEALTH_MEDICAL", 30000L);
+        LocalDate startDate = LocalDate.of(2026, 2, 1);
+        LocalDate endDate = LocalDate.of(2026, 2, 28);
+        Map<LedgerCategory, Long> categoryAmounts = new LinkedHashMap<>();
+        categoryAmounts.put(LedgerCategory.FOOD, 350000L);
+        categoryAmounts.put(LedgerCategory.TRANSPORT, 120000L);
+        categoryAmounts.put(LedgerCategory.SHOPPING, 85000L);
+        categoryAmounts.put(LedgerCategory.LEISURE_HOBBY, 50000L);
+        categoryAmounts.put(LedgerCategory.HEALTH_MEDICAL, 30000L);
 
         LedgerStatisticsResponse response = new LedgerStatisticsResponse(
             LedgerType.EXPENSE,
             categoryAmounts,
             635000L,
-            580000L
+            580000L,
+            startDate,
+            endDate
         );
 
         given(ledgerStatisticsService.getMonthlyStatistics(eq(1L), eq(LedgerType.EXPENSE)))
@@ -652,6 +654,8 @@ class LedgerDocumentationTest {
             .andExpect(jsonPath("$.categoryAmounts.FOOD").value(350000))
             .andExpect(jsonPath("$.currentMonthTotalAmount").value(635000))
             .andExpect(jsonPath("$.lastMonthTotalAmount").value(580000))
+            .andExpect(jsonPath("$.startDate").value(startDate.toString()))
+            .andExpect(jsonPath("$.endDate").value(endDate.toString()))
             .andDo(document("ledger-statistics-monthly-expense",
                 preprocessRequest(prettyPrint()),
                 preprocessResponse(prettyPrint()),
@@ -693,7 +697,20 @@ class LedgerDocumentationTest {
                         fieldWithPath("categoryAmounts.TRANSFER").type(JsonFieldType.NUMBER).description("이체 (INCOME)").optional(),
 
                         fieldWithPath("currentMonthTotalAmount").type(JsonFieldType.NUMBER).description("이번 달 총 금액"),
-                        fieldWithPath("lastMonthTotalAmount").type(JsonFieldType.NUMBER).description("지난 달 총 금액")
+                        fieldWithPath("lastMonthTotalAmount").type(JsonFieldType.NUMBER).description("지난 달 총 금액"),
+
+                        fieldWithPath("startDate").type(JsonFieldType.STRING)
+                            .attributes(
+                                key("format").value("date"),
+                                key("example").value(startDate.toString())
+                            )
+                            .description("통계 시작일(yyyy-MM-dd)"),
+                        fieldWithPath("endDate").type(JsonFieldType.STRING)
+                            .attributes(
+                                key("format").value("date"),
+                                key("example").value(endDate.toString())
+                            )
+                            .description("통계 종료일(yyyy-MM-dd)")
                     )
                     .build())
             ));

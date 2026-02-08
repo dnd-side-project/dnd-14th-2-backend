@@ -1,20 +1,20 @@
 package com.example.demo.application;
 
-import com.example.demo.application.dto.CategoryAmountDto;
 import com.example.demo.application.dto.LedgerStatisticsResponse;
+import com.example.demo.domain.LedgerEntry;
 import com.example.demo.domain.LedgerEntryRepository;
+import com.example.demo.domain.enums.LedgerCategory;
 import com.example.demo.domain.enums.LedgerType;
 import java.time.Clock;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,20 +28,25 @@ public class LedgerStatisticsService {
         YearMonth currentMonth = YearMonth.now(clock);
         YearMonth lastMonth = currentMonth.minusMonths(1);
 
-        List<CategoryAmountDto> categoryAmounts = fetchCurrentMonthCategoryAmounts(
+        Map<LedgerCategory, Long> categoryAmounts = fetchCurrentMonthCategoryAmounts(
             userId, type, currentMonth
         );
+
+        for (Entry<LedgerCategory, Long> entry : categoryAmounts.entrySet()) {
+            System.out.println( entry.getKey()+" = " + entry.getValue());
+        }
+        System.out.println("categoryAmounts = " + categoryAmounts);
 
         long currentMonthTotalAmount = calculateTotalAmount(categoryAmounts);
         long lastMonthTotalAmount = findTotalAmount(userId, type, lastMonth);
 
-        Map<String, Long> categoryMap = buildCategoryMap(categoryAmounts);
-
         return new LedgerStatisticsResponse(
             type,
-            categoryMap,
+            categoryAmounts,
             currentMonthTotalAmount,
-            lastMonthTotalAmount
+            lastMonthTotalAmount,
+            currentMonth.atDay(1),
+            currentMonth.atEndOfMonth()
         );
     }
 
@@ -49,17 +54,15 @@ public class LedgerStatisticsService {
         LocalDate startDate = month.atDay(1);
         LocalDate endDate = month.atEndOfMonth();
 
-        Long total = ledgerEntryRepository.findTotalAmountByUserAndTypeAndPeriod(
+        return ledgerEntryRepository.findTotalAmountByUserAndTypeAndPeriod(
             userId,
             type,
             startDate,
             endDate
         );
-
-        return Objects.requireNonNullElse(total, 0L);
     }
 
-    private List<CategoryAmountDto> fetchCurrentMonthCategoryAmounts(
+    private Map<LedgerCategory, Long> fetchCurrentMonthCategoryAmounts(
         Long userId,
         LedgerType type,
         YearMonth currentMonth
@@ -67,26 +70,26 @@ public class LedgerStatisticsService {
         LocalDate startDate = currentMonth.atDay(1);
         LocalDate endDate = currentMonth.atEndOfMonth();
 
-        return ledgerEntryRepository.findCategoryAmountsByUserAndTypeAndPeriod(
+        List<LedgerEntry> ledgerEntries = ledgerEntryRepository.findAllByUserAndTypeAndOccurredOnBetween(
             userId,
             type,
             startDate,
             endDate
         );
+        return toCategoryAmountResponses(ledgerEntries);
     }
 
-    private Long calculateTotalAmount(List<CategoryAmountDto> categoryAmounts) {
-        return categoryAmounts.stream()
-            .mapToLong(CategoryAmountDto::totalAmount)
+    private Long calculateTotalAmount(Map<LedgerCategory, Long> categoryAmounts) {
+        return categoryAmounts.values().stream()
+            .mapToLong(value -> value)
             .sum();
     }
 
-    private Map<String, Long> buildCategoryMap(List<CategoryAmountDto> categoryAmounts) {
-        return categoryAmounts.stream()
-            .collect(Collectors.toMap(
-                dto -> dto.category().name(),
-                CategoryAmountDto::totalAmount
+    private Map<LedgerCategory, Long> toCategoryAmountResponses(List<LedgerEntry> ledgerEntries) {
+        return ledgerEntries.stream()
+            .collect(Collectors.groupingBy(
+                LedgerEntry::getCategory,
+                Collectors.summingLong(LedgerEntry::getAmount)
             ));
     }
-
 }
