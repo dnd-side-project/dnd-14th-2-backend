@@ -35,7 +35,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Docker 이미지 빌드 및 푸시
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           platforms: linux/arm64
@@ -51,7 +51,7 @@ jobs:
 
     steps:
       - name: SSH로 운영 배포 (Nginx -> Prod)
-        uses: appleboy/ssh-action@v1.0.0
+        uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.NGINX_SERVER_HOST }}
           username: ${{ secrets.NGINX_SERVER_USER }}
