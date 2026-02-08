@@ -1,7 +1,5 @@
 package com.example.demo.domain.enums;
 
-import lombok.Getter;
-
 import java.util.Optional;
 
 public enum LedgerCategory {

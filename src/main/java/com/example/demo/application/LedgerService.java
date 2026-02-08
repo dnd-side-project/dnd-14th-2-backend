@@ -8,14 +8,13 @@ import com.example.demo.domain.LedgerEntry;
 import com.example.demo.domain.LedgerEntryRepository;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Clock;
-import java.time.LocalDate;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -101,4 +100,5 @@ public class LedgerService {
 
         return new LedgerEntriesByDateRangeResponse(range, results);
     }
+
 }

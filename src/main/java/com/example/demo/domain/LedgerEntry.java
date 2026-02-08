@@ -66,7 +66,7 @@ public class LedgerEntry extends BaseEntity {
         this.user = user;
     }
 
-    public void updateMemo(String memo) {
+    public void updateMemo(String memo)  {
         this.memo = validateMemo(memo);
     }
 
