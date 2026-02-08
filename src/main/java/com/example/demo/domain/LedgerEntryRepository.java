@@ -45,7 +45,7 @@ public interface LedgerEntryRepository extends Repository<LedgerEntry, Long> {
                 AND le.occurredOn >= :startDate
                 AND le.occurredOn <= :endDate
         """)
-    Long findTotalAmountByUserAndTypeAndPeriod(
+    long findTotalAmountByUserAndTypeAndPeriod(
         @Param("userId") Long userId,
         @Param("type") LedgerType type,
         @Param("startDate") LocalDate startDate,

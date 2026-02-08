@@ -10,9 +10,6 @@ import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
 import java.time.LocalDate;
 import java.util.List;
-import java.time.Clock;
-import java.time.LocalDate;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -23,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class LedgerService {
     private final LedgerEntryRepository ledgerEntryRepository;
     private final UserRepository userRepository;
-    private final Clock clock;
 
     @Transactional
     public LedgerResult createLedgerEntry(UpsertLedgerCommand command) {

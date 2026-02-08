@@ -38,13 +38,12 @@ class LedgerStatisticsServiceTest extends AbstractIntegrationTest {
     private LedgerStatisticsService ledgerStatisticsService;
 
     private static final Long USER_ID = 1L;
-    private static final ZoneId ZONE_ID = ZoneId.systemDefault();
 
     @BeforeEach
     void setUp() {
         Clock fixedClock = Clock.fixed(
             Instant.parse("2024-02-15T00:00:00Z"),
-            ZONE_ID
+            ZoneId.of("Asia/Seoul")
         );
         given(clock.instant()).willReturn(fixedClock.instant());
         given(clock.getZone()).willReturn(fixedClock.getZone());

@@ -671,7 +671,7 @@ class LedgerDocumentationTest {
                         fieldWithPath("categoryAmounts").type(JsonFieldType.OBJECT)
                             .description("이번 달 카테고리별 금액 (금액 내림차순 정렬)"
                                 + "[type = EXPENSE 인 경우 = " + String.join(", ", ledgerCategoryNamesByType(LedgerType.EXPENSE))
-                                + "] [type = INCOME 인 경우 = " + String.join(", ", ledgerCategoryNamesByType(LedgerType.INCOME) + "]")
+                                + "] [type = INCOME 인 경우 = " + String.join(", ", ledgerCategoryNamesByType(LedgerType.INCOME)) + "]"
                             ),
 
                         fieldWithPath("categoryAmounts.OTHER").type(JsonFieldType.NUMBER).description("기타 (INCOME, EXPENSE 모두에 해당 가능)").optional(),
