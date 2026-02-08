@@ -1,10 +1,14 @@
 package com.example.demo.infrastructure.controller;
 
 import com.example.demo.application.LedgerService;
+import com.example.demo.application.LedgerStatisticsService;
 import com.example.demo.application.dto.LedgerEntriesByDateRangeResponse;
 import com.example.demo.application.dto.LedgerResult;
+import com.example.demo.application.dto.LedgerStatisticsResponse;
 import com.example.demo.application.dto.UpsertLedgerCommand;
+import com.example.demo.domain.enums.LedgerType;
 import com.example.demo.infrastructure.controller.dto.LedgerDetailWebResponse;
+import com.example.demo.infrastructure.controller.dto.LedgerStatisticsWebResponse;
 import com.example.demo.infrastructure.controller.dto.LedgerSummaryWebResponse;
 import com.example.demo.infrastructure.controller.dto.UpdateLedgerMemoWebRequest;
 import com.example.demo.infrastructure.controller.dto.UpsertLedgerWebRequest;
@@ -15,6 +19,7 @@ import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,13 +31,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.springframework.format.annotation.DateTimeFormat.*;
-
 @Slf4j
 @RequiredArgsConstructor
 @RestController
 public class LedgerController {
     private final LedgerService ledgerService;
+    private final LedgerStatisticsService ledgerStatisticsService;
 
     @PostMapping("/ledgers")
     public ResponseEntity<LedgerDetailWebResponse> create(
@@ -100,4 +104,15 @@ public class LedgerController {
         LedgerEntriesByDateRangeResponse response = ledgerService.getSummary(userId, start, end);
         return ResponseEntity.ok(LedgerSummaryWebResponse.from(response));
     }
+
+    @GetMapping("/ledgers/statistics/monthly")
+    public ResponseEntity<LedgerStatisticsWebResponse> getMonthlyStatistics(
+        @UserId Long userId,
+        @RequestParam LedgerType type
+    ) {
+        LedgerStatisticsResponse statistics = ledgerStatisticsService.getMonthlyStatistics(userId, type);
+        LedgerStatisticsWebResponse response = LedgerStatisticsWebResponse.from(statistics);
+        return ResponseEntity.ok(response);
+    }
+
 }

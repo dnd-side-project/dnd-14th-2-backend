@@ -61,7 +61,8 @@ public class LedgerEntry extends BaseEntity {
                        String description,
                        LocalDate occurredOn,
                        PaymentMethod paymentMethod,
-                       String memo, User user
+                       String memo,
+                       User user
     ) {
         validateTypeMatchesCategory(type, category);
         this.amount = validateAmount(amount);
@@ -74,7 +75,7 @@ public class LedgerEntry extends BaseEntity {
         this.user = user;
     }
 
-    public void updateMemo(String memo) {
+    public void updateMemo(String memo)  {
         this.memo = validateMemo(memo);
     }
 
