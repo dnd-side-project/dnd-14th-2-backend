@@ -1,0 +1,52 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+  application:
+    name: pickle
+  datasource:
+    url: ${DB_SERVER_URL}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  cloud:
+    aws:
+      region:
+        static: ${AWS_REGION}
+      s3:
+        bucket: ${AWS_BUCKET}
+
+jwt:
+  secret:
+    key: ${JWT_SECRET_KEY}
+    access:
+      expire-range: ${JWT_ACCESS_EXPIRE_RANGE}
+    refresh:
+      expire-range: ${JWT_REFRESH_EXPIRE_RANGE}
+
+oauth:
+  oidc:
+    google:
+      issuer: "https://accounts.google.com"
+      audience: ${GOOGLE_CLIENT_ID}
+      jwks-uri: "https://www.googleapis.com/oauth2/v3/certs"
+    kakao:
+      issuer: "https://kauth.kakao.com"
+      audience: ${KAKAO_CLIENT_ID}
+      jwks-uri: "https://kauth.kakao.com/.well-known/jwks.json"
+
+server:
+  forward-headers-strategy: framework
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
