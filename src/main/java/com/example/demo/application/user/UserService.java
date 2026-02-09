@@ -54,7 +54,7 @@ public class UserService {
             oauthUserInfo.providerId()
         );
 
-        log.info("새로운 유저가 생성되었습니다. providerId: {}, Nickname: {}", user.getProviderId(), user.getNickname());
+        log.info("새로운 유저가 생성되었습니다. providerId: {}, nickname: {}", user.getProviderId(), user.getNickname());
 
         return userRepository.save(user);
     }
