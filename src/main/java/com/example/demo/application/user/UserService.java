@@ -11,7 +11,6 @@ import com.example.demo.domain.RefreshTokenRepository;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
 import java.time.Clock;
-import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -27,7 +26,6 @@ public class UserService {
     private final RandomBytesSource randomBytesSource;
     private final NicknameGenerator nicknameGenerator;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final Clock clock;
 
     @Transactional(readOnly = true)
     public UserInfo getUserInfo(Long userId) {
@@ -62,8 +60,10 @@ public class UserService {
     @Transactional
     public void withdrawUser(Long userId) {
         userRepository.findById(userId).ifPresent(user -> {
-            user.withdraw(LocalDateTime.now(clock));
+            userRepository.deleteById(userId);
             refreshTokenRepository.deleteByUserId(userId);
+
+            log.info("유저가 탈퇴했습니다. userId: {}, provider: {}, providerId: {}", userId, user.getProvider(), user.getProviderId());
         });
     }
 

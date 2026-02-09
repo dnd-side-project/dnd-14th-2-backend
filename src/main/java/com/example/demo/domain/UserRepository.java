@@ -13,5 +13,7 @@ public interface UserRepository extends Repository<User, Long> {
 
     Optional<User> findByProviderAndProviderId(Provider provider, String providerId);
 
+    void deleteById(Long userId);
+
     boolean existsByNickname_Value(String nickname);
 }
