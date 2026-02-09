@@ -82,7 +82,7 @@ public class UserService {
             throw new IllegalArgumentException("중복되는 닉네임입니다.");
         }
 
-        return nickname;
+        return user.getNickname();
     }
 
     private User findUserById(Long userId) {
