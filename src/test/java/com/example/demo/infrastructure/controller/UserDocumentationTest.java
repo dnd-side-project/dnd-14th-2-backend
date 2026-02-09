@@ -59,6 +59,7 @@ class UserDocumentationTest {
             String accessToken = "test-access-token";
 
             given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
+            given(userService.changeNickname(userId, nickname)).willReturn(nickname);
 
             // when & then
             mockMvc.perform(
@@ -68,7 +69,9 @@ class UserDocumentationTest {
                         .content("{\"nickname\":\"" + nickname + "\"}")
                         .accept(MediaType.APPLICATION_JSON)
                 )
-                .andExpect(status().isNoContent())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.nickname").value(nickname))
                 .andDo(document("닉네임 변경",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
@@ -77,8 +80,12 @@ class UserDocumentationTest {
                         .summary("닉네임 변경")
                         .description("로그인한 사용자의 닉네임을 변경합니다.")
                         .requestSchema(Schema.schema("NicknameWebRequest"))
+                        .responseSchema(Schema.schema("NicknameWebResponse"))
                         .requestFields(
                             fieldWithPath("nickname").type(STRING).description("사용자 입력 닉네임")
+                        )
+                        .responseFields(
+                            fieldWithPath("nickname").type(STRING).description("사용자의 새로운 닉네임")
                         )
                         .build()
                     )
