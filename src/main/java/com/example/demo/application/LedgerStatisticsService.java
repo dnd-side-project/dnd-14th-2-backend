@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,16 +27,15 @@ public class LedgerStatisticsService {
         YearMonth currentMonth = YearMonth.now(clock);
         YearMonth lastMonth = currentMonth.minusMonths(1);
 
+        // 이번달 전체 내역 조회
         Map<LedgerCategory, Long> categoryAmounts = fetchCurrentMonthCategoryAmounts(
             userId, type, currentMonth
         );
 
-        for (Entry<LedgerCategory, Long> entry : categoryAmounts.entrySet()) {
-            System.out.println( entry.getKey()+" = " + entry.getValue());
-        }
-        System.out.println("categoryAmounts = " + categoryAmounts);
-
+        // 이번달 전체 내역으로 합계 계산
         long currentMonthTotalAmount = calculateTotalAmount(categoryAmounts);
+
+        // 지난달 전체 합계 조회
         long lastMonthTotalAmount = findTotalAmount(userId, type, lastMonth);
 
         return new LedgerStatisticsResponse(
