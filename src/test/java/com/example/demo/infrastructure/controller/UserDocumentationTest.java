@@ -15,7 +15,6 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -344,7 +343,7 @@ class UserDocumentationTest {
 
     @Nested
     @DisplayName("사용자 정보 조회")
-    class getUserInfo {
+    class GetUserInfo {
 
         @Test
         void getUserInfo_docs() throws Exception {
@@ -397,7 +396,7 @@ class UserDocumentationTest {
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isUnauthorized())
-                .andDo(MockMvcRestDocumentation.document("사용자 정보 조회 - 만료된 토큰",
+                .andDo(document("사용자 정보 조회 - 만료된 토큰",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
