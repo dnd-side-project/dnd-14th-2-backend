@@ -428,7 +428,7 @@ class UserDocumentationTest {
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isUnauthorized())
-                .andDo(MockMvcRestDocumentation.document("사용자 정보 조회 - 유효하지 않은 토큰",
+                .andDo(document("사용자 정보 조회 - 유효하지 않은 토큰",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
