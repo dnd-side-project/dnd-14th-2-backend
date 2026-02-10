@@ -16,9 +16,7 @@ import com.example.demo.domain.enums.LedgerType;
 import com.example.demo.domain.enums.PaymentMethod;
 import java.time.Clock;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -35,6 +33,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import static com.example.demo.util.RestDocsUtils.allowedValues;
+import static com.example.demo.util.RestDocsUtils.enumList;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -43,6 +43,7 @@ import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
@@ -53,7 +54,6 @@ import static org.springframework.restdocs.payload.JsonFieldType.STRING;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.snippet.Attributes.key;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -147,7 +147,7 @@ class LedgerDocumentationTest {
                             fieldWithPath("occurredOn").type(STRING)
                                 .attributes(
                                     key("format").value("date"),
-                                    key("example").value(dateExample())
+                                    key("example").value("2026-01-24")
                                 )
                                 .description("소비/지출 일자 (yyyy-MM-dd)"),
                             fieldWithPath("paymentMethod").type(STRING)
@@ -195,7 +195,7 @@ class LedgerDocumentationTest {
                             fieldWithPath("occurredOn").type(STRING)
                                 .attributes(
                                     key("format").value("date"),
-                                    key("example").value(dateExample())
+                                    key("example").value("2026-01-24")
                                 )
                                 .description("소비/지출 일자(yyyy-MM-dd)"),
                             fieldWithPath("paymentMethod").type(STRING)
@@ -361,7 +361,7 @@ class LedgerDocumentationTest {
                             fieldWithPath("occurredOn").type(STRING)
                                 .attributes(
                                     key("format").value("date"),
-                                    key("example").value(dateExample())
+                                    key("example").value("2026-01-24")
                                 )
                                 .description("소비/지출 일자(yyyy-MM-dd)"),
                             fieldWithPath("paymentMethod").type(STRING)
@@ -547,8 +547,7 @@ class LedgerDocumentationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content("""
-                            
-                                {
+                            {
                               "amount": 15000,
                               "type": "EXPENSE",
                               "category": "FOOD",
@@ -600,7 +599,7 @@ class LedgerDocumentationTest {
                             fieldWithPath("occurredOn").type(STRING)
                                 .attributes(
                                     key("format").value("date"),
-                                    key("example").value(dateExample())
+                                    key("example").value("2026-01-24")
                                 )
                                 .description("소비/지출 일자(yyyy-MM-dd)"),
                             fieldWithPath("paymentMethod").type(STRING)
@@ -648,7 +647,7 @@ class LedgerDocumentationTest {
                             fieldWithPath("occurredOn").type(STRING)
                                 .attributes(
                                     key("format").value("date"),
-                                    key("example").value(dateExample())
+                                    key("example").value("2026-01-24")
                                 )
                                 .description("소비/지출 일자(yyyy-MM-dd)"),
                             fieldWithPath("paymentMethod").type(STRING)
@@ -912,7 +911,7 @@ class LedgerDocumentationTest {
                             fieldWithPath("result[].occurredOn").type(STRING)
                                 .attributes(
                                     key("format").value("date"),
-                                    key("example").value(dateExample())
+                                    key("example").value("2026-01-24")
                                 )
                                 .description("소비/지출 일자(yyyy-MM-dd)"),
                             fieldWithPath("result[].paymentMethod").type(STRING)
@@ -1005,25 +1004,6 @@ class LedgerDocumentationTest {
         given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
     }
 
-    private String enumNames(Class<? extends Enum<?>> enumType) {
-        return Arrays.stream(enumType.getEnumConstants())
-            .map(Enum::name)
-            .collect(Collectors.joining(", "));
-    }
-
-    private String allowedValues(Class<? extends Enum<?>> enumType) {
-        return "허용 값: [" + enumNames(enumType) + "]";
-    }
-
-    private List<String> enumList(Class<? extends Enum<?>> enumType) {
-        return Arrays.stream(enumType.getEnumConstants())
-            .map(Enum::name)
-            .collect(Collectors.toList());
-    }
-
-    private String dateExample() {
-        return "2026-01-24";
-    }
 
     private LedgerResult sampleResult(Long ledgerId) {
         return new LedgerResult(
