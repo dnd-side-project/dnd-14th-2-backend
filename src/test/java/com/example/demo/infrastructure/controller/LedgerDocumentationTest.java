@@ -859,8 +859,8 @@ class LedgerDocumentationTest {
                         .tag("Ledger")
                         .summary("가계부 요약 조회")
                         .queryParameters(
-                            parameterWithName("start").optional().description("조회 시작일(yyyy-MM-dd), 미입력 시 기본값 적용"),
-                            parameterWithName("end").optional().description("조회 종료일(yyyy-MM-dd), 미입력 시 기본값 적용")
+                            parameterWithName("start").description("조회 시작일(yyyy-MM-dd), 미입력 시 기본값 적용"),
+                            parameterWithName("end").description("조회 종료일(yyyy-MM-dd), 미입력 시 기본값 적용")
                         )
                         .responseSchema(Schema.schema("LedgerSummaryWebResponse"))
                         .responseFields(
