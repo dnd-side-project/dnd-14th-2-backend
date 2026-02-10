@@ -396,6 +396,9 @@ class UserDocumentationTest {
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isUnauthorized())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value("만료된 토큰입니다."))
+                .andExpect(jsonPath("$.timestamp").exists())
                 .andDo(document("사용자 정보 조회 - 만료된 토큰",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
@@ -427,6 +430,9 @@ class UserDocumentationTest {
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isUnauthorized())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value("유효하지 않은 토큰 정보입니다."))
+                .andExpect(jsonPath("$.timestamp").exists())
                 .andDo(document("사용자 정보 조회 - 유효하지 않은 토큰",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
