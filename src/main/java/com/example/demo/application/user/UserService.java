@@ -10,7 +10,6 @@ import com.example.demo.domain.RandomBytesSource;
 import com.example.demo.domain.RefreshTokenRepository;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
-import java.time.Clock;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -60,10 +59,13 @@ public class UserService {
     @Transactional
     public void withdrawUser(Long userId) {
         userRepository.findById(userId).ifPresent(user -> {
+            Provider provider = user.getProvider();
+            String providerId = user.getProviderId();
+
             userRepository.deleteById(userId);
             refreshTokenRepository.deleteByUserId(userId);
 
-            log.info("유저가 탈퇴했습니다. userId: {}, provider: {}, providerId: {}", userId, user.getProvider(), user.getProviderId());
+            log.info("유저가 탈퇴했습니다. userId: {}, provider: {}, providerId: {}", userId, provider, providerId);
         });
     }
 
