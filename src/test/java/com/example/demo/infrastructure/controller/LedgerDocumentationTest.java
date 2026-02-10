@@ -943,7 +943,7 @@ class LedgerDocumentationTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value(containsString("요청 파라미터 형식이 올바르지 않습니다"))).andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.message").value(containsString("요청 파라미터 형식이 올바르지 않습니다")))
                 .andExpect(jsonPath("$.timestamp").exists())
                 .andDo(document("가계부 요약 조회 - 날짜 형식 오류",
                     preprocessRequest(prettyPrint()),
