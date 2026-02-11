@@ -68,7 +68,7 @@ public class UserService {
     }
 
     @Transactional
-    public void changeNickname(Long userId, String nickname) {
+    public String changeNickname(Long userId, String nickname) {
         User user = findUserById(userId);
 
         if (userRepository.existsByNickname_Value(nickname)) {
@@ -81,6 +81,8 @@ public class UserService {
         } catch (DataIntegrityViolationException e) {
             throw new IllegalArgumentException("중복되는 닉네임입니다.");
         }
+
+        return user.getNickname();
     }
 
     private User findUserById(Long userId) {
