@@ -4,6 +4,7 @@ import com.example.demo.application.dto.UserInfo;
 import com.example.demo.application.user.UserService;
 import com.example.demo.infrastructure.controller.dto.NicknameWebRequest;
 import com.example.demo.infrastructure.controller.dto.UserInfoWebResponse;
+import com.example.demo.infrastructure.controller.dto.NicknameWebResponse;
 import com.example.demo.infrastructure.interceptor.UserId;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,11 +22,11 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/users/me/nickname")
-    public ResponseEntity<Void> changeNickname(@UserId Long userId,
-                                               @Valid @RequestBody NicknameWebRequest nicknameWebRequest
+    public ResponseEntity<NicknameWebResponse> changeNickname(@UserId Long userId,
+                                                              @Valid @RequestBody NicknameWebRequest nicknameWebRequest
     ) {
-        userService.changeNickname(userId, nicknameWebRequest.nickname());
-        return ResponseEntity.noContent().build();
+        String nickname = userService.changeNickname(userId, nicknameWebRequest.nickname());
+        return ResponseEntity.ok(new NicknameWebResponse(nickname));
     }
 
     @DeleteMapping("/users/me")

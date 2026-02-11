@@ -11,22 +11,19 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Entity
 @Table(uniqueConstraints = {
     @UniqueConstraint(
         name = "uk_user_provider_provider_id",
-        columnNames = {"provider", "provider_id", "is_deleted"}
-    )
+        columnNames = {"provider", "provider_id"}
+    ),
 })
 @NoArgsConstructor
-@SQLRestriction("is_deleted = 0")
-public class User extends BaseEntity{
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,11 +52,6 @@ public class User extends BaseEntity{
 
     private Integer level = 0;
 
-    @Column(name = "is_deleted")
-    private boolean isDeleted;
-
-    private LocalDateTime deletedAt;
-
     public User(Nickname nickname, InvitationCode invitationCode, String email, String profile, Provider provider, String providerId) {
         this.nickname = nickname;
         this.invitationCode = invitationCode;
@@ -67,12 +59,6 @@ public class User extends BaseEntity{
         this.profile = profile;
         this.provider = provider;
         this.providerId = providerId;
-        this.isDeleted = false;
-    }
-
-    public void withdraw(LocalDateTime deletedAt) {
-        this.isDeleted = true;
-        this.deletedAt = deletedAt;
     }
 
     public void changeNickname(Nickname nickname) {

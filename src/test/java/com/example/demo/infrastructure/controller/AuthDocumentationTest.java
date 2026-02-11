@@ -124,7 +124,7 @@ class AuthDocumentationTest {
 
     @Nested
     @DisplayName("토큰 재발행")
-    class reissue {
+    class Reissue {
         @Test
         void reissue_docs() throws Exception {
             // given

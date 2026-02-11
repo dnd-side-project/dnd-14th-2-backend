@@ -10,8 +10,6 @@ import com.example.demo.domain.RandomBytesSource;
 import com.example.demo.domain.RefreshTokenRepository;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
-import java.time.Clock;
-import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -27,7 +25,6 @@ public class UserService {
     private final RandomBytesSource randomBytesSource;
     private final NicknameGenerator nicknameGenerator;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final Clock clock;
 
     @Transactional(readOnly = true)
     public UserInfo getUserInfo(Long userId) {
@@ -54,7 +51,7 @@ public class UserService {
             oauthUserInfo.providerId()
         );
 
-        log.info("새로운 유저가 생성되었습니다. providerId: {}, Nickname: {}", user.getProviderId(), user.getNickname());
+        log.info("새로운 유저가 생성되었습니다. providerId: {}, nickname: {}", user.getProviderId(), user.getNickname());
 
         return userRepository.save(user);
     }
@@ -62,13 +59,18 @@ public class UserService {
     @Transactional
     public void withdrawUser(Long userId) {
         userRepository.findById(userId).ifPresent(user -> {
-            user.withdraw(LocalDateTime.now(clock));
+            Provider provider = user.getProvider();
+            String providerId = user.getProviderId();
+
+            userRepository.deleteById(userId);
             refreshTokenRepository.deleteByUserId(userId);
+
+            log.info("유저가 탈퇴했습니다. userId: {}, provider: {}, providerId: {}", userId, provider, providerId);
         });
     }
 
     @Transactional
-    public void changeNickname(Long userId, String nickname) {
+    public String changeNickname(Long userId, String nickname) {
         User user = findUserById(userId);
 
         if (userRepository.existsByNickname_Value(nickname)) {
@@ -81,6 +83,8 @@ public class UserService {
         } catch (DataIntegrityViolationException e) {
             throw new IllegalArgumentException("중복되는 닉네임입니다.");
         }
+
+        return user.getNickname();
     }
 
     private User findUserById(Long userId) {
