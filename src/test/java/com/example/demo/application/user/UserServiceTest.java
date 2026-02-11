@@ -28,7 +28,7 @@ class UserServiceTest extends AbstractIntegrationTest {
 
     @Nested
     @DisplayName("로그인(회원가입)")
-    class login {
+    class Login {
         @Test
         void 신규_유저_로그인_시_닉네임과_초대코드가_생성되어_저장된다() {
             // given
@@ -120,7 +120,7 @@ class UserServiceTest extends AbstractIntegrationTest {
 
     @Nested
     @DisplayName("회원탈퇴")
-    class withdraw {
+    class Withdraw {
         @Test
         void 회원탈퇴를_할_수_있다() {
             // given

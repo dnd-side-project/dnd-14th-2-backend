@@ -49,7 +49,7 @@ class UserDocumentationTest {
 
     @Nested
     @DisplayName("닉네임 변경")
-    class changeNickname {
+    class ChangeNickname {
 
         @Test
         void changeNickname_docs() throws Exception {
@@ -312,7 +312,7 @@ class UserDocumentationTest {
 
     @Nested
     @DisplayName("회원탈퇴")
-    class withdraw {
+    class Withdraw {
 
         @Test
         void withdrawUser_docs() throws Exception {
