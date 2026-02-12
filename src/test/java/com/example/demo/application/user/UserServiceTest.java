@@ -34,8 +34,7 @@ class UserServiceTest extends AbstractIntegrationTest {
             // given
             OauthUserInfo oauthUserInfo = new OauthUserInfo(
                 "google123",
-                "newuser@example.com",
-                "profile.jpg"
+                "newuser@example.com"
             );
 
             // when
@@ -61,8 +60,7 @@ class UserServiceTest extends AbstractIntegrationTest {
             // given
             OauthUserInfo oauthUserInfo = new OauthUserInfo(
                 "google123",
-                "newuser@example.com",
-                "profile.jpg"
+                "newuser@example.com"
             );
 
             User firstUser = sut.findOrCreateUser(Provider.KAKAO, oauthUserInfo);
@@ -78,9 +76,9 @@ class UserServiceTest extends AbstractIntegrationTest {
         @Test
         void 여러_유저가_생성되어도_닉네임과_초대코드는_모두_유니크하다() {
             // given
-            OauthUserInfo user1 = new OauthUserInfo("id1", "user1@example.com", "pic1.jpg");
-            OauthUserInfo user2 = new OauthUserInfo("id2", "user2@example.com", "pic2.jpg");
-            OauthUserInfo user3 = new OauthUserInfo("id3", "user3@example.com", "pic3.jpg");
+            OauthUserInfo user1 = new OauthUserInfo("id1", "user1@example.com");
+            OauthUserInfo user2 = new OauthUserInfo("id2", "user2@example.com");
+            OauthUserInfo user3 = new OauthUserInfo("id3", "user3@example.com");
 
             // when
             User result1 = sut.findOrCreateUser(Provider.GOOGLE, user1);
@@ -105,8 +103,8 @@ class UserServiceTest extends AbstractIntegrationTest {
         void 같은_이메일이라도_Provider가_다르면_다른_유저로_생성된다() {
             // given
             String sameEmail = "same@example.com";
-            OauthUserInfo googleUser = new OauthUserInfo("google999", sameEmail, "pic.jpg");
-            OauthUserInfo kakaoUser = new OauthUserInfo("kakao999", sameEmail, "pic.jpg");
+            OauthUserInfo googleUser = new OauthUserInfo("google999", sameEmail);
+            OauthUserInfo kakaoUser = new OauthUserInfo("kakao999", sameEmail);
 
             // when
             User googleResult = sut.findOrCreateUser(Provider.GOOGLE, googleUser);
@@ -198,8 +196,7 @@ class UserServiceTest extends AbstractIntegrationTest {
         // given
         OauthUserInfo oauthUserInfo = new OauthUserInfo(
             "getinfo123",
-            "getinfo@example.com",
-            "profile.jpg"
+            "getinfo@example.com"
         );
         User created = sut.findOrCreateUser(Provider.GOOGLE, oauthUserInfo);
 

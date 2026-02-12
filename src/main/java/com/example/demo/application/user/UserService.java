@@ -46,7 +46,7 @@ public class UserService {
             nickname,
             invitationCode,
             oauthUserInfo.email(),
-            oauthUserInfo.picture(),
+            null,
             provider,
             oauthUserInfo.providerId()
         );

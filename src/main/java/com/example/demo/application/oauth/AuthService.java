@@ -51,7 +51,7 @@ public class AuthService {
             .filter(token -> token.isSameToken(refreshToken))
             .orElseThrow(() -> {
                 log.warn("리프레시 토큰 인증에 실패했습니다. userId: {}", userId);
-                throw new UnauthorizedException("인증되지 않은 사용자입니다.");
+                return new UnauthorizedException("인증되지 않은 사용자입니다.");
             });
 
         TokenResponse tokenResponse = tokenIssuer.reissueTokens(findRefreshToken);

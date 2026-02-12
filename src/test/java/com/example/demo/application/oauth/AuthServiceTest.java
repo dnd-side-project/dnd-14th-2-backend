@@ -35,7 +35,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
         // given
         String idToken = "test-id-token";
         given(idTokenVerifier.verifyAndGetUserInfo(Provider.GOOGLE, idToken)).willReturn(
-            new OauthUserInfo("test-provider-id", "test@email.com", "http://test.jpg")
+            new OauthUserInfo("test-provider-id", "test@email.com")
         );
 
         User user = new User(
@@ -66,7 +66,7 @@ class AuthServiceTest extends AbstractIntegrationTest {
         // given
         String idToken = "test-id-token";
         given(idTokenVerifier.verifyAndGetUserInfo(Provider.GOOGLE, idToken)).willReturn(
-            new OauthUserInfo("test-provider-id", "test@email.com", "http://test.jpg")
+            new OauthUserInfo("test-provider-id", "test@email.com")
         );
 
         // when

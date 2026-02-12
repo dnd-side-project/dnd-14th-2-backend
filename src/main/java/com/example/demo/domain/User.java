@@ -40,7 +40,7 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String email;
 
-    @Column(length = 2048, nullable = false)
+    @Column(length = 2048)
     private String profile;
 
     @Enumerated(value = EnumType.STRING)
