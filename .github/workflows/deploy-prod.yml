@@ -59,30 +59,10 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             set -euo pipefail
-
             echo "🚀 운영 배포 시작 (Nginx -> Prod)"
-
-            ssh prod "bash -s" <<'PROD_SCRIPT'
-            set -euo pipefail
-            cd ~/app
-
-            echo "🌳 .env 생성/갱신..."
-            umask 077
-            cat > .env <<'EOF'
-            ${{ secrets.PROD_ENV_FILE }}
-            EOF
-            chmod 600 .env
-
-            echo "📦 최신 이미지 Pull..."
-            sudo docker compose --env-file .env pull backend
-
-            echo "▶️ backend 재기동..."
-            sudo docker compose --env-file .env up -d --force-recreate backend
-
-            echo "🧹 사용하지 않는 이미지 정리..."
-            sudo docker image prune -f
-            PROD_SCRIPT
-
+            
+            ssh prod "PROD_ENV_FILE='${{ secrets.PROD_ENV_FILE }}' bash ~/app/deploy.sh"
+            
             echo "⛑️ 헬스 체크..."
             for i in $(seq 1 20); do
               sleep 3
@@ -98,3 +78,5 @@ jobs:
 
             echo "❌ 배포 실패"
             exit 1
+        env:
+          PROD_ENV_FILE: ${{ secrets.PROD_ENV_FILE }}
