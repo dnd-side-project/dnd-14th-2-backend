@@ -1,0 +1,33 @@
+server:
+  http_listen_port: 9080
+
+# 로그 수집 위치 기록 (재시작 시 중복 수집 방지)
+positions:
+  filename: /tmp/positions.yaml
+
+# Loki 서버로 로그 전송
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: docker
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: docker
+          # Docker 컨테이너 로그 파일 경로
+          __path__: /var/lib/docker/containers/**/*.log
+    pipeline_stages:
+      # Docker JSON 로그 포맷 파싱
+      - docker: {}
+      # Spring Boot JSON 로그에서 필드 추출
+      - json:
+          expressions:
+            level: level
+            logger: logger_name
+            message: message
+      # 추출한 필드를 Loki 라벨로 등록 (쿼리 시 필터링 가능)
+      - labels:
+          level:
+          logger:
