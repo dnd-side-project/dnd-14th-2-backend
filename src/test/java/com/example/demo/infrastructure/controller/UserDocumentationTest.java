@@ -410,7 +410,7 @@ class UserDocumentationTest {
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
-                        .tag("Auth")
+                        .tag("User")
                         .responseSchema(Schema.schema("ErrorResponse"))
                         .responseFields(
                             fieldWithPath("message").type(STRING).description("에러 메시지"),
@@ -442,7 +442,7 @@ class UserDocumentationTest {
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
-                        .tag("Auth")
+                        .tag("User")
                         .responseSchema(Schema.schema("ErrorResponse"))
                         .responseFields(
                             fieldWithPath("message").type(STRING).description("에러 메시지"),
