@@ -357,7 +357,7 @@ class UserDocumentationTest {
             // given
             Long userId = 1L;
             String accessToken = "test-access-token";
-            UserInfo userInfo = new UserInfo(userId, "파란너구리", 1, "profile.jpg");
+            UserInfo userInfo = new UserInfo(userId, "토끼abc", 1, "profile.jpg");
 
             given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
             given(userService.getUserInfo(userId)).willReturn(userInfo);
@@ -370,7 +370,7 @@ class UserDocumentationTest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.nickname").value("파란너구리"))
+                .andExpect(jsonPath("$.nickname").value("토끼abc"))
                 .andDo(document("사용자 정보 조회",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
@@ -380,7 +380,7 @@ class UserDocumentationTest {
                         .description("로그인한 사용자의 정보를 조회합니다.")
                         .responseSchema(Schema.schema("UserInfoWebResponse"))
                         .responseFields(
-                            fieldWithPath("nickname").type(STRING).description("사용자 닉네임")
+                            fieldWithPath("nickname").type(STRING).description("사용자 닉네임 (설정하지 않은 경우 랜덤 닉네임)")
                         )
                         .build()
                     )
@@ -406,13 +406,11 @@ class UserDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("만료된 토큰입니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("사용자 정보 조회 - 만료된 토큰",
+                .andDo(document("사용자 정보 조회 - 만료된 토큰 (만료된 access token으로 요청한 경우)",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Auth")
-                        .summary("인증 실패 - 만료된 토큰")
-                        .description("만료된 access token으로 요청한 경우")
                         .responseSchema(Schema.schema("ErrorResponse"))
                         .responseFields(
                             fieldWithPath("message").type(STRING).description("에러 메시지"),
@@ -440,13 +438,11 @@ class UserDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("유효하지 않은 토큰 정보입니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("사용자 정보 조회 - 유효하지 않은 토큰",
+                .andDo(document("사용자 정보 조회 - 유효하지 않은 토큰 (위조/변조/형식 오류 등 유효하지 않은 access token으로 요청한 경우)",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Auth")
-                        .summary("인증 실패 - 유효하지 않은 토큰")
-                        .description("위조/변조/형식 오류 등 유효하지 않은 access token으로 요청한 경우")
                         .responseSchema(Schema.schema("ErrorResponse"))
                         .responseFields(
                             fieldWithPath("message").type(STRING).description("에러 메시지"),
@@ -478,13 +474,11 @@ class UserDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("존재하지 않는 사용자입니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("사용자 정보 조회 - 존재하지 않는 사용자",
+                .andDo(document("사용자 정보 조회 - 존재하지 않는 사용자 (로그인한 사용자의 정보를 조회할 때, 사용자 정보가 존재하지 않아 실패한 경우)",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("User")
-                        .summary("사용자 정보 조회 - 존재하지 않는 사용자")
-                        .description("로그인한 사용자의 정보를 조회할 때, 사용자 정보가 존재하지 않아 실패한 경우")
                         .responseSchema(Schema.schema("ErrorResponse"))
                         .responseFields(
                             fieldWithPath("message").type(STRING).description("에러 메시지"),
