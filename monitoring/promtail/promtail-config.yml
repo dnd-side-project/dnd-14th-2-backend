@@ -3,7 +3,7 @@ server:
 
 # 로그 수집 위치 기록 (재시작 시 중복 수집 방지)
 positions:
-  filename: /tmp/positions.yaml
+  filename: /data/positions.yaml
 
 # Loki 서버로 로그 전송
 clients:
