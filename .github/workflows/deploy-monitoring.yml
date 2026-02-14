@@ -1,0 +1,56 @@
+name: Monitoring CD
+
+on:
+  push:
+    branches: [ "**" ]
+    paths:
+      - 'monitoring/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: 모니터링 서비스 배포
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 모니터링 설정 파일 전송
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DEV_SERVER_HOST }}
+          username: ${{ secrets.DEV_SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "monitoring/"
+          target: /home/${{ secrets.DEV_SERVER_USER }}/app
+
+      - name: SSH로 모니터링 서비스 배포
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.DEV_SERVER_HOST }}
+          username: ${{ secrets.DEV_SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /home/${{ secrets.DEV_SERVER_USER }}/app
+
+            echo "📊 모니터링 서비스 배포 시작..."
+
+            echo "📦 모니터링 이미지 Pull..."
+            docker pull prom/prometheus:latest
+            docker pull grafana/loki:latest
+            docker pull grafana/promtail:latest
+            docker pull grafana/grafana:latest
+
+            echo "🌳 .env 파일 생성..."
+            cat > .env <<'EOF'
+            ${{ secrets.DEV_ENV_FILE }}
+            EOF
+            chmod 600 .env
+
+            echo "▶️ 모니터링 서비스 시작..."
+            docker compose --env-file .env up -d --force-recreate prometheus loki promtail grafana
+
+            echo "✅ 모니터링 서비스 배포 완료!"
