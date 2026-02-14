@@ -29,7 +29,6 @@ scrape_configs:
       # Spring Boot JSON 로그에서 필드 추출
       - json:
           expressions:
-            timestamp: '@timestamp'
             level: level
             logger: logger_name
             message: message
