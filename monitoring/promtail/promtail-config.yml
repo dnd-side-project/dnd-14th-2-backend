@@ -38,6 +38,3 @@ scrape_configs:
       - labels:
           level:
           logger:
-      # 사람이 읽기 좋은 형식으로 출력
-      - output:
-          source: message
