@@ -29,10 +29,15 @@ scrape_configs:
       # Spring Boot JSON 로그에서 필드 추출
       - json:
           expressions:
+            timestamp: '@timestamp'
             level: level
             logger: logger_name
             message: message
+            thread: thread_name
       # 추출한 필드를 Loki 라벨로 등록 (쿼리 시 필터링 가능)
       - labels:
           level:
           logger:
+      # 사람이 읽기 좋은 형식으로 출력
+      - output:
+          source: message

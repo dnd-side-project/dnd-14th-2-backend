@@ -8,3 +8,11 @@ scrape_configs:
       - targets: ['backend:8080']
         labels:
           application: 'pickle'
+
+  - job_name: 'loki'
+    static_configs:
+      - targets: ['loki:3100']
+
+  - job_name: 'promtail'
+    static_configs:
+      - targets: ['promtail:9080']
