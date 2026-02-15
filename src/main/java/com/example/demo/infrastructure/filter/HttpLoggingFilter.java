@@ -42,10 +42,13 @@ public class HttpLoggingFilter extends OncePerRequestFilter {
             filterChain.doFilter(wrappedRequest, wrappedResponse);
         } finally {
             long duration = System.currentTimeMillis() - startTime;
-            logRequest(wrappedRequest);
-            logResponse(wrappedRequest, wrappedResponse, duration);
-            wrappedResponse.copyBodyToResponse();
-            MDC.remove("requestId");
+            try {
+                logRequest(wrappedRequest);
+                logResponse(wrappedRequest, wrappedResponse, duration);
+                wrappedResponse.copyBodyToResponse();
+            } finally {
+                MDC.remove("requestId");
+            }
         }
     }
 
