@@ -20,7 +20,7 @@ common:
 # 인덱스 스키마 설정
 schema_config:
   configs:
-    - from: 2020-10-24
+    - from: 2026-02-13
       store: tsdb
       object_store: filesystem
       schema: v13
