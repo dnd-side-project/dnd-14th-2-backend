@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <!-- dev 프로필: JSON 포맷 (Loki 수집용) -->
-    <springProfile name="dev">
+    <!-- dev, prod 프로필: JSON 포맷 (Loki 수집용) -->
+    <springProfile name="dev | prod">
         <appender name="CONSOLE_JSON" class="ch.qos.logback.core.ConsoleAppender">
             <encoder class="net.logstash.logback.encoder.LogstashEncoder">
                 <timeZone>Asia/Seoul</timeZone>
@@ -18,7 +18,7 @@
     <springProfile name="local | test | default">
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
-                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{requestId}] %-5level %logger{36} - %msg%n</pattern>
             </encoder>
         </appender>
 
