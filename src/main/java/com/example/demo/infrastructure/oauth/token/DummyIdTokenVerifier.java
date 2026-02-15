@@ -12,6 +12,6 @@ public class DummyIdTokenVerifier implements IdTokenVerifier {
 
     @Override
     public OauthUserInfo verifyAndGetUserInfo(Provider provider, String idToken) {
-        return new OauthUserInfo("dummy-provider-id", "dummy-email", "dummy-picture");
+        return new OauthUserInfo("dummy-provider-id", "dummy-email");
     }
 }

@@ -29,9 +29,8 @@ public class OauthAuthenticatorTest extends AbstractIntegrationTest {
         String idToken = "test-id-token";
         String providerId = "google-123456";
         String email = "test@example.com";
-        String picture = "https://example.com/picture.jpg";
 
-        OauthUserInfo oauthUserInfo = new OauthUserInfo(providerId, email, picture);
+        OauthUserInfo oauthUserInfo = new OauthUserInfo(providerId, email);
         given(idTokenVerifier.verifyAndGetUserInfo(provider, idToken)).willReturn(oauthUserInfo);
 
         // when

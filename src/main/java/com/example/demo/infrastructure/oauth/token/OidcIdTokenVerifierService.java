@@ -39,9 +39,8 @@ public class OidcIdTokenVerifierService implements IdTokenVerifier {
         JWTClaimsSet claims = processor.verifyAndGetClaims(idToken);
         String providerId = claims.getSubject();
         String email = safeString(claims, "email");
-        String picture = safeString(claims, "picture");
 
-        return new OauthUserInfo(providerId, email, picture);
+        return new OauthUserInfo(providerId, email);
     }
 
     private String safeString(JWTClaimsSet claims, String key) {
