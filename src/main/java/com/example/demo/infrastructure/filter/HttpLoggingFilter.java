@@ -36,12 +36,12 @@ public class HttpLoggingFilter extends OncePerRequestFilter {
         ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request);
         ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper(response);
 
-        long startTime = System.currentTimeMillis();
+        long startTime = System.nanoTime();
 
         try {
             filterChain.doFilter(wrappedRequest, wrappedResponse);
         } finally {
-            long duration = System.currentTimeMillis() - startTime;
+            long duration = (System.nanoTime() - startTime) / 1_000_000;
             try {
                 logRequest(wrappedRequest);
                 logResponse(wrappedRequest, wrappedResponse, duration);
