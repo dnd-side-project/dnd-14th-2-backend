@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Set;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -19,6 +20,8 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
 public class HttpLoggingFilter extends OncePerRequestFilter {
 
     private static final int MAX_BODY_LENGTH = 1000;
+    private static final Set<String> SENSITIVE_PARAMS =
+            Set.of("password", "token", "email", "authorization");
 
     @Override
     protected void doFilterInternal(
@@ -42,7 +45,7 @@ public class HttpLoggingFilter extends OncePerRequestFilter {
             logRequest(wrappedRequest);
             logResponse(wrappedRequest, wrappedResponse, duration);
             wrappedResponse.copyBodyToResponse();
-            MDC.remove(requestId);
+            MDC.remove("requestId");
         }
     }
 
@@ -57,9 +60,36 @@ public class HttpLoggingFilter extends OncePerRequestFilter {
     private void logRequest(ContentCachingRequestWrapper request) {
         String method = request.getMethod();
         String uri = request.getRequestURI();
-        String query = request.getQueryString();
+        String query = maskSensitiveParams(request.getQueryString());
 
         log.info("[REQUEST] {} {} | query={}", method, uri, query);
+    }
+
+    String maskSensitiveParams(String queryString) {
+        if (queryString == null) {
+            return null;
+        }
+
+        StringBuilder masked = new StringBuilder();
+        for (String param : queryString.split("&")) {
+            if (!masked.isEmpty()) {
+                masked.append("&");
+            }
+
+            int eqIndex = param.indexOf('=');
+            if (eqIndex == -1) {
+                masked.append(param);
+                continue;
+            }
+
+            String key = param.substring(0, eqIndex);
+            if (SENSITIVE_PARAMS.contains(key.toLowerCase())) {
+                masked.append(key).append("=****");
+            } else {
+                masked.append(param);
+            }
+        }
+        return masked.toString();
     }
 
     private void logResponse(ContentCachingRequestWrapper request,
