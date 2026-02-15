@@ -243,13 +243,11 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("존재하지 않는 사용자입니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("가계부 생성 - 존재하지 않는 사용자",
+                .andDo(document("가계부 생성 - 존재하지 않는 사용자 (가계부 항목 생성 요청 시, 사용자 정보가 존재하지 않아 생성에 실패한 경우)",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
-                        .summary("가계부 항목 생성 - 존재하지 않는 사용자")
-                        .description("가계부 항목 생성 요청 시, 사용자 정보가 존재하지 않아 생성에 실패한 경우")
                         .responseSchema(Schema.schema("ErrorResponse"))
                         .responseFields(
                             fieldWithPath("message").type(STRING).description("에러 메시지"),
@@ -285,13 +283,11 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("요청 형식이 올바르지 않습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("가계부 생성 - 잘못된 enum 값",
+                .andDo(document("가계부 생성 - 잘못된 enum 값 (가계부 항목 생성 요청에서 enum 필드(type/category/paymentMethod)가 허용되지 않는 값인 경우)",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
-                        .summary("가계부 항목 생성 - 요청 값 오류")
-                        .description("가계부 항목 생성 요청에서 enum 필드(type/category/paymentMethod)가 허용되지 않는 값인 경우")
                         .responseSchema(Schema.schema("ErrorResponse"))
                         .responseFields(
                             fieldWithPath("message").type(STRING).description("에러 메시지"),
@@ -397,13 +393,11 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("해당되는 가계부 항목이 존재하지 않습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("가계부 단건 조회 - 항목 없음",
+                .andDo(document("가계부 단건 조회 - 항목 없음 (조회하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우)",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
-                        .summary("가계부 단건 조회 - 항목 없음")
-                        .description("조회하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우")
                         .pathParameters(
                             parameterWithName("ledgerId").description("가계부 항목 ID")
                         )
@@ -471,13 +465,11 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("해당되는 가계부 항목이 존재하지 않습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("가계부 메모 수정 - 항목 없음",
+                .andDo(document("가계부 메모 수정 - 항목 없음 (수정하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우)",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
-                        .summary("가계부 메모 수정 - 항목 없음")
-                        .description("수정하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우")
                         .pathParameters(
                             parameterWithName("ledgerId").description("가계부 항목 ID")
                         )
@@ -508,13 +500,11 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("메모(memo)는 최대 100자까지 입력할 수 있습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("가계부 메모 수정 - 길이 초과",
+                .andDo(document("가계부 메모 수정 - 길이 초과 (메모가 최대 길이(100자)를 초과한 경우)",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
-                        .summary("가계부 메모 수정 - 길이 초과")
-                        .description("메모가 최대 길이(100자)를 초과한 경우")
                         .pathParameters(
                             parameterWithName("ledgerId").description("가계부 항목 ID")
                         )
@@ -695,13 +685,11 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("해당되는 가계부 항목이 존재하지 않습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("가계부 항목 전체 수정 - 항목 없음",
+                .andDo(document("가계부 항목 전체 수정 - 항목 없음 (수정하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우)",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
-                        .summary("가계부 항목 전체 수정 - 항목 없음")
-                        .description("수정하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우")
                         .pathParameters(
                             parameterWithName("ledgerId").description("가계부 항목 ID")
                         )
@@ -739,13 +727,11 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("요청 형식이 올바르지 않습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("가계부 항목 전체 수정 - 요청 값 오류",
+                .andDo(document("가계부 항목 전체 수정 - 요청 값 오류 (가계부 항목 수정 요청에서 enum 필드가 허용되지 않는 값인 경우)",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
-                        .summary("가계부 항목 전체 수정 - 요청 값 오류")
-                        .description("가계부 항목 수정 요청에서 enum 필드가 허용되지 않는 값인 경우")
                         .pathParameters(
                             parameterWithName("ledgerId").description("가계부 항목 ID")
                         )
@@ -802,13 +788,11 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("해당되는 가계부 항목이 존재하지 않습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("가계부 항목 삭제 - 항목 없음",
+                .andDo(document("가계부 항목 삭제 - 항목 없음 (삭제하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우)",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
-                        .summary("가계부 항목 삭제 - 항목 없음")
-                        .description("삭제하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우")
                         .pathParameters(
                             parameterWithName("ledgerId").description("가계부 항목 ID")
                         )
@@ -945,20 +929,18 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value(containsString("요청 파라미터 형식이 올바르지 않습니다")))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("가계부 요약 조회 - 날짜 형식 오류",
+                .andDo(document("가계부 요약 조회 - 날짜 형식 오류 (날짜 파라미터(start, end)가 yyyy-MM-dd 형식이 아니거나 유효하지 않은 날짜인 경우)",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
-                        .summary("가계부 요약 조회 - 날짜 형식 오류")
-                        .description("날짜 파라미터(start, end)가 yyyy-MM-dd 형식이 아니거나 유효하지 않은 날짜인 경우")
                         .queryParameters(
                             parameterWithName("start").description("조회 시작일(yyyy-MM-dd)"),
                             parameterWithName("end").description("조회 종료일(yyyy-MM-dd)")
                         )
                         .responseSchema(Schema.schema("ErrorResponse"))
                         .responseFields(
-                            fieldWithPath("message").type(STRING).description("요청 파라미터 형식이 올바르지 않습니다 : start"),
+                            fieldWithPath("message").type(STRING).description("에러 메시지"),
                             fieldWithPath("timestamp").type(STRING).description("예외 발생 시각")
                         )
                         .build())
@@ -978,13 +960,11 @@ class LedgerDocumentationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value(containsString("필수 요청 파라미터가 누락되었습니다"))).andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("가계부 요약 조회 - 날짜 파라미터 누락",
+                .andDo(document("가계부 요약 조회 - 날짜 파라미터 누락(필수 쿼리 파라미터(start 또는 end)가 누락된 경우)",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
-                        .summary("가계부 요약 조회 - 날짜 파라미터 누락")
-                        .description("필수 쿼리 파라미터(start 또는 end)가 누락된 경우")
                         .queryParameters(
                             parameterWithName("end").description("조회 종료일(yyyy-MM-dd)")
                         )
