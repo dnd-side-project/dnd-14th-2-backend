@@ -17,6 +17,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class HttpLoggingFilterTest {
 
@@ -218,5 +219,20 @@ class HttpLoggingFilterTest {
 
         // when & then
         assertThat(filter.shouldNotFilter(request)).isFalse();
+    }
+
+    @Test
+    void 예외_발생_시에도_MDC가_정리된다() {
+        // given
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/ledger");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        FilterChain filterChain = (req, res) -> {
+            throw new RuntimeException("unexpected error");
+        };
+
+        // when & then
+        assertThatThrownBy(() -> filter.doFilter(request, response, filterChain))
+            .isInstanceOf(RuntimeException.class);
+        assertThat(MDC.get("requestId")).isNull();
     }
 }
