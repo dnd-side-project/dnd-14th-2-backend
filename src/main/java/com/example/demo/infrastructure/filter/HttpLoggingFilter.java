@@ -42,7 +42,7 @@ public class HttpLoggingFilter extends OncePerRequestFilter {
             logRequest(wrappedRequest);
             logResponse(wrappedRequest, wrappedResponse, duration);
             wrappedResponse.copyBodyToResponse();
-            MDC.clear();
+            MDC.remove(requestId);
         }
     }
 
