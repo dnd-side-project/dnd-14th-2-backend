@@ -32,6 +32,17 @@ limits_config:
   reject_old_samples: true
   # 7일 이상 된 로그는 수집 거부
   reject_old_samples_max_age: 168h
+  # 7일이 지난 로그 데이터 자동 삭제
+  retention_period: 168h
+
+# 보존 기간이 지난 로그 데이터를 주기적으로 정리
+compactor:
+  working_directory: /loki/compactor
+  compaction_interval: 10m
+  retention_enabled: true
+  retention_delete_delay: 2h
+  retention_delete_worker_count: 150
+  delete_request_store: filesystem
 
 # Grafana Labs 사용 통계 전송 비활성화
 analytics:
