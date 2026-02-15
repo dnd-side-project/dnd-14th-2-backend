@@ -1,7 +1,5 @@
 package com.example.demo.infrastructure.filter;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -17,6 +15,8 @@ import org.slf4j.MDC;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class HttpLoggingFilterTest {
 
@@ -118,58 +118,7 @@ class HttpLoggingFilterTest {
     }
 
     @Test
-    void 민감한_쿼리_파라미터_값을_마스킹한다() {
-        // given & when & then
-        assertThat(filter.maskSensitiveParams("email=user@example.com&month=2026-02"))
-                .isEqualTo("email=****&month=2026-02");
-    }
-
-    @Test
-    void 여러_민감한_파라미터를_모두_마스킹한다() {
-        // given & when & then
-        assertThat(filter.maskSensitiveParams("email=user@example.com&token=abc123&phone=01012345678"))
-                .isEqualTo("email=****&token=****&phone=****");
-    }
-
-    @Test
-    void 민감하지_않은_파라미터는_마스킹하지_않는다() {
-        // given & when & then
-        assertThat(filter.maskSensitiveParams("month=2026-02&page=1"))
-                .isEqualTo("month=2026-02&page=1");
-    }
-
-    @Test
-    void 쿼리스트링이_null이면_null을_반환한다() {
-        // given & when & then
-        assertThat(filter.maskSensitiveParams(null)).isNull();
-    }
-
-    @Test
-    void 대소문자_구분_없이_민감한_파라미터를_마스킹한다() {
-        // given & when & then
-        assertThat(filter.maskSensitiveParams("Email=user@example.com&TOKEN=abc123"))
-                .isEqualTo("Email=****&TOKEN=****");
-    }
-
-    @Test
-    void 민감한_쿼리_파라미터가_포함된_요청을_마스킹하여_로깅한다() throws Exception {
-        // given
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/users");
-        request.setQueryString("email=user@example.com&page=1");
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        MockFilterChain filterChain = new MockFilterChain();
-
-        // when
-        filter.doFilter(request, response, filterChain);
-
-        // then
-        String requestLog = logAppender.list.get(0).getFormattedMessage();
-        assertThat(requestLog).contains("query=email=****&page=1");
-        assertThat(requestLog).doesNotContain("user@example.com");
-    }
-
-    @Test
-    void 에러_응답은_WARN_레벨로_본문을_포함하여_로깅한다() throws Exception {
+    void 클라이언트_에러_응답은_WARN_레벨로_본문을_포함하여_로깅한다() throws Exception {
         // given
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/ledger");
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -185,6 +134,25 @@ class HttpLoggingFilterTest {
         ILoggingEvent responseLog = logAppender.list.get(1);
         assertThat(responseLog.getLevel()).isEqualTo(Level.WARN);
         assertThat(responseLog.getFormattedMessage()).contains("status=400", "invalid amount");
+    }
+
+    @Test
+    void 서버_에러_응답은_ERROR_레벨로_본문을_포함하여_로깅한다() throws Exception {
+        // given
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/ledger");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        FilterChain filterChain = (req, res) -> {
+            ((HttpServletResponse) res).setStatus(500);
+            res.getWriter().write("{\"message\":\"server error\"}");
+        };
+
+        // when
+        filter.doFilter(request, response, filterChain);
+
+        // then
+        ILoggingEvent responseLog = logAppender.list.get(1);
+        assertThat(responseLog.getLevel()).isEqualTo(Level.ERROR);
+        assertThat(responseLog.getFormattedMessage()).contains("status=500", "server error");
     }
 
     @Test

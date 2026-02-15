@@ -1,12 +1,13 @@
 package com.example.demo.infrastructure.filter;
 
+import com.example.demo.infrastructure.filter.dto.HttpRequestInfo;
+import com.example.demo.infrastructure.filter.dto.HttpResponseInfo;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -19,9 +20,8 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
 @Component
 public class HttpLoggingFilter extends OncePerRequestFilter {
 
-    private static final int MAX_BODY_LENGTH = 1000;
-    private static final Set<String> SENSITIVE_PARAMS =
-            Set.of("password", "token", "email", "authorization");
+    private static final List<String> SKIP_PATHS = List.of(
+            "/actuator", "/swagger-ui", "/v3/api-docs");
 
     @Override
     protected void doFilterInternal(
@@ -52,75 +52,27 @@ public class HttpLoggingFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/actuator")
-                || path.startsWith("/swagger-ui")
-                || path.startsWith("/v3/api-docs");
+        return SKIP_PATHS.stream().anyMatch(path::startsWith);
     }
 
     private void logRequest(ContentCachingRequestWrapper request) {
-        String method = request.getMethod();
-        String uri = request.getRequestURI();
-        String query = maskSensitiveParams(request.getQueryString());
-
-        log.info("[REQUEST] {} {} | query={}", method, uri, query);
-    }
-
-    String maskSensitiveParams(String queryString) {
-        if (queryString == null) {
-            return null;
-        }
-
-        StringBuilder masked = new StringBuilder();
-        for (String param : queryString.split("&")) {
-            if (!masked.isEmpty()) {
-                masked.append("&");
-            }
-
-            int eqIndex = param.indexOf('=');
-            if (eqIndex == -1) {
-                masked.append(param);
-                continue;
-            }
-
-            String key = param.substring(0, eqIndex);
-            if (SENSITIVE_PARAMS.contains(key.toLowerCase())) {
-                masked.append(key).append("=****");
-            } else {
-                masked.append(param);
-            }
-        }
-        return masked.toString();
+        HttpRequestInfo info = HttpRequestInfo.from(request);
+        log.info("[REQUEST] {} {} | query={}", info.method(), info.uri(), info.query());
     }
 
     private void logResponse(ContentCachingRequestWrapper request,
                              ContentCachingResponseWrapper response,
                              long duration) {
-        String method = request.getMethod();
-        String uri = request.getRequestURI();
-        int status = response.getStatus();
-
-        if (status >= 400) {
-            String body = truncate(getResponseBody(response));
-            log.warn("[RESPONSE] {} {} | status={} | duration={}ms | body={}",
-                    method, uri, status, duration, body);
+        HttpResponseInfo info = HttpResponseInfo.from(request, response, duration);
+        if (info.isServerError()) {
+            log.error("[SERVER_ERROR] {} {} | status={} | duration={}ms | body={}",
+                    info.method(), info.uri(), info.status(), info.duration(), info.body());
+        } else if (info.isClientError()) {
+            log.warn("[CLIENT_ERROR] {} {} | status={} | duration={}ms | body={}",
+                    info.method(), info.uri(), info.status(), info.duration(), info.body());
         } else {
             log.info("[RESPONSE] {} {} | status={} | duration={}ms",
-                    method, uri, status, duration);
+                    info.method(), info.uri(), info.status(), info.duration());
         }
-    }
-
-    private String getResponseBody(ContentCachingResponseWrapper response) {
-        byte[] content = response.getContentAsByteArray();
-        if (content.length == 0) {
-            return "";
-        }
-        return new String(content, StandardCharsets.UTF_8);
-    }
-
-    private String truncate(String text) {
-        if (text.length() <= MAX_BODY_LENGTH) {
-            return text;
-        }
-        return text.substring(0, MAX_BODY_LENGTH) + "...(truncated)";
     }
 }
