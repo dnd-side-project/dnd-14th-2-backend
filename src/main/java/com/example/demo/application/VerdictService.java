@@ -17,10 +17,10 @@ public class VerdictService {
 
     public void judge(Long verdictId, Long jurorId, VerdictType verdictType) {
         Verdict verdict = verdictRepository.findById(verdictId)
-            .orElseThrow();
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 판결입니다."));
 
         User juror = userRepository.findById(jurorId)
-            .orElseThrow();
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
         verdict.judge(juror, verdictType);
     }
