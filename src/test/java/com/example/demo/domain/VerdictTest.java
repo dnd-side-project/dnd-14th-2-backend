@@ -15,7 +15,8 @@ class VerdictTest {
     @Test
     void 소비내역을_판결_할_수_있다() {
         var juror = new User(new Nickname("test"), new InvitationCode("INCODE"), null, null, null, null);
-        var entry = new LedgerEntry(100L, LedgerType.EXPENSE, LedgerCategory.FOOD, "test", LocalDate.now(), PaymentMethod.CREDIT_CARD, null, null);
+        var user = new User(new Nickname("test1"), new InvitationCode("INCODC"), null, null, null, null);
+        var entry = new LedgerEntry(100L, LedgerType.EXPENSE, LedgerCategory.FOOD, "test", LocalDate.now(), PaymentMethod.CREDIT_CARD, null, user);
         var verdict = new Verdict(entry, juror);
 
         verdict.judge(juror, VerdictType.GUILTY);
@@ -25,12 +26,13 @@ class VerdictTest {
 
     @Test
     void 배심원이_아닌_자는_심판할_수_없다() {
-        var fakeJuror = new User(new Nickname("test"), new InvitationCode("INCODE"), null, null, null, null);
-        var realJuror = new User(new Nickname("test"), new InvitationCode("INCODE"), null, null, null, null);
+        var fakeJuror = new User(new Nickname("test2"), new InvitationCode("INCODA"), null, null, null, null);
+        var realJuror = new User(new Nickname("test3"), new InvitationCode("INCODB"), null, null, null, null);
         ReflectionTestUtils.setField(fakeJuror, "id", 1L);
         ReflectionTestUtils.setField(realJuror, "id", 2L);
 
-        var entry = new LedgerEntry(100L, LedgerType.EXPENSE, LedgerCategory.FOOD, "test", LocalDate.now(), PaymentMethod.CREDIT_CARD, null, null);
+        var user = new User(new Nickname("test1"), new InvitationCode("INCODC"), null, null, null, null);
+        var entry = new LedgerEntry(100L, LedgerType.EXPENSE, LedgerCategory.FOOD, "test", LocalDate.now(), PaymentMethod.CREDIT_CARD, null, user);
         var verdict = new Verdict(entry, realJuror);
 
         assertThatThrownBy(() -> verdict.judge(fakeJuror, VerdictType.GUILTY))
@@ -39,9 +41,23 @@ class VerdictTest {
     }
 
     @Test
-    void 이미_판결한_심판을_재판결_할_수_없다() {
+    void 본인의_소비_심판을_판결할_수_없다() {
+        var user = new User(new Nickname("test"), new InvitationCode("INCODE"), null, null, null, null);
+        ReflectionTestUtils.setField(user, "id", 1L);
+
+        var entry = new LedgerEntry(100L, LedgerType.EXPENSE, LedgerCategory.FOOD, "test", LocalDate.now(), PaymentMethod.CREDIT_CARD, null, user);
+        var verdict = new Verdict(entry, user);
+
+        assertThatThrownBy(() -> verdict.judge(user, VerdictType.GUILTY))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage("본인의 소비 심판을 판결할 수 없습니다.");
+    }
+
+    @Test
+    void 이미_판결한_소비_심판을_재판결_할_수_없다() {
         var juror = new User(new Nickname("test"), new InvitationCode("INCODE"), null, null, null, null);
-        var entry = new LedgerEntry(100L, LedgerType.EXPENSE, LedgerCategory.FOOD, "test", LocalDate.now(), PaymentMethod.CREDIT_CARD, null, null);
+        var user = new User(new Nickname("test1"), new InvitationCode("INCODC"), null, null, null, null);
+        var entry = new LedgerEntry(100L, LedgerType.EXPENSE, LedgerCategory.FOOD, "test", LocalDate.now(), PaymentMethod.CREDIT_CARD, null, user);
         var verdict = new Verdict(entry, juror);
         verdict.judge(juror, VerdictType.NOT_GUILTY);
 

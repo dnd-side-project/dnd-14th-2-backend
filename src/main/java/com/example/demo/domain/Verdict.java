@@ -34,15 +34,29 @@ public class Verdict {
     }
 
     public void judge(User juror, VerdictType type) {
-        if (!this.juror.equals(juror)) {
-            throw new IllegalStateException("판결 권한이 없습니다.");
-        }
+        validateIsNotSelfJudge(juror);
+        validateIsValidJuror(juror);
+        validateIsNotCompletedJudge();
 
+        this.type = type;
+    }
+
+    private void validateIsNotCompletedJudge() {
         if (!isPending()) {
             throw new IllegalStateException("이미 판결된 심판입니다.");
         }
+    }
 
-        this.type = type;
+    private void validateIsValidJuror(User juror) {
+        if (!this.juror.equals(juror)) {
+            throw new IllegalStateException("판결 권한이 없습니다.");
+        }
+    }
+
+    private void validateIsNotSelfJudge(User juror) {
+        if (this.ledgerEntry.getUser().equals(juror)) {
+            throw new IllegalStateException("본인의 소비 심판을 판결할 수 없습니다.");
+        }
     }
 
     public boolean isPending() {
