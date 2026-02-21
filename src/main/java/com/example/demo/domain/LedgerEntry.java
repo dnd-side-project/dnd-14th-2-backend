@@ -74,8 +74,8 @@ public class LedgerEntry extends BaseEntity {
         this.user = user;
     }
 
-    public Verdict requestVerdict(User juror) {
-        return new Verdict(this, juror);
+    public Verdict requestVerdict(Mate mate) {
+        return new Verdict(this, mate);
     }
 
     public void updateMemo(String memo) {

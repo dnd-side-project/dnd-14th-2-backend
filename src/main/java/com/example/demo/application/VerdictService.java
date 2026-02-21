@@ -2,11 +2,14 @@ package com.example.demo.application;
 
 import com.example.demo.domain.LedgerEntry;
 import com.example.demo.domain.LedgerEntryRepository;
+import com.example.demo.domain.Mate;
+import com.example.demo.domain.MateRepository;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
 import com.example.demo.domain.Verdict;
 import com.example.demo.domain.VerdictRepository;
 import com.example.demo.domain.VerdictType;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,19 +20,20 @@ public class VerdictService {
 
     private final LedgerEntryRepository ledgerEntryRepository;
     private final UserRepository userRepository;
+    private final MateRepository mateRepository;
     private final VerdictRepository verdictRepository;
 
+    @Transactional
     public void requestVerdict(Long ledgerId, Long userId) {
         LedgerEntry ledgerEntry = ledgerEntryRepository.findByIdAndUser_Id(ledgerId, userId)
-            .orElseThrow();
+            .orElseThrow(() -> new IllegalArgumentException("해당되는 가계부 항목이 존재하지 않습니다."));
 
+        List<Mate> acceptedMates = mateRepository.findAcceptedMates(userId);
+        List<Verdict> verdicts = acceptedMates.stream()
+            .map(ledgerEntry::requestVerdict)
+            .toList();
 
-        // 모든 친구에게 요청
-        /*
-        friendRepository.findAll().stream()
-            .map(juror -> ledgerEntry.requestVerdict(juror))
-            .forEach(verdict -> verdictRepository.save(verdict)); or .toList(); verdictRepository.saveAll(verdicts);
-        */
+        verdictRepository.saveAll(verdicts);
     }
 
     @Transactional

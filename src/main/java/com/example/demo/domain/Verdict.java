@@ -23,14 +23,14 @@ public class Verdict {
     private LedgerEntry ledgerEntry;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "juror_id", referencedColumnName = "id")
-    private User juror;
+    @JoinColumn(name = "mate_id", referencedColumnName = "id")
+    private Mate mate;
 
     private VerdictType type;
 
-    public Verdict(LedgerEntry ledgerEntry, User juror) {
+    public Verdict(LedgerEntry ledgerEntry, Mate mate) {
         this.ledgerEntry = ledgerEntry;
-        this.juror = juror;
+        this.mate = mate;
     }
 
     public void judge(User juror, VerdictType type) {
@@ -48,7 +48,7 @@ public class Verdict {
     }
 
     private void validateIsValidJuror(User juror) {
-        if (!this.juror.equals(juror)) {
+        if (!this.mate.isJuror(juror)) {
             throw new IllegalStateException("판결 권한이 없습니다.");
         }
     }
@@ -61,9 +61,5 @@ public class Verdict {
 
     public boolean isPending() {
         return type == null;
-    }
-
-    public Long getId() {
-        return id;
     }
 }
