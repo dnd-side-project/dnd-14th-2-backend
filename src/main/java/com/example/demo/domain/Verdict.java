@@ -1,6 +1,8 @@
 package com.example.demo.domain;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -8,10 +10,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class Verdict {
 
     @Id
@@ -26,6 +30,7 @@ public class Verdict {
     @JoinColumn(name = "mate_id", referencedColumnName = "id")
     private Mate mate;
 
+    @Enumerated(value = EnumType.STRING)
     private VerdictType type;
 
     public Verdict(LedgerEntry ledgerEntry, Mate mate) {
@@ -61,9 +66,5 @@ public class Verdict {
 
     public boolean isPending() {
         return type == null;
-    }
-
-    public Long getId() {
-        return id;
     }
 }

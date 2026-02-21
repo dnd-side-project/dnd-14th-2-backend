@@ -3,6 +3,7 @@ package com.example.demo.application;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.example.demo.application.dto.MyVerdicts;
 import com.example.demo.domain.LedgerEntry;
 import com.example.demo.domain.LedgerEntryRepository;
 import com.example.demo.domain.Mate;
@@ -145,5 +146,48 @@ class VerdictServiceTest extends AbstractIntegrationTest {
         assertThatThrownBy(() -> sut.requestVerdict(entry.getId(), juror.getId()))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("해당되는 가계부 항목이 존재하지 않습니다.");
+    }
+
+    @Test
+    void 본인이_요청한_소비심판을_조회할_수_있다() {
+        // given
+        var user = DbUtils.givenSavedUser(userRepository);
+        var juror1 = DbUtils.givenSavedUser(userRepository);
+        var juror2 = DbUtils.givenSavedUser(userRepository);
+        var juror3 = DbUtils.givenSavedUser(userRepository);
+
+        var mate1 = new Mate(user, juror1);
+        var mate2 = new Mate(user, juror2);
+        var mate3 = new Mate(user, juror3);
+        mate1.accept();
+        mate2.accept();
+        mate3.accept();
+        mateRepository.save(mate1);
+        mateRepository.save(mate2);
+        mateRepository.save(mate3);
+
+        var entry = new LedgerEntry(
+            7000L,
+            LedgerType.EXPENSE,
+            LedgerCategory.FOOD,
+            "커피",
+            LocalDate.of(2026, 1, 24),
+            PaymentMethod.CREDIT_CARD,
+            "old",
+            user
+        );
+        LedgerEntry savedEntry = ledgerEntryRepository.save(entry);
+
+        sut.requestVerdict(entry.getId(), user.getId());
+        List<Verdict> verdicts = verdictRepository.findAllByLedgerEntry_Id(savedEntry.getId());
+        sut.judge(verdicts.get(0).getId(), juror1.getId(), VerdictType.GUILTY);
+
+        // when
+        MyVerdicts myVerdicts = sut.getMyVerdicts(user.getId());
+
+        // then
+        assertThat(myVerdicts.verdicts()).hasSize(3);
+        assertThat(myVerdicts.verdicts()).filteredOn(v -> v.verdictType() == VerdictType.GUILTY).hasSize(1);
+        assertThat(myVerdicts.verdicts()).filteredOn(v -> v.verdictType() == null).hasSize(2);
     }
 }
