@@ -28,6 +28,7 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
+import static org.springframework.restdocs.payload.JsonFieldType.NUMBER;
 import static org.springframework.restdocs.payload.JsonFieldType.STRING;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -370,7 +371,9 @@ class UserDocumentationTest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.nickname").value("토끼abc"))
+                .andExpect(jsonPath("$.level").value(1))
                 .andDo(document("사용자 정보 조회",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
@@ -380,7 +383,9 @@ class UserDocumentationTest {
                         .description("로그인한 사용자의 정보를 조회합니다.")
                         .responseSchema(Schema.schema("UserInfoWebResponse"))
                         .responseFields(
-                            fieldWithPath("nickname").type(STRING).description("사용자 닉네임 (설정하지 않은 경우 랜덤 닉네임)")
+                            fieldWithPath("id").type(NUMBER).description("사용자의 id"),
+                            fieldWithPath("nickname").type(STRING).description("사용자 닉네임 (설정하지 않은 경우 랜덤 닉네임)"),
+                            fieldWithPath("level").type(NUMBER).description("사용자 레벨 (기본값: 1)")
                         )
                         .build()
                     )
