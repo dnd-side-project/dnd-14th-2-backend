@@ -147,4 +147,12 @@ public class LedgerEntry extends BaseEntity {
         }
         return trimmed;
     }
+
+    public User getOwner() {
+        return user;
+    }
+
+    public boolean isOwnedBy(User user) {
+        return this.user.equals(user);
+    }
 }

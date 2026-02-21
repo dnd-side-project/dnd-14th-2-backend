@@ -60,12 +60,20 @@ public class Verdict {
     }
 
     private void validateIsNotSelfJudge(User juror) {
-        if (this.ledgerEntry.getUser().equals(juror)) {
+        if (this.ledgerEntry.isOwnedBy(juror)) {
             throw new IllegalStateException("본인의 소비 심판을 판결할 수 없습니다.");
         }
     }
 
     public boolean isPending() {
-        return type == null;
+        return type == VerdictType.PENDING;
+    }
+
+    public User getDefendant() {
+        return this.ledgerEntry.getOwner();
+    }
+
+    public User getJuror() {
+        return this.mate.getOtherUser(getDefendant());
     }
 }
