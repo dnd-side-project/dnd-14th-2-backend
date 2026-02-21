@@ -189,7 +189,7 @@ class VerdictServiceTest extends AbstractIntegrationTest {
         // then
         assertThat(myVerdicts.verdicts()).hasSize(3);
         assertThat(myVerdicts.verdicts()).filteredOn(v -> v.verdictType() == VerdictType.GUILTY).hasSize(1);
-        assertThat(myVerdicts.verdicts()).filteredOn(v -> v.verdictType() == null).hasSize(2);
+        assertThat(myVerdicts.verdicts()).filteredOn(v -> v.verdictType() == VerdictType.PENDING).hasSize(2);
     }
 
     @Test
@@ -244,6 +244,6 @@ class VerdictServiceTest extends AbstractIntegrationTest {
         // then
         assertThat(jurorVerdicts.jurorVerdicts()).hasSize(2);
         assertThat(jurorVerdicts.jurorVerdicts()).filteredOn(v -> v.verdictType() == VerdictType.GUILTY).hasSize(1);
-        assertThat(jurorVerdicts.jurorVerdicts()).filteredOn(v -> v.verdictType() == null).hasSize(1);
+        assertThat(jurorVerdicts.jurorVerdicts()).filteredOn(v -> v.verdictType() == VerdictType.PENDING).hasSize(1);
     }
 }

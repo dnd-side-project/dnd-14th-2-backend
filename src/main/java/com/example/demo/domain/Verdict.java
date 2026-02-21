@@ -36,6 +36,7 @@ public class Verdict {
     public Verdict(LedgerEntry ledgerEntry, Mate mate) {
         this.ledgerEntry = ledgerEntry;
         this.mate = mate;
+        this.type = VerdictType.PENDING;
     }
 
     public void judge(User juror, VerdictType type) {
