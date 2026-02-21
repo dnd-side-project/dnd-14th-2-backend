@@ -6,7 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -18,11 +18,11 @@ public class Verdict {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ledger_entry_id", referencedColumnName = "id")
     private LedgerEntry ledgerEntry;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mate_id", referencedColumnName = "id")
     private Mate mate;
 
@@ -61,5 +61,9 @@ public class Verdict {
 
     public boolean isPending() {
         return type == null;
+    }
+
+    public Long getId() {
+        return id;
     }
 }

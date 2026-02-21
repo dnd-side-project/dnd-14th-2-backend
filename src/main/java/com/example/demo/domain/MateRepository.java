@@ -8,9 +8,11 @@ import org.springframework.data.repository.query.Param;
 
 public interface MateRepository extends Repository<Mate, Long> {
 
+    Mate save(Mate mate);
+
     @Query("""
-        select m from mate m where (requester_id = :id or receiver_id = :id)
-            and status = 'ACCEPTED'
+        select m from Mate m where (m.requester.id = :id or m.receiver.id = :id)
+            and m.status = 'ACCEPTED'
         """)
     List<Mate> findAcceptedMates(@Param("id") Long userId);
 

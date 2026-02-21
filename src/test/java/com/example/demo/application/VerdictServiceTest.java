@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.example.demo.domain.LedgerEntry;
 import com.example.demo.domain.LedgerEntryRepository;
+import com.example.demo.domain.Mate;
+import com.example.demo.domain.MateRepository;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
 import com.example.demo.domain.Verdict;
@@ -32,6 +34,9 @@ class VerdictServiceTest extends AbstractIntegrationTest {
     @Autowired
     LedgerEntryRepository ledgerEntryRepository;
 
+    @Autowired
+    MateRepository mateRepository;
+
     @Test
     void 없는_심판에_대해_판결할_수_없다() {
         User juror = DbUtils.givenSavedUser(userRepository);
@@ -47,6 +52,11 @@ class VerdictServiceTest extends AbstractIntegrationTest {
         // given
         var user = DbUtils.givenSavedUser(userRepository);
         var juror = DbUtils.givenSavedUser(userRepository);
+
+        var mate = new Mate(user, juror);
+        mate.accept();
+        mateRepository.save(mate);
+
         var entry = new LedgerEntry(
             7000L,
             LedgerType.EXPENSE,
@@ -59,7 +69,7 @@ class VerdictServiceTest extends AbstractIntegrationTest {
         );
         ledgerEntryRepository.save(entry);
 
-        var verdict = verdictRepository.save(new Verdict(entry, juror));
+        Verdict verdict = verdictRepository.save(new Verdict(entry, mate));
 
         Long noExistsJurorId = 9999L;
 

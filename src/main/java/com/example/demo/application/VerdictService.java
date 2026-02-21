@@ -29,11 +29,9 @@ public class VerdictService {
             .orElseThrow(() -> new IllegalArgumentException("해당되는 가계부 항목이 존재하지 않습니다."));
 
         List<Mate> acceptedMates = mateRepository.findAcceptedMates(userId);
-        List<Verdict> verdicts = acceptedMates.stream()
+        acceptedMates.stream()
             .map(ledgerEntry::requestVerdict)
-            .toList();
-
-        verdictRepository.saveAll(verdicts);
+            .forEach(verdictRepository::save);
     }
 
     @Transactional
