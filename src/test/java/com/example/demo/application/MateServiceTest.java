@@ -222,6 +222,81 @@ class MateServiceTest extends AbstractIntegrationTest {
         }
     }
 
+    @Nested
+    @DisplayName("친구 요청 수락/거절")
+    class UpdateMateStatus {
+
+        @Test
+        void 친구_요청을_수락하면_ACCEPTED_상태가_된다() {
+            // given
+            User requester = givenSavedUser(userRepository, new Nickname("요청자"), new InvitationCode("RRRRRR"));
+            User receiver = givenSavedUser(userRepository, new Nickname("수신자"), new InvitationCode("EEEEEE"));
+            Long mateId = sut.requestMate(requester.getId(), "EEEEEE");
+
+            // when
+            sut.updateMateStatus(mateId, receiver.getId(), MateStatus.ACCEPTED);
+
+            // then
+            Mate mate = mateRepository.findById(mateId).orElseThrow();
+            assertThat(mate.getStatus()).isEqualTo(MateStatus.ACCEPTED);
+            assertThat(mate.getAcceptedAt()).isNotNull();
+        }
+
+        @Test
+        void 친구_요청을_거절하면_REJECTED_상태가_된다() {
+            // given
+            User requester = givenSavedUser(userRepository, new Nickname("요청자"), new InvitationCode("RRRRRR"));
+            User receiver = givenSavedUser(userRepository, new Nickname("수신자"), new InvitationCode("EEEEEE"));
+            Long mateId = sut.requestMate(requester.getId(), "EEEEEE");
+
+            // when
+            sut.updateMateStatus(mateId, receiver.getId(), MateStatus.REJECTED);
+
+            // then
+            Mate mate = mateRepository.findById(mateId).orElseThrow();
+            assertThat(mate.getStatus()).isEqualTo(MateStatus.REJECTED);
+        }
+
+        @Test
+        void 존재하지_않는_Mate이면_예외가_발생한다() {
+            // given
+            User receiver = givenSavedUser(userRepository);
+
+            // when & then
+            assertThatThrownBy(() -> sut.updateMateStatus(999L, receiver.getId(), MateStatus.ACCEPTED))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("존재하지 않는 친구 요청입니다.");
+        }
+
+        @Test
+        void receiver가_아닌_사용자가_요청하면_예외가_발생한다() {
+            // given
+            User requester = givenSavedUser(userRepository, new Nickname("요청자"), new InvitationCode("RRRRRR"));
+            User receiver = givenSavedUser(userRepository, new Nickname("수신자"), new InvitationCode("EEEEEE"));
+            User other = givenSavedUser(userRepository, new Nickname("다른사람"), new InvitationCode("OOOOOO"));
+            Long mateId = sut.requestMate(requester.getId(), "EEEEEE");
+
+            // when & then
+            assertThatThrownBy(() -> sut.updateMateStatus(mateId, other.getId(), MateStatus.ACCEPTED))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("친구 요청의 수신자만 수락/거절할 수 있습니다.");
+        }
+
+        @Test
+        void 이미_처리된_요청이면_예외가_발생한다() {
+            // given
+            User requester = givenSavedUser(userRepository, new Nickname("요청자"), new InvitationCode("RRRRRR"));
+            User receiver = givenSavedUser(userRepository, new Nickname("수신자"), new InvitationCode("EEEEEE"));
+            Long mateId = sut.requestMate(requester.getId(), "EEEEEE");
+            sut.updateMateStatus(mateId, receiver.getId(), MateStatus.ACCEPTED);
+
+            // when & then
+            assertThatThrownBy(() -> sut.updateMateStatus(mateId, receiver.getId(), MateStatus.REJECTED))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("대기 중인 요청만 거절할 수 있습니다.");
+        }
+    }
+
     private void acceptMate(Long mateId) {
         Mate mate = mateRepository.findById(mateId).orElseThrow();
         mate.accept();
