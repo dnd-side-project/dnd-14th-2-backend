@@ -4,6 +4,7 @@ import com.example.demo.application.MateService;
 import com.example.demo.infrastructure.controller.dto.CreateMateWebRequest;
 import com.example.demo.infrastructure.controller.dto.MateCreateWebResponse;
 import com.example.demo.infrastructure.controller.dto.MateInfoWebResponse;
+import com.example.demo.infrastructure.controller.dto.MateReceivedWebResponse;
 import com.example.demo.infrastructure.interceptor.UserId;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -36,6 +37,15 @@ public class MateController {
         return ResponseEntity.ok(
                 mateService.getAcceptedMates(userId).stream()
                         .map(MateInfoWebResponse::from)
+                        .toList()
+        );
+    }
+
+    @GetMapping("/mates/received")
+    public ResponseEntity<List<MateReceivedWebResponse>> getReceivedRequests(@UserId Long userId) {
+        return ResponseEntity.ok(
+                mateService.getReceivedRequests(userId).stream()
+                        .map(MateReceivedWebResponse::from)
                         .toList()
         );
     }

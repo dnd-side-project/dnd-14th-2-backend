@@ -1,6 +1,7 @@
 package com.example.demo.application;
 
 import com.example.demo.application.dto.MateInfo;
+import com.example.demo.application.dto.MateReceivedInfo;
 import com.example.demo.domain.Mate;
 import com.example.demo.domain.MateRepository;
 import com.example.demo.domain.User;
@@ -38,6 +39,17 @@ public class MateService {
                         result.mate().getId(),
                         result.friend().getNickname(),
                         result.friend().getInvitationCode().value()
+                ))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<MateReceivedInfo> getReceivedRequests(Long userId) {
+        return mateRepository.findAllPendingByReceiverId(userId).stream()
+                .map(mate -> new MateReceivedInfo(
+                        mate.getId(),
+                        mate.getRequester().getNickname(),
+                        mate.getRequester().getInvitationCode().value()
                 ))
                 .toList();
     }

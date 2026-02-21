@@ -1,10 +1,7 @@
 package com.example.demo.application;
 
-import static com.example.demo.util.DbUtils.givenSavedUser;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import com.example.demo.application.dto.MateInfo;
+import com.example.demo.application.dto.MateReceivedInfo;
 import com.example.demo.domain.InvitationCode;
 import com.example.demo.domain.Mate;
 import com.example.demo.domain.MateRepository;
@@ -18,6 +15,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import static com.example.demo.util.DbUtils.givenSavedUser;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class MateServiceTest extends AbstractIntegrationTest {
 
@@ -125,7 +126,7 @@ class MateServiceTest extends AbstractIntegrationTest {
             // then
             assertThat(result).hasSize(2);
             assertThat(result).extracting(MateInfo::nickname)
-                    .containsExactlyInAnyOrder("친구1", "친구2");
+                .containsExactlyInAnyOrder("친구1", "친구2");
         }
 
         @Test
@@ -161,11 +162,69 @@ class MateServiceTest extends AbstractIntegrationTest {
             assertThat(result.get(0).nickname()).isEqualTo("요청자");
             assertThat(result.get(0).invitationCode()).isEqualTo("RRRRRR");
         }
+    }
 
-        private void acceptMate(Long mateId) {
-            Mate mate = mateRepository.findById(mateId).orElseThrow();
-            mate.accept();
-            mateRepository.save(mate);
+    @Nested
+    @DisplayName("받은 친구 요청 조회")
+    class GetReceivedRequests {
+
+        @Test
+        void PENDING_상태의_받은_요청만_반환된다() {
+            // given
+            User me = givenSavedUser(userRepository);
+            User sender1 = givenSavedUser(userRepository, new Nickname("보낸사람1"), new InvitationCode("AAAAAA"));
+            User sender2 = givenSavedUser(userRepository, new Nickname("보낸사람2"), new InvitationCode("BBBBBB"));
+            User sender3 = givenSavedUser(userRepository, new Nickname("수락됨"), new InvitationCode("CCCCCC"));
+
+            sut.requestMate(sender1.getId(), me.getInvitationCode().value()); // PENDING
+            sut.requestMate(sender2.getId(), me.getInvitationCode().value()); // PENDING
+            Long acceptedMateId = sut.requestMate(sender3.getId(), me.getInvitationCode().value());
+            acceptMate(acceptedMateId); // ACCEPTED
+
+            // when
+            var result = sut.getReceivedRequests(me.getId());
+
+            // then
+            assertThat(result).hasSize(2);
+            assertThat(result).extracting(MateReceivedInfo::nickname)
+                .containsExactlyInAnyOrder("보낸사람1", "보낸사람2");
         }
+
+        @Test
+        void 내가_보낸_요청은_반환되지_않는다() {
+            // given
+            User me = givenSavedUser(userRepository);
+            User other = givenSavedUser(userRepository, new Nickname("상대방"), new InvitationCode("OOOOOO"));
+            sut.requestMate(me.getId(), "OOOOOO"); // 내가 보낸 요청
+
+            // when
+            var result = sut.getReceivedRequests(me.getId());
+
+            // then
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        void 요청자의_닉네임과_초대코드가_포함된다() {
+            // given
+            User me = givenSavedUser(userRepository);
+            User sender = givenSavedUser(userRepository, new Nickname("친구"), new InvitationCode("FFFFFF"));
+            sut.requestMate(sender.getId(), me.getInvitationCode().value());
+
+            // when
+            var result = sut.getReceivedRequests(me.getId());
+
+            // then
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).nickname()).isEqualTo("친구");
+            assertThat(result.get(0).invitationCode()).isEqualTo("FFFFFF");
+            assertThat(result.get(0).mateId()).isNotNull();
+        }
+    }
+
+    private void acceptMate(Long mateId) {
+        Mate mate = mateRepository.findById(mateId).orElseThrow();
+        mate.accept();
+        mateRepository.save(mate);
     }
 }
