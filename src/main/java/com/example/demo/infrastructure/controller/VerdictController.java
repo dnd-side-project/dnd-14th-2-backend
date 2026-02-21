@@ -6,6 +6,10 @@ import com.example.demo.infrastructure.controller.dto.VerdictJudgeWebRequest;
 import com.example.demo.infrastructure.interceptor.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -14,13 +18,18 @@ public class VerdictController {
 
     private final VerdictService verdictService;
 
-    public ResponseEntity<Void> requestJudge(RequestJudgeWebRequest request, @UserId Long userId) {
+    @PostMapping("/verdicts")
+    public ResponseEntity<Void> requestJudge(@RequestBody RequestJudgeWebRequest request, @UserId Long userId) {
         verdictService.requestVerdict(request.ledgerEntryId(), userId);
         return ResponseEntity.ok().build();
     }
 
-    public ResponseEntity<Void> judge(VerdictJudgeWebRequest request, @UserId Long jurorId) {
-        verdictService.judge(request.verdictId(), jurorId, request.verdictType());
+    @PatchMapping("/verdicts/{id}")
+    public ResponseEntity<Void> judge(@RequestBody VerdictJudgeWebRequest request,
+                                      @PathVariable("id") Long verdictId,
+                                      @UserId Long jurorId
+    ) {
+        verdictService.judge(verdictId, jurorId, request.verdictType());
         return ResponseEntity.ok().build();
     }
 }
