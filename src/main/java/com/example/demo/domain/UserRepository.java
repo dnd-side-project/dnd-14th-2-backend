@@ -16,4 +16,6 @@ public interface UserRepository extends Repository<User, Long> {
     void deleteById(Long userId);
 
     boolean existsByNickname_Value(String nickname);
+
+    Optional<User> findByInvitationCode_Value(String code);
 }
