@@ -77,4 +77,19 @@ class VerdictTest {
             .isInstanceOf(IllegalStateException.class)
             .hasMessage("이미 판결된 심판입니다.");
     }
+
+    @Test
+    void mate의_sender도_심판할_수_있다() {
+        var user = new User(new Nickname("test1"), new InvitationCode("INCODC"), null, null, null, null);
+        var juror = new User(new Nickname("test"), new InvitationCode("INCODE"), null, null, null, null);
+        var mate = new Mate(juror, user);
+        mate.accept();
+
+        var entry = new LedgerEntry(100L, LedgerType.EXPENSE, LedgerCategory.FOOD, "test", LocalDate.now(), PaymentMethod.CREDIT_CARD, null, user);
+        var verdict = new Verdict(entry, mate);
+
+        verdict.judge(juror, VerdictType.GUILTY);
+
+        assertThat(verdict.isPending()).isFalse();
+    }
 }

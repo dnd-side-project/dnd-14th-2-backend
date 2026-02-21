@@ -1,5 +1,6 @@
 package com.example.demo.application;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.example.demo.domain.LedgerEntry;
@@ -17,6 +18,7 @@ import com.example.demo.domain.enums.PaymentMethod;
 import com.example.demo.util.AbstractIntegrationTest;
 import com.example.demo.util.DbUtils;
 import java.time.LocalDate;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -77,5 +79,71 @@ class VerdictServiceTest extends AbstractIntegrationTest {
         assertThatThrownBy(() -> sut.judge(verdict.getId(), noExistsJurorId, VerdictType.GUILTY))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("존재하지 않는 유저입니다.");
+    }
+
+    @Test
+    void 소비_심판_요청시_친구_수만큼_소비_심판이_요청된다() {
+        // given
+        var user = DbUtils.givenSavedUser(userRepository);
+        var juror1 = DbUtils.givenSavedUser(userRepository);
+        var juror2 = DbUtils.givenSavedUser(userRepository);
+        var juror3 = DbUtils.givenSavedUser(userRepository);
+
+        var mate1 = new Mate(user, juror1);
+        var mate2 = new Mate(user, juror2);
+        var mate3 = new Mate(user, juror3);
+        mate1.accept();
+        mate2.accept();
+        mate3.accept();
+        mateRepository.save(mate1);
+        mateRepository.save(mate2);
+        mateRepository.save(mate3);
+
+        var entry = new LedgerEntry(
+            7000L,
+            LedgerType.EXPENSE,
+            LedgerCategory.FOOD,
+            "커피",
+            LocalDate.of(2026, 1, 24),
+            PaymentMethod.CREDIT_CARD,
+            "old",
+            user
+        );
+        LedgerEntry savedEntry = ledgerEntryRepository.save(entry);
+
+        // when
+        sut.requestVerdict(savedEntry.getId(), user.getId());
+
+        // then
+        List<Verdict> entries = verdictRepository.findAllByLedgerEntry_Id(savedEntry.getId());
+        assertThat(entries).hasSize(3);
+    }
+
+    @Test
+    void 본인_소비가_아니면_심판_요청을_할_수_없다() {
+        // given
+        var user = DbUtils.givenSavedUser(userRepository);
+        var juror = DbUtils.givenSavedUser(userRepository);
+
+        var mate = new Mate(user, juror);
+        mate.accept();
+        mateRepository.save(mate);
+
+        var entry = new LedgerEntry(
+            7000L,
+            LedgerType.EXPENSE,
+            LedgerCategory.FOOD,
+            "커피",
+            LocalDate.of(2026, 1, 24),
+            PaymentMethod.CREDIT_CARD,
+            "old",
+            user
+        );
+        ledgerEntryRepository.save(entry);
+
+        // when & then
+        assertThatThrownBy(() -> sut.requestVerdict(entry.getId(), juror.getId()))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("해당되는 가계부 항목이 존재하지 않습니다.");
     }
 }
