@@ -1,5 +1,6 @@
 package com.example.demo.application;
 
+import com.example.demo.application.dto.JurorVerdicts;
 import com.example.demo.application.dto.MyVerdicts;
 import com.example.demo.domain.LedgerEntry;
 import com.example.demo.domain.LedgerEntryRepository;
@@ -51,5 +52,11 @@ public class VerdictService {
         List<Verdict> myVerdicts = verdictRepository.findMyVerdicts(userId);
 
         return MyVerdicts.from(myVerdicts);
+    }
+
+    public JurorVerdicts getJurorVerdicts(Long userId) {
+        List<Verdict> jurorVerdicts = verdictRepository.findJurorVerdicts(userId);
+
+        return JurorVerdicts.from(jurorVerdicts);
     }
 }

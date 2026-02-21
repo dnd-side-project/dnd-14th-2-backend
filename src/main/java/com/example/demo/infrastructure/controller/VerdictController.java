@@ -1,7 +1,9 @@
 package com.example.demo.infrastructure.controller;
 
 import com.example.demo.application.VerdictService;
+import com.example.demo.application.dto.JurorVerdicts;
 import com.example.demo.application.dto.MyVerdicts;
+import com.example.demo.infrastructure.controller.dto.JurorVerdictsWebResponse;
 import com.example.demo.infrastructure.controller.dto.MyVerdictsWebResponse;
 import com.example.demo.infrastructure.controller.dto.RequestJudgeWebRequest;
 import com.example.demo.infrastructure.controller.dto.VerdictJudgeWebRequest;
@@ -41,5 +43,12 @@ public class VerdictController {
         MyVerdicts myVerdicts = verdictService.getMyVerdicts(userId);
 
         return ResponseEntity.ok(MyVerdictsWebResponse.from(myVerdicts));
+    }
+
+    @GetMapping("/verdicts/juror")
+    public ResponseEntity<JurorVerdictsWebResponse> getJurorVerdicts(@UserId Long userId) {
+        JurorVerdicts jurorVerdicts = verdictService.getJurorVerdicts(userId);
+
+        return ResponseEntity.ok(JurorVerdictsWebResponse.from(jurorVerdicts));
     }
 }
