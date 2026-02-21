@@ -4,6 +4,7 @@ import com.example.demo.application.exception.UnauthorizedException;
 import com.example.demo.infrastructure.advice.dto.ErrorResponse;
 import java.time.OffsetDateTime;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException e) {
-        log.warn("[400] IllegalArgumentException: {}", e.getMessage(), e);
         String msg = e.getMessage();
         if (msg == null || msg.isBlank()) {
             msg = "요청 값이 올바르지 않습니다.";
@@ -43,7 +43,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
         String message = validationMessage(e);
-        log.warn("[400] MethodArgumentNotValidException: {}", message, e);
         return error(HttpStatus.BAD_REQUEST, message);
     }
 
@@ -54,7 +53,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
-        log.warn("[400] HttpMessageNotReadableException: {}", e.getMessage(), e);
         return error(HttpStatus.BAD_REQUEST, "요청 형식이 올바르지 않습니다.");
     }
 
@@ -63,21 +61,27 @@ public class GlobalExceptionHandler {
         MissingServletRequestParameterException e
     ) {
         String message = "필수 요청 파라미터가 누락되었습니다: " + e.getParameterName();
-        log.warn("[400] MissingServletRequestParameterException: {}", message, e);
         return error(HttpStatus.BAD_REQUEST, message);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
         String message = "요청 파라미터 형식이 올바르지 않습니다: " + e.getName();
-        log.warn("[400] MethodArgumentTypeMismatchException: {}", message);
         return error(HttpStatus.BAD_REQUEST, message);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpected(Exception e) {
-        log.error("[500] Unexpected exception", e);
-        return error(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
+        // 가장 구체적인 원인 찾기
+        Throwable rootCause = NestedExceptionUtils.getMostSpecificCause(e);
+
+        log.error("[ERROR] status={} | exception={} | message={}",
+            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            rootCause.getClass().getSimpleName(),
+            rootCause.getMessage(),
+            e);
+
+        return error(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다.");
     }
 
     private ResponseEntity<ErrorResponse> error(HttpStatus status, String message) {
