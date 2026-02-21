@@ -1,9 +1,11 @@
 package com.example.demo.application;
 
+import com.example.demo.application.dto.MateInfo;
 import com.example.demo.domain.Mate;
 import com.example.demo.domain.MateRepository;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,5 +29,16 @@ public class MateService {
         }
 
         return mateRepository.save(new Mate(requester, receiver)).getId();
+    }
+
+    @Transactional(readOnly = true)
+    public List<MateInfo> getAcceptedMates(Long userId) {
+        return mateRepository.findAllAcceptedWithFriend(userId).stream()
+                .map(result -> new MateInfo(
+                        result.mate().getId(),
+                        result.friend().getNickname(),
+                        result.friend().getInvitationCode().value()
+                ))
+                .toList();
     }
 }

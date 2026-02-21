@@ -1,5 +1,6 @@
 package com.example.demo.domain;
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
@@ -16,4 +17,11 @@ public interface MateRepository extends Repository<Mate, Long> {
             "OR (m.requester.id = :user2Id AND m.receiver.id = :user1Id)) " +
             "AND m.status IN ('PENDING', 'ACCEPTED')")
     boolean existsMateBetween(@Param("user1Id") Long user1Id, @Param("user2Id") Long user2Id);
+
+    @Query("SELECT new com.example.demo.domain.MateWithFriend(m, f) " +
+            "FROM Mate m " +
+            "JOIN User f ON (m.requester.id = :userId AND f.id = m.receiver.id) " +
+            "            OR (m.receiver.id = :userId AND f.id = m.requester.id) " +
+            "WHERE m.status = 'ACCEPTED'")
+    List<MateWithFriend> findAllAcceptedWithFriend(@Param("userId") Long userId);
 }

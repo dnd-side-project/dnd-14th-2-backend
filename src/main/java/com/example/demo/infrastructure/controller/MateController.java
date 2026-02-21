@@ -3,11 +3,14 @@ package com.example.demo.infrastructure.controller;
 import com.example.demo.application.MateService;
 import com.example.demo.infrastructure.controller.dto.CreateMateWebRequest;
 import com.example.demo.infrastructure.controller.dto.MateCreateWebResponse;
+import com.example.demo.infrastructure.controller.dto.MateInfoWebResponse;
 import com.example.demo.infrastructure.interceptor.UserId;
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,5 +29,14 @@ public class MateController {
         Long mateId = mateService.requestMate(userId, request.invitationCode());
         URI location = URI.create("/mates/" + mateId);
         return ResponseEntity.created(location).body(new MateCreateWebResponse(mateId));
+    }
+
+    @GetMapping("/mates")
+    public ResponseEntity<List<MateInfoWebResponse>> getAcceptedMates(@UserId Long userId) {
+        return ResponseEntity.ok(
+                mateService.getAcceptedMates(userId).stream()
+                        .map(MateInfoWebResponse::from)
+                        .toList()
+        );
     }
 }
