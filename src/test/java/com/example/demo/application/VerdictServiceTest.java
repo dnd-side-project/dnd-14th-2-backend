@@ -3,6 +3,7 @@ package com.example.demo.application;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.example.demo.application.dto.JurorVerdicts;
 import com.example.demo.application.dto.MyVerdicts;
 import com.example.demo.domain.LedgerEntry;
 import com.example.demo.domain.LedgerEntryRepository;
@@ -189,5 +190,60 @@ class VerdictServiceTest extends AbstractIntegrationTest {
         assertThat(myVerdicts.verdicts()).hasSize(3);
         assertThat(myVerdicts.verdicts()).filteredOn(v -> v.verdictType() == VerdictType.GUILTY).hasSize(1);
         assertThat(myVerdicts.verdicts()).filteredOn(v -> v.verdictType() == null).hasSize(2);
+    }
+
+    @Test
+    void 내가_판결해야_할_소비심판을_조회할_수_있다() {
+        // given
+        var juror = DbUtils.givenSavedUser(userRepository);
+        var user1 = DbUtils.givenSavedUser(userRepository);
+        var user2 = DbUtils.givenSavedUser(userRepository);
+
+        var mate1 = new Mate(user1, juror);
+        var mate2 = new Mate(user2, juror);
+        mate1.accept();
+        mate2.accept();
+        Mate savedMate1 = mateRepository.save(mate1);
+        mateRepository.save(mate2);
+
+        var entry1 = new LedgerEntry(
+            7000L,
+            LedgerType.EXPENSE,
+            LedgerCategory.FOOD,
+            "커피",
+            LocalDate.of(2026, 1, 24),
+            PaymentMethod.CREDIT_CARD,
+            "old",
+            user1
+        );
+        var entry2 = new LedgerEntry(
+            7000L,
+            LedgerType.EXPENSE,
+            LedgerCategory.FOOD,
+            "커피",
+            LocalDate.of(2026, 1, 24),
+            PaymentMethod.CREDIT_CARD,
+            "old",
+            user2
+        );
+        LedgerEntry savedEntry1 = ledgerEntryRepository.save(entry1);
+        LedgerEntry savedEntry2 = ledgerEntryRepository.save(entry2);
+
+        sut.requestVerdict(savedEntry1.getId(), user1.getId());
+        sut.requestVerdict(savedEntry2.getId(), user2.getId());
+        List<Verdict> verdicts = verdictRepository.findAllByLedgerEntry_Id(savedEntry1.getId());
+        Verdict user1Verdict = verdicts.stream()
+            .filter(v -> v.getMate().getId().equals(savedMate1.getId()))
+            .findFirst()
+            .orElseThrow();
+        sut.judge(user1Verdict.getId(), juror.getId(), VerdictType.GUILTY);
+
+        // when
+        JurorVerdicts jurorVerdicts = sut.getJurorVerdicts(juror.getId());
+
+        // then
+        assertThat(jurorVerdicts.jurorVerdicts()).hasSize(2);
+        assertThat(jurorVerdicts.jurorVerdicts()).filteredOn(v -> v.verdictType() == VerdictType.GUILTY).hasSize(1);
+        assertThat(jurorVerdicts.jurorVerdicts()).filteredOn(v -> v.verdictType() == null).hasSize(1);
     }
 }

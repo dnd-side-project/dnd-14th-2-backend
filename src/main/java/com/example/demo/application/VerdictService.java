@@ -47,13 +47,14 @@ public class VerdictService {
         verdict.judge(juror, verdictType);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public MyVerdicts getMyVerdicts(Long userId) {
         List<Verdict> myVerdicts = verdictRepository.findMyVerdicts(userId);
 
         return MyVerdicts.from(myVerdicts);
     }
 
+    @Transactional(readOnly = true)
     public JurorVerdicts getJurorVerdicts(Long userId) {
         List<Verdict> jurorVerdicts = verdictRepository.findJurorVerdicts(userId);
 
