@@ -1,11 +1,14 @@
 package com.example.demo.infrastructure.controller;
 
 import com.example.demo.application.VerdictService;
+import com.example.demo.application.dto.MyVerdicts;
+import com.example.demo.infrastructure.controller.dto.MyVerdictsWebResponse;
 import com.example.demo.infrastructure.controller.dto.RequestJudgeWebRequest;
 import com.example.demo.infrastructure.controller.dto.VerdictJudgeWebRequest;
 import com.example.demo.infrastructure.interceptor.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,5 +34,12 @@ public class VerdictController {
     ) {
         verdictService.judge(verdictId, jurorId, request.verdictType());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/verdicts/my")
+    public ResponseEntity<MyVerdictsWebResponse> getMyVerdicts(@UserId Long userId) {
+        MyVerdicts myVerdicts = verdictService.getMyVerdicts(userId);
+
+        return ResponseEntity.ok(MyVerdictsWebResponse.from(myVerdicts));
     }
 }
