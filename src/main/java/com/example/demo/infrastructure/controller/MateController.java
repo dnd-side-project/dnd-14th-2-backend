@@ -59,9 +59,6 @@ public class MateController {
         @PathVariable Long mateId,
         @Valid @RequestBody UpdateMateStatusWebRequest request
     ) {
-        if (request.status().isPending()) {
-            throw new IllegalArgumentException("친구요청은 수락 또는 거절로만 변경 가능합니다.");
-        }
         mateService.updateMateStatus(mateId, userId, request.status());
         return ResponseEntity.ok().build();
     }

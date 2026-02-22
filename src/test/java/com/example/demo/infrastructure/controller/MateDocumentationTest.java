@@ -22,8 +22,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
-import static com.example.demo.util.RestDocsUtils.allowedValues;
-import static com.example.demo.util.RestDocsUtils.enumList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
@@ -34,7 +32,6 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
-import static org.springframework.restdocs.payload.JsonFieldType.ARRAY;
 import static org.springframework.restdocs.payload.JsonFieldType.NUMBER;
 import static org.springframework.restdocs.payload.JsonFieldType.STRING;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -499,10 +496,10 @@ class MateDocumentationTest {
                         .requestFields(
                             fieldWithPath("status").type(STRING)
                                 .attributes(
-                                    key("enum").value(enumList(MateStatus.class)),
+                                    key("enum").value(List.of("ACCEPTED", "REJECTED")),
                                     key("example").value(MateStatus.ACCEPTED.name())
                                 )
-                                .description("변경할 상태. " + allowedValues(MateStatus.class))
+                                .description("변경할 상태. 허용 값: [ACCEPTED, REJECTED]")
                         )
                         .build()
                     )
@@ -534,10 +531,10 @@ class MateDocumentationTest {
                         .requestFields(
                             fieldWithPath("status").type(STRING)
                                 .attributes(
-                                    key("enum").value(enumList(MateStatus.class)),
+                                    key("enum").value(List.of("ACCEPTED", "REJECTED")),
                                     key("example").value(MateStatus.REJECTED.name())
                                 )
-                                .description("변경할 상태. " + allowedValues(MateStatus.class))
+                                .description("변경할 상태. 허용 값: [ACCEPTED, REJECTED]")
                         )
                         .build()
                     )
@@ -549,6 +546,9 @@ class MateDocumentationTest {
         @Test
         void update_mate_requested_status_invalid_docs() throws Exception {
             // given
+            doThrow(new IllegalArgumentException("친구요청은 수락 또는 거절로만 변경 가능합니다."))
+                .when(mateService).updateMateStatus(eq(999L), eq(1L), eq(MateStatus.PENDING));
+
             // when & then
             mockMvc.perform(
                     patch("/mates/{mateId}", 999L)

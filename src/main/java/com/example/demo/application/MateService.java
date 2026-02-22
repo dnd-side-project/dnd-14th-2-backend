@@ -54,11 +54,11 @@ public class MateService {
             throw new IllegalArgumentException("친구 요청의 수신자만 수락/거절할 수 있습니다.");
         }
 
-        if (status == MateStatus.ACCEPTED) {
-            mate.accept();
-            return;
+        switch (status) {
+            case ACCEPTED -> mate.accept();
+            case REJECTED -> mate.reject();
+            default -> throw new IllegalArgumentException("친구요청은 수락 또는 거절로만 변경 가능합니다.");
         }
-        mate.reject();
     }
 
     @Transactional(readOnly = true)
