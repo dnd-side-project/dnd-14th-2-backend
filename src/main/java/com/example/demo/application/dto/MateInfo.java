@@ -1,4 +1,4 @@
 package com.example.demo.application.dto;
 
-public record MateInfo(Long mateId, String nickname, String invitationCode) {
+public record MateInfo(Long mateId, String nickname, String invitationCode, int verdictCount) {
 }

@@ -39,7 +39,8 @@ public class MateService {
             .map(result -> new MateInfo(
                 result.mate().getId(),
                 result.friend().getNickname(),
-                result.friend().getInvitationCode().value()
+                result.friend().getInvitationCode().value(),
+                0 // TODO: 함께한 심판 횟수를 조회하여 반환
             ))
             .toList();
     }

@@ -290,8 +290,8 @@ class MateDocumentationTest {
         void get_accepted_mates_docs() throws Exception {
             // given
             List<MateInfo> mateInfos = List.of(
-                new MateInfo(1L, "토끼abc", "AAAAAA"),
-                new MateInfo(2L, "고양이dd", "BBBBBB")
+                new MateInfo(1L, "토끼abc", "AAAAAA", 3),
+                new MateInfo(2L, "고양이dd", "BBBBBB", 0)
             );
             given(mateService.getAcceptedMates(eq(1L))).willReturn(mateInfos);
 
@@ -306,9 +306,11 @@ class MateDocumentationTest {
                 .andExpect(jsonPath("$[0].mateId").value(1))
                 .andExpect(jsonPath("$[0].nickname").value("토끼abc"))
                 .andExpect(jsonPath("$[0].invitationCode").value("AAAAAA"))
+                .andExpect(jsonPath("$[0].verdictCount").value(3))
                 .andExpect(jsonPath("$[1].mateId").value(2))
                 .andExpect(jsonPath("$[1].nickname").value("고양이dd"))
                 .andExpect(jsonPath("$[1].invitationCode").value("BBBBBB"))
+                .andExpect(jsonPath("$[1].verdictCount").value(0))
                 .andDo(document("친구 전체 조회",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
@@ -334,7 +336,13 @@ class MateDocumentationTest {
                                     key("example").value("AAAAAA"),
                                     key("format").value("영문 대문자 6자리")
                                 )
-                                .description("친구의 초대코드")
+                                .description("친구의 초대코드"),
+                            fieldWithPath("[].verdictCount").type(NUMBER)
+                                .attributes(
+                                    key("format").value("int32"),
+                                    key("example").value(3)
+                                )
+                                .description("함께한 심판 횟수")
                         )
                         .build()
                     )
@@ -477,13 +485,13 @@ class MateDocumentationTest {
                         .content("{\"status\":\"ACCEPTED\"}")
                 )
                 .andExpect(status().isOk())
-                .andDo(document("친구 요청 수락",
+                .andDo(document("친구 요청 수락/거절",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Mate")
-                        .summary("친구 요청 수락")
-                        .description("받은 친구 요청을 수락합니다. 수신자만 수락할 수 있습니다.")
+                        .summary("친구 요청 수락/거절")
+                        .description("받은 친구 요청을 수락 또는 거절합니다. 수신자만 수락/거절할 수 있습니다.")
                         .pathParameters(
                             parameterWithName("mateId").description("친구 요청 ID")
                         )
@@ -519,8 +527,6 @@ class MateDocumentationTest {
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Mate")
-                        .summary("친구 요청 거절")
-                        .description("받은 친구 요청을 거절합니다. 수신자만 거절할 수 있습니다.")
                         .pathParameters(
                             parameterWithName("mateId").description("친구 요청 ID")
                         )
@@ -538,6 +544,44 @@ class MateDocumentationTest {
                 ));
 
             verify(mateService).updateMateStatus(eq(2L), eq(1L), eq(MateStatus.REJECTED));
+        }
+
+        @Test
+        void update_mate_requested_status_invalid_docs() throws Exception {
+            // given
+            // when & then
+            mockMvc.perform(
+                    patch("/mates/{mateId}", 999L)
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"status\":\"PENDING\"}")
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value("친구요청은 수락 또는 거절로만 변경 가능합니다."))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andDo(document("친구 요청 수락/거절 - 잘못된 status로 요청 (PENDING으로 상태 변경 불가능)",
+                    preprocessRequest(prettyPrint()),
+                    preprocessResponse(prettyPrint()),
+                    resource(ResourceSnippetParameters.builder()
+                        .tag("Mate")
+                        .pathParameters(
+                            parameterWithName("mateId").description("친구 요청 ID")
+                        )
+                        .requestSchema(Schema.schema("UpdateMateStatusWebRequest"))
+                        .requestFields(
+                            fieldWithPath("status").type(STRING).description("변경할 상태")
+                        )
+                        .responseSchema(Schema.schema("ErrorResponse"))
+                        .responseFields(
+                            fieldWithPath("message").type(STRING).description("에러 메시지"),
+                            fieldWithPath("timestamp").type(STRING).description("예외 발생 시각")
+                        )
+                        .build()
+                    )
+                ));
         }
 
         @Test

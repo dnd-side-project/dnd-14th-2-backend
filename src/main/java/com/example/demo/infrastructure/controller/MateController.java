@@ -27,8 +27,8 @@ public class MateController {
 
     @PostMapping("/mates")
     public ResponseEntity<MateCreateWebResponse> create(
-            @UserId Long userId,
-            @Valid @RequestBody CreateMateWebRequest request
+        @UserId Long userId,
+        @Valid @RequestBody CreateMateWebRequest request
     ) {
         Long mateId = mateService.requestMate(userId, request.invitationCode());
         URI location = URI.create("/mates/" + mateId);
@@ -38,27 +38,30 @@ public class MateController {
     @GetMapping("/mates")
     public ResponseEntity<List<MateInfoWebResponse>> getAcceptedMates(@UserId Long userId) {
         return ResponseEntity.ok(
-                mateService.getAcceptedMates(userId).stream()
-                        .map(MateInfoWebResponse::from)
-                        .toList()
+            mateService.getAcceptedMates(userId).stream()
+                .map(MateInfoWebResponse::from)
+                .toList()
         );
     }
 
     @GetMapping("/mates/received")
     public ResponseEntity<List<MateReceivedWebResponse>> getReceivedRequests(@UserId Long userId) {
         return ResponseEntity.ok(
-                mateService.getReceivedRequests(userId).stream()
-                        .map(MateReceivedWebResponse::from)
-                        .toList()
+            mateService.getReceivedRequests(userId).stream()
+                .map(MateReceivedWebResponse::from)
+                .toList()
         );
     }
 
     @PatchMapping("/mates/{mateId}")
     public ResponseEntity<Void> updateMateStatus(
-            @UserId Long userId,
-            @PathVariable Long mateId,
-            @Valid @RequestBody UpdateMateStatusWebRequest request
+        @UserId Long userId,
+        @PathVariable Long mateId,
+        @Valid @RequestBody UpdateMateStatusWebRequest request
     ) {
+        if (request.status().isPending()) {
+            throw new IllegalArgumentException("친구요청은 수락 또는 거절로만 변경 가능합니다.");
+        }
         mateService.updateMateStatus(mateId, userId, request.status());
         return ResponseEntity.ok().build();
     }
