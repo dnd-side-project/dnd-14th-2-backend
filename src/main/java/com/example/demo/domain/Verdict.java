@@ -48,13 +48,13 @@ public class Verdict {
 
     private void validateIsNotCompletedJudge() {
         if (!isPending()) {
-            throw new IllegalStateException("이미 판결된 심판입니다.");
+            throw new IllegalArgumentException("이미 판결된 심판입니다.");
         }
     }
 
     private void validateIsValidJuror(User juror) {
         if (!this.juror.equals(juror)) {
-            throw new IllegalStateException("판결 권한이 없습니다.");
+            throw new IllegalArgumentException("판결 권한이 없습니다.");
         }
     }
 

@@ -37,7 +37,7 @@ class VerdictTest {
         var verdict = new Verdict(entry, realJuror);
 
         assertThatThrownBy(() -> verdict.judge(fakeJuror, VerdictType.GUILTY))
-            .isInstanceOf(IllegalStateException.class)
+            .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("판결 권한이 없습니다.");
     }
 
@@ -51,7 +51,7 @@ class VerdictTest {
         verdict.judge(juror, VerdictType.NOT_GUILTY);
 
         assertThatThrownBy(() -> verdict.judge(juror, VerdictType.GUILTY))
-            .isInstanceOf(IllegalStateException.class)
+            .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("이미 판결된 심판입니다.");
     }
 }

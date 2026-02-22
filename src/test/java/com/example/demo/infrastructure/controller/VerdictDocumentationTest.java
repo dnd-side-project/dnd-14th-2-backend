@@ -235,6 +235,9 @@ class VerdictDocumentationTest {
                 .andDo(document("소비 심판 판결 - 유효하지 않은 토큰 (위조/변조/형식 오류 등 유효하지 않은 access token으로 요청한 경우)",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
+                    pathParameters(
+                        parameterWithName("id").description("판결할 심판 ID")
+                    ),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Verdict")
                         .responseSchema(Schema.schema("ErrorResponse"))
@@ -255,7 +258,7 @@ class VerdictDocumentationTest {
             String accessToken = "test-access-token";
 
             given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
-            doThrow(new IllegalStateException("판결 권한이 없습니다."))
+            doThrow(new IllegalArgumentException("판결 권한이 없습니다."))
                 .when(verdictService)
                 .judge(eq(verdictId), eq(userId), eq(VerdictType.GUILTY));
 
@@ -266,7 +269,7 @@ class VerdictDocumentationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"verdictType\": \"GUILTY\"}")
                 )
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isBadRequest())
                 .andDo(document("소비 심판 판결 - 판결 권한 없음",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
@@ -293,7 +296,7 @@ class VerdictDocumentationTest {
             String accessToken = "test-access-token";
 
             given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
-            doThrow(new IllegalStateException("이미 판결된 심판입니다."))
+            doThrow(new IllegalArgumentException("이미 판결된 심판입니다."))
                 .when(verdictService)
                 .judge(eq(verdictId), eq(userId), eq(VerdictType.GUILTY));
 
@@ -304,7 +307,7 @@ class VerdictDocumentationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"verdictType\": \"GUILTY\"}")
                 )
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isBadRequest())
                 .andDo(document("소비 심판 판결 - 이미 판결된 심판",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
