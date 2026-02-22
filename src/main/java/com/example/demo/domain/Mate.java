@@ -68,11 +68,4 @@ public class Mate extends BaseEntity {
         }
         this.status = MateStatus.REJECTED;
     }
-
-    public User getFriend(Long myUserId) {
-        if (this.requester.getId().equals(myUserId)) {
-            return this.receiver;
-        }
-        return this.requester;
-    }
 }

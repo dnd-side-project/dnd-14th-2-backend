@@ -125,27 +125,4 @@ class MateTest {
                 .hasMessage("대기 중인 요청만 거절할 수 있습니다.");
         }
     }
-
-    @Nested
-    @DisplayName("getFriend 검증")
-    class GetFriendValidation {
-
-        @Test
-        void 내가_requester이면_receiver를_반환() {
-            Mate mate = new Mate(requester, receiver);
-
-            User friend = mate.getFriend(requester.getId());
-
-            assertThat(friend).isEqualTo(receiver);
-        }
-
-        @Test
-        void 내가_receiver이면_requester를_반환() {
-            Mate mate = new Mate(requester, receiver);
-
-            User friend = mate.getFriend(receiver.getId());
-
-            assertThat(friend).isEqualTo(requester);
-        }
-    }
 }
