@@ -30,8 +30,11 @@ public class VerdictService {
         LedgerEntry ledgerEntry = ledgerEntryRepository.findByIdAndUser_Id(ledgerId, userId)
             .orElseThrow(() -> new IllegalArgumentException("해당되는 가계부 항목이 존재하지 않습니다."));
 
+        User me = ledgerEntry.getUser();
+
         List<Mate> acceptedMates = mateRepository.findAcceptedMates(userId);
         acceptedMates.stream()
+            .map(mate -> mate.getOtherUser(me))
             .map(ledgerEntry::requestVerdict)
             .forEach(verdictRepository::save);
     }

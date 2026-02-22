@@ -20,9 +20,7 @@ public interface VerdictRepository extends Repository<Verdict, Long> {
     List<Verdict> findMyVerdicts(@Param("userId") Long userId);
 
     @Query("""
-        select v from Verdict v
-            where (v.mate.requester.id = :userId or v.mate.receiver.id = :userId)
-            and v.ledgerEntry.user.id != :userId
+        select v from Verdict v where v.juror.id = :userId
         """)
     List<Verdict> findJurorVerdicts(@Param("userId") Long userId);
 }

@@ -27,20 +27,19 @@ public class Verdict {
     private LedgerEntry ledgerEntry;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "mate_id", referencedColumnName = "id")
-    private Mate mate;
+    @JoinColumn(name = "juror_id", referencedColumnName = "id")
+    private User juror;
 
     @Enumerated(value = EnumType.STRING)
     private VerdictType type;
 
-    public Verdict(LedgerEntry ledgerEntry, Mate mate) {
+    public Verdict(LedgerEntry ledgerEntry, User juror) {
         this.ledgerEntry = ledgerEntry;
-        this.mate = mate;
+        this.juror = juror;
         this.type = VerdictType.PENDING;
     }
 
     public void judge(User juror, VerdictType type) {
-        validateIsNotSelfJudge(juror);
         validateIsValidJuror(juror);
         validateIsNotCompletedJudge();
 
@@ -54,26 +53,12 @@ public class Verdict {
     }
 
     private void validateIsValidJuror(User juror) {
-        if (!this.mate.isJuror(juror)) {
+        if (!this.juror.equals(juror)) {
             throw new IllegalStateException("판결 권한이 없습니다.");
-        }
-    }
-
-    private void validateIsNotSelfJudge(User juror) {
-        if (this.ledgerEntry.isOwnedBy(juror)) {
-            throw new IllegalStateException("본인의 소비 심판을 판결할 수 없습니다.");
         }
     }
 
     public boolean isPending() {
         return type == VerdictType.PENDING;
-    }
-
-    public User getDefendant() {
-        return this.ledgerEntry.getOwner();
-    }
-
-    public User getJuror() {
-        return this.mate.getOtherUser(getDefendant());
     }
 }

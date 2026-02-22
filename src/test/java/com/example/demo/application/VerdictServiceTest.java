@@ -57,10 +57,6 @@ class VerdictServiceTest extends AbstractIntegrationTest {
         var user = DbUtils.givenSavedUser(userRepository);
         var juror = DbUtils.givenSavedUser(userRepository);
 
-        var mate = new Mate(user, juror);
-        mate.accept();
-        mateRepository.save(mate);
-
         var entry = new LedgerEntry(
             7000L,
             LedgerType.EXPENSE,
@@ -73,7 +69,7 @@ class VerdictServiceTest extends AbstractIntegrationTest {
         );
         ledgerEntryRepository.save(entry);
 
-        Verdict verdict = verdictRepository.save(new Verdict(entry, mate));
+        Verdict verdict = verdictRepository.save(new Verdict(entry, juror));
 
         Long noExistsJurorId = 9999L;
 
@@ -203,7 +199,7 @@ class VerdictServiceTest extends AbstractIntegrationTest {
         var mate2 = new Mate(user2, juror);
         mate1.accept();
         mate2.accept();
-        Mate savedMate1 = mateRepository.save(mate1);
+        mateRepository.save(mate1);
         mateRepository.save(mate2);
 
         var entry1 = new LedgerEntry(
@@ -231,12 +227,10 @@ class VerdictServiceTest extends AbstractIntegrationTest {
 
         sut.requestVerdict(savedEntry1.getId(), user1.getId());
         sut.requestVerdict(savedEntry2.getId(), user2.getId());
-        List<Verdict> verdicts = verdictRepository.findAllByLedgerEntry_Id(savedEntry1.getId());
-        Verdict user1Verdict = verdicts.stream()
-            .filter(v -> v.getMate().getId().equals(savedMate1.getId()))
-            .findFirst()
-            .orElseThrow();
-        sut.judge(user1Verdict.getId(), juror.getId(), VerdictType.GUILTY);
+
+        List<Verdict> verdicts = verdictRepository.findJurorVerdicts(juror.getId());
+        Verdict anyVerdict = verdicts.get(0);
+        sut.judge(anyVerdict.getId(), juror.getId(), VerdictType.GUILTY);
 
         // when
         JurorVerdicts jurorVerdicts = sut.getJurorVerdicts(juror.getId());
@@ -245,5 +239,39 @@ class VerdictServiceTest extends AbstractIntegrationTest {
         assertThat(jurorVerdicts.jurorVerdicts()).hasSize(2);
         assertThat(jurorVerdicts.jurorVerdicts()).filteredOn(v -> v.verdictType() == VerdictType.GUILTY).hasSize(1);
         assertThat(jurorVerdicts.jurorVerdicts()).filteredOn(v -> v.verdictType() == VerdictType.PENDING).hasSize(1);
+    }
+
+    @Test
+    void 소비_심판_요청시_본인은_배심원에_포함되지_않는다() {
+        // given
+        var user = DbUtils.givenSavedUser(userRepository);
+        var juror1 = DbUtils.givenSavedUser(userRepository);
+        var juror2 = DbUtils.givenSavedUser(userRepository);
+
+        var mate1 = new Mate(user, juror1);
+        var mate2 = new Mate(user, juror2);
+        mate1.accept();
+        mate2.accept();
+        mateRepository.save(mate1);
+        mateRepository.save(mate2);
+
+        var entry = new LedgerEntry(
+            7000L,
+            LedgerType.EXPENSE,
+            LedgerCategory.FOOD,
+            "커피",
+            LocalDate.of(2026, 1, 24),
+            PaymentMethod.CREDIT_CARD,
+            "old",
+            user
+        );
+        LedgerEntry savedEntry = ledgerEntryRepository.save(entry);
+
+        // when
+        sut.requestVerdict(savedEntry.getId(), user.getId());
+
+        // then
+        List<Verdict> verdicts = verdictRepository.findAllByLedgerEntry_Id(savedEntry.getId());
+        assertThat(verdicts).noneMatch(v -> v.getJuror().getId().equals(user.getId()));
     }
 }

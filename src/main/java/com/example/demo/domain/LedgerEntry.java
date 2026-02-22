@@ -74,8 +74,8 @@ public class LedgerEntry extends BaseEntity {
         this.user = user;
     }
 
-    public Verdict requestVerdict(Mate mate) {
-        return new Verdict(this, mate);
+    public Verdict requestVerdict(User juror) {
+        return new Verdict(this, juror);
     }
 
     public void updateMemo(String memo) {
@@ -146,13 +146,5 @@ public class LedgerEntry extends BaseEntity {
             throw new IllegalArgumentException("메모는 100자 이내여야 합니다.");
         }
         return trimmed;
-    }
-
-    public User getOwner() {
-        return user;
-    }
-
-    public boolean isOwnedBy(User user) {
-        return this.user.equals(user);
     }
 }
