@@ -1,5 +1,27 @@
 package com.example.demo.infrastructure.controller;
 
+import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
+import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
+import static org.springframework.restdocs.payload.JsonFieldType.ARRAY;
+import static org.springframework.restdocs.payload.JsonFieldType.NUMBER;
+import static org.springframework.restdocs.payload.JsonFieldType.STRING;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.epages.restdocs.apispec.Schema;
 import com.example.demo.application.VerdictService;
@@ -9,9 +31,11 @@ import com.example.demo.application.dto.LedgerEntryInfo;
 import com.example.demo.application.dto.MyVerdict;
 import com.example.demo.application.dto.MyVerdicts;
 import com.example.demo.application.dto.UserInfo;
+import com.example.demo.application.exception.UnauthorizedException;
 import com.example.demo.application.oauth.TokenProvider;
 import com.example.demo.domain.VerdictType;
 import com.example.demo.domain.enums.LedgerCategory;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
@@ -23,28 +47,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.List;
-
-import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
-import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
-import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
-import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
-import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
-import static org.springframework.restdocs.payload.JsonFieldType.ARRAY;
-import static org.springframework.restdocs.payload.JsonFieldType.NUMBER;
-import static org.springframework.restdocs.payload.JsonFieldType.STRING;
-import static org.springframework.restdocs.payload.JsonFieldType.NULL;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(VerdictController.class)
 @AutoConfigureRestDocs
@@ -97,6 +99,73 @@ class VerdictDocumentationTest {
 
             verify(verdictService).requestVerdict(eq(1L), eq(userId));
         }
+
+        @Test
+        void fail_invalid_token_docs() throws Exception {
+            // given
+            String invalidToken = "invalid-token";
+            given(tokenProvider.validateAccessToken(invalidToken))
+                .willThrow(new UnauthorizedException("유효하지 않은 토큰 정보입니다."));
+
+            // when & then
+            mockMvc.perform(
+                    post("/verdicts")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + invalidToken)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"ledgerEntryId\": 1}")
+                )
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value("유효하지 않은 토큰 정보입니다."))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andDo(document("소비 심판 요청 - 유효하지 않은 토큰 (위조/변조/형식 오류 등 유효하지 않은 access token으로 요청한 경우)",
+                    preprocessRequest(prettyPrint()),
+                    preprocessResponse(prettyPrint()),
+                    resource(ResourceSnippetParameters.builder()
+                        .tag("Verdict")
+                        .responseSchema(Schema.schema("ErrorResponse"))
+                        .responseFields(
+                            fieldWithPath("message").type(STRING).description("에러 메시지"),
+                            fieldWithPath("timestamp").type(STRING).description("예외 발생 시각")
+                        )
+                        .build()
+                    )
+                ));
+        }
+
+        @Test
+        void requestVerdict_notFound_docs() throws Exception {
+            // given
+            Long userId = 1L;
+            String accessToken = "test-access-token";
+
+            given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
+            doThrow(new IllegalArgumentException("해당되는 가계부 항목이 존재하지 않습니다."))
+                .when(verdictService)
+                .requestVerdict(eq(1L), eq(userId));
+
+            // when & then
+            mockMvc.perform(
+                    post("/verdicts")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"ledgerEntryId\": 1}")
+                )
+                .andExpect(status().isBadRequest())
+                .andDo(document("소비 심판 요청 - 존재하지 않는 가계부 항목",
+                    preprocessRequest(prettyPrint()),
+                    preprocessResponse(prettyPrint()),
+                    resource(ResourceSnippetParameters.builder()
+                        .tag("Verdict")
+                        .responseSchema(Schema.schema("ErrorResponse"))
+                        .responseFields(
+                            fieldWithPath("message").type(STRING).description("에러 메시지"),
+                            fieldWithPath("timestamp").type(STRING).description("발생 시각")
+                        )
+                        .build()
+                    )
+                ));
+        }
     }
 
     @Nested
@@ -143,6 +212,116 @@ class VerdictDocumentationTest {
 
             verify(verdictService).judge(eq(verdictId), eq(userId), eq(VerdictType.GUILTY));
         }
+
+        @Test
+        void fail_invalid_token_docs() throws Exception {
+            // given
+            Long verdictId = 1L;
+            String invalidToken = "invalid-token";
+            given(tokenProvider.validateAccessToken(invalidToken))
+                .willThrow(new UnauthorizedException("유효하지 않은 토큰 정보입니다."));
+
+            // when & then
+            mockMvc.perform(
+                    patch("/verdicts/{id}", verdictId)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + invalidToken)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"verdictType\": \"GUILTY\"}")
+                )
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value("유효하지 않은 토큰 정보입니다."))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andDo(document("소비 심판 판결 - 유효하지 않은 토큰 (위조/변조/형식 오류 등 유효하지 않은 access token으로 요청한 경우)",
+                    preprocessRequest(prettyPrint()),
+                    preprocessResponse(prettyPrint()),
+                    resource(ResourceSnippetParameters.builder()
+                        .tag("Verdict")
+                        .responseSchema(Schema.schema("ErrorResponse"))
+                        .responseFields(
+                            fieldWithPath("message").type(STRING).description("에러 메시지"),
+                            fieldWithPath("timestamp").type(STRING).description("예외 발생 시각")
+                        )
+                        .build()
+                    )
+                ));
+        }
+
+        @Test
+        void judge_noPermission_docs() throws Exception {
+            // given
+            Long userId = 1L;
+            Long verdictId = 1L;
+            String accessToken = "test-access-token";
+
+            given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
+            doThrow(new IllegalStateException("판결 권한이 없습니다."))
+                .when(verdictService)
+                .judge(eq(verdictId), eq(userId), eq(VerdictType.GUILTY));
+
+            // when & then
+            mockMvc.perform(
+                    patch("/verdicts/{id}", verdictId)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"verdictType\": \"GUILTY\"}")
+                )
+                .andExpect(status().isInternalServerError())
+                .andDo(document("소비 심판 판결 - 판결 권한 없음",
+                    preprocessRequest(prettyPrint()),
+                    preprocessResponse(prettyPrint()),
+                    pathParameters(
+                        parameterWithName("id").description("판결할 심판 ID")
+                    ),
+                    resource(ResourceSnippetParameters.builder()
+                        .tag("Verdict")
+                        .responseSchema(Schema.schema("ErrorResponse"))
+                        .responseFields(
+                            fieldWithPath("message").type(STRING).description("에러 메시지"),
+                            fieldWithPath("timestamp").type(STRING).description("발생 시각")
+                        )
+                        .build()
+                    )
+                ));
+        }
+
+        @Test
+        void judge_alreadyCompleted_docs() throws Exception {
+            // given
+            Long userId = 1L;
+            Long verdictId = 1L;
+            String accessToken = "test-access-token";
+
+            given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
+            doThrow(new IllegalStateException("이미 판결된 심판입니다."))
+                .when(verdictService)
+                .judge(eq(verdictId), eq(userId), eq(VerdictType.GUILTY));
+
+            // when & then
+            mockMvc.perform(
+                    patch("/verdicts/{id}", verdictId)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"verdictType\": \"GUILTY\"}")
+                )
+                .andExpect(status().isInternalServerError())
+                .andDo(document("소비 심판 판결 - 이미 판결된 심판",
+                    preprocessRequest(prettyPrint()),
+                    preprocessResponse(prettyPrint()),
+                    pathParameters(
+                        parameterWithName("id").description("판결할 심판 ID")
+                    ),
+                    resource(ResourceSnippetParameters.builder()
+                        .tag("Verdict")
+                        .responseSchema(Schema.schema("ErrorResponse"))
+                        .responseFields(
+                            fieldWithPath("message").type(STRING).description("에러 메시지"),
+                            fieldWithPath("timestamp").type(STRING).description("발생 시각")
+                        )
+                        .build()
+                    )
+                ));
+        }
     }
 
     @Nested
@@ -183,15 +362,50 @@ class VerdictDocumentationTest {
                             fieldWithPath("verdicts[].id").type(NUMBER).description("심판 ID"),
                             fieldWithPath("verdicts[].entryInfoWebResponse.id").type(NUMBER).description("소비 내역 ID"),
                             fieldWithPath("verdicts[].entryInfoWebResponse.amount").type(NUMBER).description("소비 금액"),
-                            fieldWithPath("verdicts[].entryInfoWebResponse.category").type(STRING).description("소비 카테고리"),
-                            fieldWithPath("verdicts[].entryInfoWebResponse.description").type(STRING).description("소비 내용"),
-                            fieldWithPath("verdicts[].verdictType").type(STRING).optional().description("판결 결과 (GUILTY / NOT_GUILTY / null: 미판결)")
+                            fieldWithPath("verdicts[].entryInfoWebResponse.category").type(STRING)
+                                .description("소비 카테고리"),
+                            fieldWithPath("verdicts[].entryInfoWebResponse.description").type(STRING)
+                                .description("소비 내용"),
+                            fieldWithPath("verdicts[].verdictType").type(STRING).optional()
+                                .description("판결 결과 (GUILTY / NOT_GUILTY / null: 미판결)")
                         )
                         .build()
                     )
                 ));
 
             verify(verdictService).getMyVerdicts(eq(userId));
+        }
+
+        @Test
+        void fail_invalid_token_docs() throws Exception {
+            // given
+            String invalidToken = "invalid-token";
+            given(tokenProvider.validateAccessToken(invalidToken))
+                .willThrow(new UnauthorizedException("유효하지 않은 토큰 정보입니다."));
+
+            // when & then
+            mockMvc.perform(
+                    get("/verdicts/my")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + invalidToken)
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value("유효하지 않은 토큰 정보입니다."))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andDo(document("내 소비 심판 목록 조회 - 유효하지 않은 토큰 (위조/변조/형식 오류 등 유효하지 않은 access token으로 요청한 경우)",
+                    preprocessRequest(prettyPrint()),
+                    preprocessResponse(prettyPrint()),
+                    resource(ResourceSnippetParameters.builder()
+                        .tag("Verdict")
+                        .responseSchema(Schema.schema("ErrorResponse"))
+                        .responseFields(
+                            fieldWithPath("message").type(STRING).description("에러 메시지"),
+                            fieldWithPath("timestamp").type(STRING).description("예외 발생 시각")
+                        )
+                        .build()
+                    )
+                ));
         }
     }
 
@@ -206,8 +420,10 @@ class VerdictDocumentationTest {
             String accessToken = "test-access-token";
 
             JurorVerdicts jurorVerdicts = new JurorVerdicts(List.of(
-                new JurorVerdict(1L, new UserInfo(2L, "토끼abc", 1, "profile.jpg"), new LedgerEntryInfo(1L, 7000L, LedgerCategory.FOOD, "커피"), VerdictType.GUILTY),
-                new JurorVerdict(2L, new UserInfo(3L, "강아지123", 2, "profile2.jpg"), new LedgerEntryInfo(2L, 15000L, LedgerCategory.FOOD, "점심"), null)
+                new JurorVerdict(1L, new UserInfo(2L, "토끼abc", 1, "profile.jpg"),
+                    new LedgerEntryInfo(1L, 7000L, LedgerCategory.FOOD, "커피"), VerdictType.GUILTY),
+                new JurorVerdict(2L, new UserInfo(3L, "강아지123", 2, "profile2.jpg"),
+                    new LedgerEntryInfo(2L, 15000L, LedgerCategory.FOOD, "점심"), null)
             ));
 
             given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
@@ -236,15 +452,50 @@ class VerdictDocumentationTest {
                             fieldWithPath("jurorVerdicts[].defendantInfo.level").type(NUMBER).description("피고 레벨"),
                             fieldWithPath("jurorVerdicts[].ledgerEntryInfo.id").type(NUMBER).description("소비 내역 ID"),
                             fieldWithPath("jurorVerdicts[].ledgerEntryInfo.amount").type(NUMBER).description("소비 금액"),
-                            fieldWithPath("jurorVerdicts[].ledgerEntryInfo.category").type(STRING).description("소비 카테고리"),
-                            fieldWithPath("jurorVerdicts[].ledgerEntryInfo.description").type(STRING).description("소비 내용"),
-                            fieldWithPath("jurorVerdicts[].verdictType").type(STRING).optional().description("판결 결과 (GUILTY / NOT_GUILTY / null: 미판결)")
+                            fieldWithPath("jurorVerdicts[].ledgerEntryInfo.category").type(STRING)
+                                .description("소비 카테고리"),
+                            fieldWithPath("jurorVerdicts[].ledgerEntryInfo.description").type(STRING)
+                                .description("소비 내용"),
+                            fieldWithPath("jurorVerdicts[].verdictType").type(STRING).optional()
+                                .description("판결 결과 (GUILTY / NOT_GUILTY / null: 미판결)")
                         )
                         .build()
                     )
                 ));
 
             verify(verdictService).getJurorVerdicts(eq(userId));
+        }
+
+        @Test
+        void fail_invalid_token_docs() throws Exception {
+            // given
+            String invalidToken = "invalid-token";
+            given(tokenProvider.validateAccessToken(invalidToken))
+                .willThrow(new UnauthorizedException("유효하지 않은 토큰 정보입니다."));
+
+            // when & then
+            mockMvc.perform(
+                    get("/verdicts/juror")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + invalidToken)
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value("유효하지 않은 토큰 정보입니다."))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andDo(document("내가 판결해야 할 소비 심판 목록 조회 - 유효하지 않은 토큰 (위조/변조/형식 오류 등 유효하지 않은 access token으로 요청한 경우)",
+                    preprocessRequest(prettyPrint()),
+                    preprocessResponse(prettyPrint()),
+                    resource(ResourceSnippetParameters.builder()
+                        .tag("Verdict")
+                        .responseSchema(Schema.schema("ErrorResponse"))
+                        .responseFields(
+                            fieldWithPath("message").type(STRING).description("에러 메시지"),
+                            fieldWithPath("timestamp").type(STRING).description("예외 발생 시각")
+                        )
+                        .build()
+                    )
+                ));
         }
     }
 }
