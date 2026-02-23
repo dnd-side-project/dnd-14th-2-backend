@@ -283,6 +283,13 @@ class VerdictDocumentationTest {
                         .requestHeaders(
                             headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
                         )
+                        .pathParameters(
+                            parameterWithName("id").description("판결할 심판 ID")
+                        )
+                        .requestSchema(Schema.schema("VerdictJudgeWebRequest"))
+                        .requestFields(
+                            fieldWithPath("verdictType").type(STRING).description("판결 결과 (GUILTY / NOT_GUILTY)")
+                        )
                         .responseSchema(Schema.schema("ErrorResponse"))
                         .responseFields(
                             fieldWithPath("message").type(STRING).description("에러 메시지"),
@@ -325,6 +332,13 @@ class VerdictDocumentationTest {
                         .requestHeaders(
                             headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
                         )
+                        .pathParameters(
+                            parameterWithName("id").description("판결할 심판 ID")
+                        )
+                        .requestSchema(Schema.schema("VerdictJudgeWebRequest"))
+                        .requestFields(
+                            fieldWithPath("verdictType").type(STRING).description("판결 결과 (GUILTY / NOT_GUILTY)")
+                        )
                         .responseSchema(Schema.schema("ErrorResponse"))
                         .responseFields(
                             fieldWithPath("message").type(STRING).description("에러 메시지"),
@@ -366,6 +380,13 @@ class VerdictDocumentationTest {
                         .tag("Verdict")
                         .requestHeaders(
                             headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
+                        .pathParameters(
+                            parameterWithName("id").description("판결할 심판 ID")
+                        )
+                        .requestSchema(Schema.schema("VerdictJudgeWebRequest"))
+                        .requestFields(
+                            fieldWithPath("verdictType").type(STRING).description("판결 결과 (GUILTY / NOT_GUILTY)")
                         )
                         .responseSchema(Schema.schema("ErrorResponse"))
                         .responseFields(
