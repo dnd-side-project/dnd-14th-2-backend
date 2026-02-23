@@ -183,7 +183,7 @@ class VerdictDocumentationTest {
                         .responseSchema(Schema.schema("ErrorResponse"))
                         .responseFields(
                             fieldWithPath("message").type(STRING).description("에러 메시지"),
-                            fieldWithPath("timestamp").type(STRING).description("발생 시각")
+                            fieldWithPath("timestamp").type(STRING).description("예외 발생 시각")
                         )
                         .build()
                     )
