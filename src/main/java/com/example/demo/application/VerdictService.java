@@ -33,10 +33,17 @@ public class VerdictService {
         User me = ledgerEntry.getUser();
 
         List<Mate> acceptedMates = mateRepository.findAcceptedMates(userId);
+        validateIsNotEmptyMate(acceptedMates);
         acceptedMates.stream()
             .map(mate -> mate.getOtherUser(me))
             .map(ledgerEntry::requestVerdict)
             .forEach(verdictRepository::save);
+    }
+
+    private void validateIsNotEmptyMate(List<Mate> acceptedMates) {
+        if (acceptedMates.isEmpty()) {
+            throw new IllegalArgumentException("심판 요청을 보낼 친구가 없습니다.");
+        }
     }
 
     @Transactional
