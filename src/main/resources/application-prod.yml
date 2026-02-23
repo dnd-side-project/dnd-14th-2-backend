@@ -50,8 +50,3 @@ management:
     health:
       show-details: never
 
-springdoc:
-  api-docs:
-    enabled: false
-  swagger-ui:
-    enabled: false
