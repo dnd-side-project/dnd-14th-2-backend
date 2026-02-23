@@ -204,7 +204,7 @@ class AuthDocumentationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("유효하지 않은 토큰 정보입니다."))
-                .andDo(document("token-reissue - invalid-token",
+                .andDo(document("token-reissue_invalid-token",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -243,7 +243,7 @@ class AuthDocumentationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("만료된 토큰입니다."))
-                .andDo(document("token-reissue - expired-token",
+                .andDo(document("token-reissue_expired-token",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -282,7 +282,7 @@ class AuthDocumentationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("잘못된 토큰 타입입니다."))
-                .andDo(document("token-reissue - unmatch-token-type",
+                .andDo(document("token-reissue_unmatch-token-type",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -321,7 +321,7 @@ class AuthDocumentationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("인증되지 않은 사용자입니다."))
-                .andDo(document("token-reissue - unauthorized-user",
+                .andDo(document("token-reissue_unauthorized-user",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()

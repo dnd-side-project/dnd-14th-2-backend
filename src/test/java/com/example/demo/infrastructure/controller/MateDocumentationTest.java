@@ -156,7 +156,7 @@ class MateDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("존재하지 않는 초대코드입니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("request-mate - non-exists-invitation-code",
+                .andDo(document("request-mate_non-exists-invitation-code",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -200,7 +200,7 @@ class MateDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("이미 친구 관계가 존재하거나 요청 대기 중입니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("request-mate - already-mate",
+                .andDo(document("request-mate_already-mate",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -244,7 +244,7 @@ class MateDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("자기 자신에게 친구 요청을 보낼 수 없습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("request-mate - request-my-self",
+                .andDo(document("request-mate_request-my-self",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -285,7 +285,7 @@ class MateDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("올바르지 않은 초대 코드 형식입니다 (영어 대문자 6자리)"))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("request-mate - invalid-invitation-code",
+                .andDo(document("request-mate_invalid-invitation-code",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -401,7 +401,7 @@ class MateDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$").isEmpty())
-                .andDo(document("get-accepted-mates - empty",
+                .andDo(document("get-accepted-mates_empty",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -503,7 +503,7 @@ class MateDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$").isEmpty())
-                .andDo(document("get-received-requests - empty",
+                .andDo(document("get-received-requests_empty",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -549,7 +549,7 @@ class MateDocumentationTest {
                                 - 친구 요청을 거절하는 경우
                             
                             - **[400]**
-                              - **잘못된 status로 요청(invalid-status)**
+                              - **잘못된 status로 요청(invalid-status-request)**
                                 - PENDING으로 상태 변경 불가능
                               - **존재하지 않는 요청(non-exists-request)**
                                 - 친구 요청 ID에 해당하는 요청이 존재하지 않는 경우
@@ -591,7 +591,7 @@ class MateDocumentationTest {
                         .content("{\"status\":\"REJECTED\"}")
                 )
                 .andExpect(status().isOk())
-                .andDo(document("accept-mate-request - reject",
+                .andDo(document("accept-mate-request_reject",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -637,7 +637,7 @@ class MateDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("친구요청은 수락 또는 거절로만 변경 가능합니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("accept-mate-request - invalid-status",
+                .andDo(document("accept-mate-request_invalid-status-request",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -681,7 +681,7 @@ class MateDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("존재하지 않는 친구 요청입니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("accept-mate-request - non-exists-request",
+                .andDo(document("accept-mate-request_non-exists-request",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -725,7 +725,7 @@ class MateDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("친구 요청의 수신자만 수락/거절할 수 있습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("accept-mate-request - no-permission",
+                .andDo(document("accept-mate-request_no-permission",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -765,7 +765,7 @@ class MateDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("요청 형식이 올바르지 않습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("accept-mate-request - invalid-status",
+                .andDo(document("accept-mate-request_invalid-status",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()

@@ -134,7 +134,7 @@ class VerdictDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("유효하지 않은 토큰 정보입니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("request-verdict - invalid-token",
+                .andDo(document("request-verdict_invalid-token",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -172,7 +172,7 @@ class VerdictDocumentationTest {
                         .content("{\"ledgerEntryId\": 1}")
                 )
                 .andExpect(status().isBadRequest())
-                .andDo(document("request-verdict - non-exists-ledger-entry",
+                .andDo(document("request-verdict_non-exists-ledger-entry",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -272,7 +272,7 @@ class VerdictDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("유효하지 않은 토큰 정보입니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("judge-verdict - invalid-token",
+                .andDo(document("judge-verdict_invalid-token",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     pathParameters(
@@ -321,7 +321,7 @@ class VerdictDocumentationTest {
                         .content("{\"verdictType\": \"GUILTY\"}")
                 )
                 .andExpect(status().isBadRequest())
-                .andDo(document("judge-verdict - no-permission",
+                .andDo(document("judge-verdict_no-permission",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     pathParameters(
@@ -370,7 +370,7 @@ class VerdictDocumentationTest {
                         .content("{\"verdictType\": \"GUILTY\"}")
                 )
                 .andExpect(status().isBadRequest())
-                .andDo(document("judge-verdict - already-judged",
+                .andDo(document("judge-verdict_already-judged",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     pathParameters(
@@ -477,7 +477,7 @@ class VerdictDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("유효하지 않은 토큰 정보입니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("my-verdicts - invalid-token",
+                .andDo(document("my-verdicts_invalid-token",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -579,7 +579,7 @@ class VerdictDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("유효하지 않은 토큰 정보입니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("juror-verdicts - invalid-token",
+                .andDo(document("juror-verdicts_invalid-token",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()

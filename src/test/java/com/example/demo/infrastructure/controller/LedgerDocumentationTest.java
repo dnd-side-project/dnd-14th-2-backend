@@ -257,7 +257,7 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("존재하지 않는 사용자입니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("create-ledger-entry - non-exists-user",
+                .andDo(document("create-ledger-entry_non-exists-user",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -300,7 +300,7 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("요청 형식이 올바르지 않습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("create-ledger-entry - invalid-enum",
+                .andDo(document("create-ledger-entry_invalid-enum",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -423,7 +423,7 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("해당되는 가계부 항목이 존재하지 않습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("get-ledger-entry - non-exists-ledger-entry",
+                .andDo(document("get-ledger-entry_non-exists-ledger-entry",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -510,7 +510,7 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("해당되는 가계부 항목이 존재하지 않습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("update-memo - non-exists-ledger-entry",
+                .andDo(document("update-memo_non-exists-ledger-entry",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -548,7 +548,7 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("메모(memo)는 최대 100자까지 입력할 수 있습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("update-memo - exceed-max-length",
+                .andDo(document("update-memo_exceed-max-length",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -748,7 +748,7 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("해당되는 가계부 항목이 존재하지 않습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("update-ledger-entry - non-exists-ledger-entry",
+                .andDo(document("update-ledger-entry_non-exists-ledger-entry",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -793,7 +793,7 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("요청 형식이 올바르지 않습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("update-ledger-entry - invalid-enum",
+                .andDo(document("update-ledger-entry_invalid-enum",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -867,7 +867,7 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("해당되는 가계부 항목이 존재하지 않습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("delete-ledger-entry - non-exists-ledger-entry",
+                .andDo(document("delete-ledger-entry_non-exists-ledger-entry",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -1023,7 +1023,7 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value(containsString("요청 파라미터 형식이 올바르지 않습니다")))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("get-ledger-summary - wrong-date-format",
+                .andDo(document("get-ledger-summary_wrong-date-format",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -1058,7 +1058,7 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value(containsString("필수 요청 파라미터가 누락되었습니다")))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("get-ledger-summary - missing-date-param",
+                .andDo(document("get-ledger-summary_missing-date-param",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
