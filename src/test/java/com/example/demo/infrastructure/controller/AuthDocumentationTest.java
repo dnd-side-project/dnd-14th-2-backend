@@ -134,7 +134,6 @@ class AuthDocumentationTest {
         @Test
         void reissue_docs() throws Exception {
             // given
-            String accessToken = "jwt.access.token";
             String refreshToken = "jwt.refresh.token";
             String newAccessToken = "jwt.new.access.token";
             String newRefreshToken = "jwt.new.refresh.token";
@@ -146,7 +145,6 @@ class AuthDocumentationTest {
             mockMvc.perform(
                     post("/token")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                         .content("{\"refreshToken\":\"" + refreshToken + "\"}")
                         .accept(MediaType.APPLICATION_JSON)
                 )
@@ -171,11 +169,8 @@ class AuthDocumentationTest {
                               - **토큰 타입 불일치(unmatch token type)**
                                 - 리프레시 토큰이 아닌 다른 토큰을 사용했을 경우
                               - **인증되지 않은 사용자(unauthorized user)**
-                                - pickle의 토큰이 아닌 다른 토큰을 사용했을 경우(로그인하지 않은 경우)
+                                - 리프레시 토큰 인증에 실패했을 경우 ex. 다른 서버의 리프레시 토큰
                             """)
-                        .requestHeaders(
-                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
-                        )
                         .requestSchema(Schema.schema("ReissueTokenWebRequest"))
                         .responseSchema(Schema.schema("AuthTokenWebResponse"))
                         .requestFields(
@@ -194,7 +189,6 @@ class AuthDocumentationTest {
         @Test
         void reissue_fail_invalid_refresh_token() throws Exception {
             // given
-            String accessToken = "jwt.access.token";
             String refreshToken = "invalid.refresh.token";
 
             given(authService.reissueToken(refreshToken))
@@ -204,7 +198,6 @@ class AuthDocumentationTest {
             mockMvc.perform(
                     post("/token")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                         .content("{\"refreshToken\":\"" + refreshToken + "\"}")
                         .accept(MediaType.APPLICATION_JSON)
                 )
@@ -216,9 +209,6 @@ class AuthDocumentationTest {
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Auth")
-                        .requestHeaders(
-                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
-                        )
                         .requestSchema(Schema.schema("ReissueTokenWebRequest"))
                         .requestFields(
                             fieldWithPath("refreshToken").type(STRING).description("사용자의 refresh token(JWT)")
@@ -238,7 +228,6 @@ class AuthDocumentationTest {
         @Test
         void reissue_fail_expired_refresh_token() throws Exception {
             // given
-            String accessToken = "jwt.access.token";
             String refreshToken = "expired.refresh.token";
 
             given(authService.reissueToken(refreshToken))
@@ -248,7 +237,6 @@ class AuthDocumentationTest {
             mockMvc.perform(
                     post("/token")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                         .content("{\"refreshToken\":\"" + refreshToken + "\"}")
                         .accept(MediaType.APPLICATION_JSON)
                 )
@@ -260,9 +248,6 @@ class AuthDocumentationTest {
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Auth")
-                        .requestHeaders(
-                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
-                        )
                         .requestSchema(Schema.schema("ReissueTokenWebRequest"))
                         .requestFields(
                             fieldWithPath("refreshToken").type(STRING).description("사용자의 refresh token(JWT)")
@@ -291,7 +276,6 @@ class AuthDocumentationTest {
             mockMvc.perform(
                     post("/token")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                         .content("{\"refreshToken\":\"" + accessToken + "\"}")
                         .accept(MediaType.APPLICATION_JSON)
                 )
@@ -303,9 +287,6 @@ class AuthDocumentationTest {
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Auth")
-                        .requestHeaders(
-                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
-                        )
                         .requestSchema(Schema.schema("ReissueTokenWebRequest"))
                         .requestFields(
                             fieldWithPath("refreshToken").type(STRING).description("사용자의 refresh token(JWT)")
@@ -325,7 +306,6 @@ class AuthDocumentationTest {
         @Test
         void reissue_fail_unauthorized() throws Exception {
             // given
-            String accessToken = "jwt.access.token";
             String refreshToken = "another.refresh.token";
 
             given(authService.reissueToken(refreshToken))
@@ -335,7 +315,6 @@ class AuthDocumentationTest {
             mockMvc.perform(
                     post("/token")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                         .content("{\"refreshToken\":\"" + refreshToken + "\"}")
                         .accept(MediaType.APPLICATION_JSON)
                 )
@@ -347,9 +326,6 @@ class AuthDocumentationTest {
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Auth")
-                        .requestHeaders(
-                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
-                        )
                         .requestSchema(Schema.schema("ReissueTokenWebRequest"))
                         .requestFields(
                             fieldWithPath("refreshToken").type(STRING).description("사용자의 refresh token(JWT)")
