@@ -6,7 +6,7 @@ import com.example.demo.domain.VerdictType;
 
 public record MyVerdictWebResponse(
     Long id,
-    LedgerEntryInfoWebResponse entryInfoWebResponse,
+    LedgerEntryInfoWebResponse entryInfo,
     VerdictType verdictType
 ) {
     public static MyVerdictWebResponse from(MyVerdict myVerdict) {

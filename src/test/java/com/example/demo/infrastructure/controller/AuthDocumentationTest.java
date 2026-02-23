@@ -1,6 +1,7 @@
 package com.example.demo.infrastructure.controller;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
+import static com.epages.restdocs.apispec.ResourceDocumentation.headerWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -116,6 +117,9 @@ class AuthDocumentationTest {
                 resource(ResourceSnippetParameters.builder()
                     .tag("Auth")
                     .summary("로그아웃")
+                    .requestHeaders(
+                        headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                    )
                     .build()
                 )
             ));
@@ -128,7 +132,7 @@ class AuthDocumentationTest {
         @Test
         void reissue_docs() throws Exception {
             // given
-            long userId = 1L;
+            String accessToken = "jwt.access.token";
             String refreshToken = "jwt.refresh.token";
             String newAccessToken = "jwt.new.access.token";
             String newRefreshToken = "jwt.new.refresh.token";
@@ -140,6 +144,7 @@ class AuthDocumentationTest {
             mockMvc.perform(
                     post("/token")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                         .content("{\"refreshToken\":\"" + refreshToken + "\"}")
                         .accept(MediaType.APPLICATION_JSON)
                 )
@@ -147,12 +152,15 @@ class AuthDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.accessToken").value(newAccessToken))
                 .andExpect(jsonPath("$.refreshToken").value(newRefreshToken))
-                .andDo(document("재발행",
+                .andDo(document("token-reissue",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Auth")
                         .summary("액세스 토큰 재발급")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .requestSchema(Schema.schema("ReissueTokenWebRequest"))
                         .responseSchema(Schema.schema("AuthTokenWebResponse"))
                         .requestFields(
@@ -171,6 +179,7 @@ class AuthDocumentationTest {
         @Test
         void reissue_fail_invalid_refresh_token() throws Exception {
             // given
+            String accessToken = "jwt.access.token";
             String refreshToken = "invalid.refresh.token";
 
             given(authService.reissueToken(refreshToken))
@@ -180,17 +189,26 @@ class AuthDocumentationTest {
             mockMvc.perform(
                     post("/token")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                         .content("{\"refreshToken\":\"" + refreshToken + "\"}")
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("유효하지 않은 토큰 정보입니다."))
-                .andDo(document("재발행 - 유효하지 않은 토큰",
+                .andDo(document("token-reissue - invalid token",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Auth")
+                        .summary("액세스 토큰 재발급 - 유효하지 않은 토큰")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
+                        .requestSchema(Schema.schema("ReissueTokenWebRequest"))
+                        .requestFields(
+                            fieldWithPath("refreshToken").type(STRING).description("사용자의 refresh token(JWT)")
+                        )
                         .responseSchema(Schema.schema("ErrorResponse"))
                         .responseFields(
                             fieldWithPath("message").type(STRING).description("에러 메시지"),
@@ -206,6 +224,7 @@ class AuthDocumentationTest {
         @Test
         void reissue_fail_expired_refresh_token() throws Exception {
             // given
+            String accessToken = "jwt.access.token";
             String refreshToken = "expired.refresh.token";
 
             given(authService.reissueToken(refreshToken))
@@ -215,17 +234,26 @@ class AuthDocumentationTest {
             mockMvc.perform(
                     post("/token")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                         .content("{\"refreshToken\":\"" + refreshToken + "\"}")
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("만료된 토큰입니다."))
-                .andDo(document("재발행 - 만료된 토큰",
+                .andDo(document("token-reissue - expired token",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Auth")
+                        .summary("액세스 토큰 재발급 - 만료된 토큰")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
+                        .requestSchema(Schema.schema("ReissueTokenWebRequest"))
+                        .requestFields(
+                            fieldWithPath("refreshToken").type(STRING).description("사용자의 refresh token(JWT)")
+                        )
                         .responseSchema(Schema.schema("ErrorResponse"))
                         .responseFields(
                             fieldWithPath("message").type(STRING).description("에러 메시지"),
@@ -250,17 +278,26 @@ class AuthDocumentationTest {
             mockMvc.perform(
                     post("/token")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                         .content("{\"refreshToken\":\"" + accessToken + "\"}")
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("잘못된 토큰 타입입니다."))
-                .andDo(document("재발행 - 토큰 타입 불일치",
+                .andDo(document("token-reissue - unmatch token type",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Auth")
+                        .summary("액세스 토큰 재발급 - 토큰 타입 불일치")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
+                        .requestSchema(Schema.schema("ReissueTokenWebRequest"))
+                        .requestFields(
+                            fieldWithPath("refreshToken").type(STRING).description("사용자의 refresh token(JWT)")
+                        )
                         .responseSchema(Schema.schema("ErrorResponse"))
                         .responseFields(
                             fieldWithPath("message").type(STRING).description("에러 메시지"),
@@ -276,6 +313,7 @@ class AuthDocumentationTest {
         @Test
         void reissue_fail_unauthorized() throws Exception {
             // given
+            String accessToken = "jwt.access.token";
             String refreshToken = "another.refresh.token";
 
             given(authService.reissueToken(refreshToken))
@@ -285,17 +323,26 @@ class AuthDocumentationTest {
             mockMvc.perform(
                     post("/token")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                         .content("{\"refreshToken\":\"" + refreshToken + "\"}")
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("인증되지 않은 사용자입니다."))
-                .andDo(document("재발행 - 인증되지 않은 사용자",
+                .andDo(document("token-reissue - unauthorized user",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Auth")
+                        .summary("액세스 토큰 재발급 - 인증되지 않은 사용자")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
+                        .requestSchema(Schema.schema("ReissueTokenWebRequest"))
+                        .requestFields(
+                            fieldWithPath("refreshToken").type(STRING).description("사용자의 refresh token(JWT)")
+                        )
                         .responseSchema(Schema.schema("ErrorResponse"))
                         .responseFields(
                             fieldWithPath("message").type(STRING).description("에러 메시지"),
