@@ -42,10 +42,17 @@ public class Verdict {
     }
 
     public void judge(User juror, VerdictType type) {
+        validateIsValidVerdictType(type);
         validateIsNotCompletedJudge();
         validateIsValidJuror(juror);
 
         this.type = type;
+    }
+
+    private void validateIsValidVerdictType(VerdictType type) {
+        if (type.equals(VerdictType.PENDING)) {
+            throw new IllegalArgumentException("판결에는 PENDING을 사용할 수 없습니다.");
+        }
     }
 
     private void validateIsNotCompletedJudge() {
