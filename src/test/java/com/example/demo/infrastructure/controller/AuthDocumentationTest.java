@@ -164,13 +164,13 @@ class AuthDocumentationTest {
                             만료된 access token을 refresh token을 통해 재발급 합니다.
                             
                             - **[401]**
-                              - 액세스 토큰 재발급 - 유효하지 않은 토큰(token-reissue - invalid token)
+                              - 유효하지 않은 토큰(invalid token)
                                 - 유효하지 않은 리프레시 토큰으로 시도했을 경우
-                              - 액세스 토큰 재발급 - 만료된 토큰(token-reissue - expired token)
+                              - 만료된 토큰(expired token)
                                 - 만료된 토큰으로 시도했을 경우
-                              - 액세스 토큰 재발급 - 토큰 타입 불일치(token-reissue - unmatch token type)
+                              - 토큰 타입 불일치(unmatch token type)
                                 - 리프레시 토큰이 아닌 다른 토큰을 사용했을 경우
-                              - 액세스 토큰 재발급 - 인증되지 않은 사용자(token-reissue - unauthorized user)
+                              - 인증되지 않은 사용자(unauthorized user)
                                 - pickle의 토큰이 아닌 다른 토큰을 사용했을 경우(로그인하지 않은 경우)
                             """)
                         .requestHeaders(
@@ -211,7 +211,7 @@ class AuthDocumentationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("유효하지 않은 토큰 정보입니다."))
-                .andDo(document("token-reissue - invalid token",
+                .andDo(document("invalid token",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -255,7 +255,7 @@ class AuthDocumentationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("만료된 토큰입니다."))
-                .andDo(document("token-reissue - expired token",
+                .andDo(document("expired token",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -298,7 +298,7 @@ class AuthDocumentationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("잘못된 토큰 타입입니다."))
-                .andDo(document("token-reissue - unmatch token type",
+                .andDo(document("unmatch token type",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -342,7 +342,7 @@ class AuthDocumentationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("인증되지 않은 사용자입니다."))
-                .andDo(document("token-reissue - unauthorized user",
+                .andDo(document("unauthorized user",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
