@@ -16,11 +16,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
+import static com.epages.restdocs.apispec.ResourceDocumentation.headerWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -87,13 +89,28 @@ class MateDocumentationTest {
                 .andExpect(header().string("Location", "/mates/1"))
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.mateId").value(1))
-                .andDo(document("친구 요청 보내기",
+                .andDo(document("request-mate",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Mate")
                         .summary("친구 요청 보내기")
-                        .description("상대방의 초대코드를 이용하여 친구 요청을 보냅니다.")
+                        .description("""
+                        상대방의 초대코드를 이용하여 친구 요청을 보냅니다.
+                        
+                        - **[400]**
+                          - **존재하지 않는 초대코드(non-exists-invitation-code)**
+                            - 초대코드에 해당하는 사용자가 존재하지 않는 경우
+                          - **이미 관계 존재(already-mate)**
+                            - 이미 친구이거나 대기 중인 요청이 있는 경우
+                          - **자기 자신에게 요청(request-my-self)**
+                            - 자기 자신의 초대코드로 친구 요청을 보낸 경우
+                          - **잘못된 초대코드 형식(invalid-invitation-code)**
+                            - 초대코드가 영문 대문자 6자리 형식이 아닌 경우
+                        """)
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .requestSchema(Schema.schema("CreateMateWebRequest"))
                         .responseSchema(Schema.schema("MateCreateWebResponse"))
                         .requestFields(
@@ -122,7 +139,7 @@ class MateDocumentationTest {
         @Test
         void request_mate_fail_not_exists_invitation_code_docs() throws Exception {
             // given
-            String invitationCode = "ZZZZZZ";
+            String invitationCode = "INCODE";
             given(mateService.requestMate(eq(1L), eq(invitationCode)))
                 .willThrow(new IllegalArgumentException("존재하지 않는 초대코드입니다."));
 
@@ -139,11 +156,14 @@ class MateDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("존재하지 않는 초대코드입니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("친구 요청 보내기 - 존재하지 않는 초대코드 (초대코드에 해당하는 사용자가 존재하지 않는 경우)",
+                .andDo(document("request-mate - non-exists-invitation-code",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Mate")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .requestSchema(Schema.schema("CreateMateWebRequest"))
                         .requestFields(
                             fieldWithPath("invitationCode").type(STRING).description("상대방의 초대코드")
@@ -180,11 +200,14 @@ class MateDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("이미 친구 관계가 존재하거나 요청 대기 중입니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("친구 요청 보내기 - 이미 관계 존재 (이미 친구이거나 대기 중인 요청이 있는 경우)",
+                .andDo(document("request-mate - already-mate",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Mate")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .requestSchema(Schema.schema("CreateMateWebRequest"))
                         .requestFields(
                             fieldWithPath("invitationCode").type(STRING).description("상대방의 초대코드")
@@ -221,11 +244,14 @@ class MateDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("자기 자신에게 친구 요청을 보낼 수 없습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("친구 요청 보내기 - 자기 자신에게 요청 (자기 자신의 초대코드로 친구 요청을 보낸 경우)",
+                .andDo(document("request-mate - request-my-self",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Mate")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .requestSchema(Schema.schema("CreateMateWebRequest"))
                         .requestFields(
                             fieldWithPath("invitationCode").type(STRING).description("상대방의 초대코드")
@@ -259,11 +285,14 @@ class MateDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("올바르지 않은 초대 코드 형식입니다 (영어 대문자 6자리)"))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("친구 요청 보내기 - 잘못된 초대코드 형식 (초대코드가 영문 대문자 6자리 형식이 아닌 경우)",
+                .andDo(document("request-mate - invalid-invitation-code",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Mate")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .requestSchema(Schema.schema("CreateMateWebRequest"))
                         .requestFields(
                             fieldWithPath("invitationCode").type(STRING).description("잘못된 형식의 초대코드")
@@ -308,13 +337,22 @@ class MateDocumentationTest {
                 .andExpect(jsonPath("$[1].nickname").value("고양이dd"))
                 .andExpect(jsonPath("$[1].invitationCode").value("BBBBBB"))
                 .andExpect(jsonPath("$[1].verdictCount").value(0))
-                .andDo(document("친구 전체 조회",
+                .andDo(document("get-accepted-mates",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Mate")
                         .summary("친구 전체 조회")
-                        .description("수락된(ACCEPTED) 친구 목록을 조회합니다.")
+                        .description("""
+                        수락된(ACCEPTED) 친구 목록을 조회합니다.
+                        
+                        - **[200]**
+                          - **빈 목록(empty)**
+                            - 수락된 친구가 없는 경우 빈 배열 반환
+                        """)
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .responseSchema(Schema.schema("MateInfoWebResponse"))
                         .responseFields(
                             fieldWithPath("[].mateId").type(NUMBER)
@@ -363,11 +401,14 @@ class MateDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$").isEmpty())
-                .andDo(document("친구 전체 조회 - 빈 목록 (수락된 친구가 없는 경우 빈 배열 반환)",
+                .andDo(document("get-accepted-mates - empty",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Mate")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .responseSchema(Schema.schema("MateInfoWebResponse"))
                         .build()
                     )
@@ -404,13 +445,22 @@ class MateDocumentationTest {
                 .andExpect(jsonPath("$[1].mateId").value(4))
                 .andExpect(jsonPath("$[1].nickname").value("다람쥐ff"))
                 .andExpect(jsonPath("$[1].invitationCode").value("DDDDDD"))
-                .andDo(document("받은 친구 요청 조회",
+                .andDo(document("get-received-requests",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Mate")
                         .summary("받은 친구 요청 조회")
-                        .description("대기 중(PENDING)인 받은 친구 요청 목록을 조회합니다.")
+                        .description("""
+                        대기 중(PENDING)인 받은 친구 요청 목록을 조회합니다.
+                        
+                        - **[200]**
+                          - **빈 목록(empty)**
+                            - 대기 중인 친구 요청이 없는 경우 빈 배열 반환
+                        """)
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .responseSchema(Schema.schema("MateReceivedWebResponse"))
                         .responseFields(
                             fieldWithPath("[].mateId").type(NUMBER)
@@ -453,11 +503,14 @@ class MateDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$").isEmpty())
-                .andDo(document("받은 친구 요청 조회 - 빈 목록 (대기 중인 친구 요청이 없는 경우 빈 배열 반환)",
+                .andDo(document("get-received-requests - empty",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Mate")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .responseSchema(Schema.schema("MateReceivedWebResponse"))
                         .build()
                     )
@@ -482,13 +535,32 @@ class MateDocumentationTest {
                         .content("{\"status\":\"ACCEPTED\"}")
                 )
                 .andExpect(status().isOk())
-                .andDo(document("친구 요청 수락/거절",
+                .andDo(document("accept-mate-request",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Mate")
                         .summary("친구 요청 수락/거절")
-                        .description("받은 친구 요청을 수락 또는 거절합니다. 수신자만 수락/거절할 수 있습니다.")
+                        .description("""
+                        받은 친구 요청을 수락 또는 거절합니다. 수신자만 수락/거절할 수 있습니다.
+                        
+                        - **[200]**
+                          - **친구 요청 거절(reject)**
+                            - 친구 요청을 거절하는 경우
+                        
+                        - **[400]**
+                          - **잘못된 status로 요청(invalid-status)**
+                            - PENDING으로 상태 변경 불가능
+                          - **존재하지 않는 요청(non-exists-request)**
+                            - 친구 요청 ID에 해당하는 요청이 존재하지 않는 경우
+                          - **권한 없음(no-permission)**
+                            - 요청의 수신자가 아닌 사용자가 수락/거절을 시도한 경우
+                          - **잘못된 status 값(invalid-status)**
+                            - status 필드가 허용되지 않는 값인 경우
+                        """)
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .pathParameters(
                             parameterWithName("mateId").description("친구 요청 ID")
                         )
@@ -519,11 +591,14 @@ class MateDocumentationTest {
                         .content("{\"status\":\"REJECTED\"}")
                 )
                 .andExpect(status().isOk())
-                .andDo(document("친구 요청 거절",
+                .andDo(document("accept-mate-request - reject",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Mate")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .pathParameters(
                             parameterWithName("mateId").description("친구 요청 ID")
                         )
@@ -562,11 +637,14 @@ class MateDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("친구요청은 수락 또는 거절로만 변경 가능합니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("친구 요청 수락/거절 - 잘못된 status로 요청 (PENDING으로 상태 변경 불가능)",
+                .andDo(document("accept-mate-request - invalid-status",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Mate")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .pathParameters(
                             parameterWithName("mateId").description("친구 요청 ID")
                         )
@@ -603,11 +681,14 @@ class MateDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("존재하지 않는 친구 요청입니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("친구 요청 수락/거절 - 존재하지 않는 요청 (친구 요청 ID에 해당하는 요청이 존재하지 않는 경우)",
+                .andDo(document("accept-mate-request - non-exists-request",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Mate")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .pathParameters(
                             parameterWithName("mateId").description("친구 요청 ID")
                         )
@@ -644,11 +725,14 @@ class MateDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("친구 요청의 수신자만 수락/거절할 수 있습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("친구 요청 수락/거절 - 권한 없음 (요청의 수신자가 아닌 사용자가 수락/거절을 시도한 경우)",
+                .andDo(document("accept-mate-request - no-permission",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Mate")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .pathParameters(
                             parameterWithName("mateId").description("친구 요청 ID")
                         )
@@ -681,11 +765,14 @@ class MateDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("요청 형식이 올바르지 않습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("친구 요청 수락/거절 - 잘못된 status 값 (status 필드가 허용되지 않는 값인 경우)",
+                .andDo(document("accept-mate-request - invalid-status",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Mate")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .pathParameters(
                             parameterWithName("mateId").description("친구 요청 ID")
                         )
