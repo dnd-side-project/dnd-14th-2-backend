@@ -14,12 +14,7 @@ public record MyVerdict(
 
         return new MyVerdict(
             verdict.getId(),
-            new LedgerEntryInfo(
-                ledgerEntry.getId(),
-                ledgerEntry.getAmount(),
-                ledgerEntry.getCategory(),
-                ledgerEntry.getDescription()
-            ),
+            LedgerEntryInfo.from(ledgerEntry),
             verdict.getType()
         );
     }
