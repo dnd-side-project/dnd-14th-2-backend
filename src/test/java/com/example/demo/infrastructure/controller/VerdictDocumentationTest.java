@@ -423,11 +423,11 @@ class VerdictDocumentationTest {
                         .responseFields(
                             fieldWithPath("verdicts").type(ARRAY).description("소비 심판 목록"),
                             fieldWithPath("verdicts[].id").type(NUMBER).description("심판 ID"),
-                            fieldWithPath("verdicts[].entryInfo.id").type(NUMBER).description("소비 내역 ID"),
-                            fieldWithPath("verdicts[].entryInfo.amount").type(NUMBER).description("소비 금액"),
-                            fieldWithPath("verdicts[].entryInfo.category").type(STRING)
+                            fieldWithPath("verdicts[].ledgerEntryInfo.id").type(NUMBER).description("소비 내역 ID"),
+                            fieldWithPath("verdicts[].ledgerEntryInfo.amount").type(NUMBER).description("소비 금액"),
+                            fieldWithPath("verdicts[].ledgerEntryInfo.category").type(STRING)
                                 .description("소비 카테고리"),
-                            fieldWithPath("verdicts[].entryInfo.description").type(STRING)
+                            fieldWithPath("verdicts[].ledgerEntryInfo.description").type(STRING)
                                 .description("소비 내용"),
                             fieldWithPath("verdicts[].verdictType").type(STRING).optional()
                                 .description("판결 결과 (GUILTY / NOT_GUILTY / PENDING: 미판결)")
