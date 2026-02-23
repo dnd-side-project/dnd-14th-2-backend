@@ -4,6 +4,9 @@ on:
 jobs:
   pr-stats:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -12,4 +15,5 @@ jobs:
         uses: "naver/pr-stats@v1.0.0"
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          output: "console"
 
