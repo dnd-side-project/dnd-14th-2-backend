@@ -66,34 +66,35 @@ class AuthDocumentationTest {
 
         // when & then
         mockMvc.perform(
-                        post("/oauth/login")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"provider\":\"KAKAO\",\"idToken\":\"" + idToken + "\"}")
-                                .accept(MediaType.APPLICATION_JSON)
+                post("/oauth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"provider\":\"KAKAO\",\"idToken\":\"" + idToken + "\"}")
+                    .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.accessToken").value(accessToken))
+            .andExpect(jsonPath("$.refreshToken").value(refreshToken))
+            .andDo(document("oauth-login",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                resource(ResourceSnippetParameters.builder()
+                    .tag("Auth")
+                    .summary("소셜 로그인")
+                    .description("카카오/구글을 통해 소셜 로그인 할 수 있습니다.")
+                    .requestSchema(Schema.schema("OauthLoginWebRequest"))
+                    .responseSchema(Schema.schema("AuthTokenWebResponse"))
+                    .requestFields(
+                        fieldWithPath("provider").type(STRING).description("소셜 로그인 제공자(예: KAKAO, GOOGLE)"),
+                        fieldWithPath("idToken").type(STRING).description("OIDC ID Token")
+                    )
+                    .responseFields(
+                        fieldWithPath("accessToken").type(STRING).description("PICKLE access token(JWT)"),
+                        fieldWithPath("refreshToken").type(STRING).description("PICKLE refresh token(JWT)")
+                    )
+                    .build()
                 )
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.accessToken").value(accessToken))
-                .andExpect(jsonPath("$.refreshToken").value(refreshToken))
-                .andDo(document("oauth-login",
-                        preprocessRequest(prettyPrint()),
-                        preprocessResponse(prettyPrint()),
-                        resource(ResourceSnippetParameters.builder()
-                                .tag("Auth")
-                                .summary("소셜 로그인")
-                                .requestSchema(Schema.schema("OauthLoginWebRequest"))
-                                .responseSchema(Schema.schema("AuthTokenWebResponse"))
-                                .requestFields(
-                                        fieldWithPath("provider").type(STRING).description("소셜 로그인 제공자(예: KAKAO, GOOGLE)"),
-                                        fieldWithPath("idToken").type(STRING).description("OIDC ID Token")
-                                )
-                                .responseFields(
-                                        fieldWithPath("accessToken").type(STRING).description("PICKLE access token(JWT)"),
-                                        fieldWithPath("refreshToken").type(STRING).description("PICKLE refresh token(JWT)")
-                                )
-                                .build()
-                        )
-                ));
+            ));
     }
 
     @Test
@@ -117,6 +118,7 @@ class AuthDocumentationTest {
                 resource(ResourceSnippetParameters.builder()
                     .tag("Auth")
                     .summary("로그아웃")
+                    .description("기존 회원의 로그아웃 기능입니다.")
                     .requestHeaders(
                         headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
                     )
@@ -158,6 +160,19 @@ class AuthDocumentationTest {
                     resource(ResourceSnippetParameters.builder()
                         .tag("Auth")
                         .summary("액세스 토큰 재발급")
+                        .description("""
+                            만료된 access token을 refresh token을 통해 재발급 합니다.
+                            
+                            - **[401]**
+                              - 액세스 토큰 재발급 - 유효하지 않은 토큰(token-reissue - invalid token)
+                                - 유효하지 않은 리프레시 토큰으로 시도했을 경우
+                              - 액세스 토큰 재발급 - 만료된 토큰(token-reissue - expired token)
+                                - 만료된 토큰으로 시도했을 경우
+                              - 액세스 토큰 재발급 - 토큰 타입 불일치(token-reissue - unmatch token type)
+                                - 리프레시 토큰이 아닌 다른 토큰을 사용했을 경우
+                              - 액세스 토큰 재발급 - 인증되지 않은 사용자(token-reissue - unauthorized user)
+                                - pickle의 토큰이 아닌 다른 토큰을 사용했을 경우(로그인하지 않은 경우)
+                            """)
                         .requestHeaders(
                             headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
                         )
@@ -201,7 +216,6 @@ class AuthDocumentationTest {
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Auth")
-                        .summary("액세스 토큰 재발급 - 유효하지 않은 토큰")
                         .requestHeaders(
                             headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
                         )
@@ -246,7 +260,6 @@ class AuthDocumentationTest {
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Auth")
-                        .summary("액세스 토큰 재발급 - 만료된 토큰")
                         .requestHeaders(
                             headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
                         )
@@ -290,7 +303,6 @@ class AuthDocumentationTest {
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Auth")
-                        .summary("액세스 토큰 재발급 - 토큰 타입 불일치")
                         .requestHeaders(
                             headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
                         )
@@ -335,7 +347,6 @@ class AuthDocumentationTest {
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Auth")
-                        .summary("액세스 토큰 재발급 - 인증되지 않은 사용자")
                         .requestHeaders(
                             headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
                         )
