@@ -21,7 +21,7 @@ public record JurorVerdict(
                 defendant.getId(),
                 defendant.getNickname(),
                 defendant.getLevel(),
-                null
+                defendant.getProfile()
             ),
             new LedgerEntryInfo(
                 ledgerEntry.getId(),
