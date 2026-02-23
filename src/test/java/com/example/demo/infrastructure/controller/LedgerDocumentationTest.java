@@ -119,15 +119,16 @@ class LedgerDocumentationTest {
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
-                        .summary("""
-                        가계부 항목 생성
-                        
-                        - **[400]**
-                          - **존재하지 않는 사용자(non-exists-user)**
-                            - 가계부 항목 생성 요청 시, 사용자 정보가 존재하지 않아 생성에 실패한 경우
-                          - **잘못된 enum 값(invalid-enum)**
-                            - 가계부 항목 생성 요청에서 enum 필드(type/category/paymentMethod)가 허용되지 않는 값인 경우
-                        """)
+                        .summary("가계부 항목 생성")
+                        .description("""
+                            가계부 항목 생성
+                            
+                            - **[400]**
+                              - **존재하지 않는 사용자(non-exists-user)**
+                                - 가계부 항목 생성 요청 시, 사용자 정보가 존재하지 않아 생성에 실패한 경우
+                              - **잘못된 enum 값(invalid-enum)**
+                                - 가계부 항목 생성 요청에서 enum 필드(type/category/paymentMethod)가 허용되지 않는 값인 경우
+                            """)
                         .requestHeaders(
                             headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
                         )
@@ -338,13 +339,14 @@ class LedgerDocumentationTest {
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
-                        .summary("""
-                        가계부 항목 단건 조회
-                        
-                        - **[400]**
-                          - **항목 없음(non-exists-ledger-entry)**
-                            - 조회하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우
-                        """)
+                        .summary("가계부 항목 단건 조회")
+                        .description("""
+                            가계부 항목 단건 조회
+                            
+                            - **[400]**
+                              - **항목 없음(non-exists-ledger-entry)**
+                                - 조회하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우
+                            """)
                         .requestHeaders(
                             headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
                         )
@@ -463,15 +465,16 @@ class LedgerDocumentationTest {
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
-                        .summary("""
-                        가계부 메모 수정
-                        
-                        - **[400]**
-                          - **항목 없음(non-exists-ledger-entry)**
-                            - 수정하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우
-                          - **길이 초과(exceed-max-length)**
-                            - 메모가 최대 길이(100자)를 초과한 경우
-                        """)
+                        .summary("가계부 메모 수정")
+                        .description("""
+                            가계부 메모를 수정합니다.
+                            
+                            - **[400]**
+                              - **항목 없음(non-exists-ledger-entry)**
+                                - 수정하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우
+                              - **길이 초과(exceed-max-length)**
+                                - 메모가 최대 길이(100자)를 초과한 경우
+                            """)
                         .requestHeaders(
                             headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
                         )
@@ -604,15 +607,16 @@ class LedgerDocumentationTest {
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
-                        .summary("""
-                        가계부 항목 전체 수정
-                        
-                        - **[400]**
-                          - **항목 없음(non-exists-ledger-entry)**
-                            - 수정하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우
-                          - **요청 값 오류(invalid-enum)**
-                            - 가계부 항목 수정 요청에서 enum 필드가 허용되지 않는 값인 경우
-                        """)
+                        .summary("가계부 항목 전체 수정")
+                        .description("""
+                            가계부 항목 전체 수정
+                            
+                            - **[400]**
+                              - **항목 없음(non-exists-ledger-entry)**
+                                - 수정하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우
+                              - **요청 값 오류(invalid-enum)**
+                                - 가계부 항목 수정 요청에서 enum 필드가 허용되지 않는 값인 경우
+                            """)
                         .requestHeaders(
                             headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
                         )
@@ -828,13 +832,14 @@ class LedgerDocumentationTest {
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
-                        .summary("""
-                        가계부 항목 삭제
-                        
-                        - **[400]**
-                          - **항목 없음(non-exists-ledger-entry)**
-                            - 삭제하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우
-                        """)
+                        .summary("가계부 항목 삭제")
+                        .description("""
+                            가계부 항목을 삭제합니다.
+                            
+                            - **[400]**
+                              - **항목 없음(non-exists-ledger-entry)**
+                                - 삭제하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우
+                            """)
                         .requestHeaders(
                             headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
                         )
@@ -918,15 +923,16 @@ class LedgerDocumentationTest {
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
-                        .summary("""
-                        가계부 요약 조회
-                        
-                        - **[400]**
-                          - **날짜 형식 오류(wrong-date-format)**
-                            - 날짜 파라미터(start, end)가 yyyy-MM-dd 형식이 아니거나 유효하지 않은 날짜인 경우
-                          - **날짜 파라미터 누락(missing-date-param)**
-                            - 필수 쿼리 파라미터(start 또는 end)가 누락된 경우
-                        """)
+                        .summary("가계부 요약 조회")
+                        .description("""
+                            가계부 정보를 요약하여 조회합니다.
+                            
+                            - **[400]**
+                              - **날짜 형식 오류(wrong-date-format)**
+                                - 날짜 파라미터(start, end)가 yyyy-MM-dd 형식이 아니거나 유효하지 않은 날짜인 경우
+                              - **날짜 파라미터 누락(missing-date-param)**
+                                - 필수 쿼리 파라미터(start 또는 end)가 누락된 경우
+                            """)
                         .requestHeaders(
                             headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
                         )
@@ -1050,7 +1056,8 @@ class LedgerDocumentationTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value(containsString("필수 요청 파라미터가 누락되었습니다"))).andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.message").value(containsString("필수 요청 파라미터가 누락되었습니다")))
+                .andExpect(jsonPath("$.timestamp").exists())
                 .andDo(document("get-ledger-summary - missing-date-param",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),

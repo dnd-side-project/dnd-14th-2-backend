@@ -84,20 +84,20 @@ class UserDocumentationTest {
                         .tag("User")
                         .summary("닉네임 변경")
                         .description("""
-                        로그인한 사용자의 닉네임을 변경합니다.
-                        
-                        - **[400]**
-                          - **존재하지 않는 사용자(non-exists-user)**
-                            - access token 속 사용자 정보가 존재하지 않는 경우
-                          - **중복되는 닉네임(duplicate-nickname)**
-                            - 새로운 닉네임이 기존에 존재하는 닉네임과 중복되는 경우
-                          - **비어있는 닉네임(empty-nickname)**
-                            - 새로운 닉네임이 비어있는 경우
-                          - **닉네임 최대 길이 초과(exceed-max-length)**
-                            - 새로운 닉네임의 길이가 제한을 초과했을 경우
-                          - **형식 불일치(wrong-format)**
-                            - 새로운 닉네임의 형식이 맞지 않을 경우
-                        """)
+                            로그인한 사용자의 닉네임을 변경합니다.
+                            
+                            - **[400]**
+                              - **존재하지 않는 사용자(non-exists-user)**
+                                - access token 속 사용자 정보가 존재하지 않는 경우
+                              - **중복되는 닉네임(duplicate-nickname)**
+                                - 새로운 닉네임이 기존에 존재하는 닉네임과 중복되는 경우
+                              - **비어있는 닉네임(empty-nickname)**
+                                - 새로운 닉네임이 비어있는 경우
+                              - **닉네임 최대 길이 초과(exceed-max-length)**
+                                - 새로운 닉네임의 길이가 제한을 초과했을 경우
+                              - **형식 불일치(wrong-format)**
+                                - 새로운 닉네임의 형식이 맞지 않을 경우
+                            """)
                         .requestHeaders(
                             headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
                         )
@@ -424,7 +424,7 @@ class UserDocumentationTest {
                                 - 만료된 access token으로 요청한 경우
                               - **유효하지 않은 토큰(invalid-token)**
                                 - 위조/변조/형식 오류 등 유효하지 않은 access token으로 요청한 경우
-                                
+                            
                             - **[400]**
                               - **존재하지 않는 사용자(non-exists-user)**
                                 - 로그인한 사용자의 정보를 조회할 때, 사용자 정보가 존재하지 않아 실패한 경우

@@ -96,18 +96,18 @@ class MateDocumentationTest {
                         .tag("Mate")
                         .summary("친구 요청 보내기")
                         .description("""
-                        상대방의 초대코드를 이용하여 친구 요청을 보냅니다.
-                        
-                        - **[400]**
-                          - **존재하지 않는 초대코드(non-exists-invitation-code)**
-                            - 초대코드에 해당하는 사용자가 존재하지 않는 경우
-                          - **이미 관계 존재(already-mate)**
-                            - 이미 친구이거나 대기 중인 요청이 있는 경우
-                          - **자기 자신에게 요청(request-my-self)**
-                            - 자기 자신의 초대코드로 친구 요청을 보낸 경우
-                          - **잘못된 초대코드 형식(invalid-invitation-code)**
-                            - 초대코드가 영문 대문자 6자리 형식이 아닌 경우
-                        """)
+                            상대방의 초대코드를 이용하여 친구 요청을 보냅니다.
+                            
+                            - **[400]**
+                              - **존재하지 않는 초대코드(non-exists-invitation-code)**
+                                - 초대코드에 해당하는 사용자가 존재하지 않는 경우
+                              - **이미 관계 존재(already-mate)**
+                                - 이미 친구이거나 대기 중인 요청이 있는 경우
+                              - **자기 자신에게 요청(request-my-self)**
+                                - 자기 자신의 초대코드로 친구 요청을 보낸 경우
+                              - **잘못된 초대코드 형식(invalid-invitation-code)**
+                                - 초대코드가 영문 대문자 6자리 형식이 아닌 경우
+                            """)
                         .requestHeaders(
                             headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
                         )
@@ -344,12 +344,12 @@ class MateDocumentationTest {
                         .tag("Mate")
                         .summary("친구 전체 조회")
                         .description("""
-                        수락된(ACCEPTED) 친구 목록을 조회합니다.
-                        
-                        - **[200]**
-                          - **빈 목록(empty)**
-                            - 수락된 친구가 없는 경우 빈 배열 반환
-                        """)
+                            수락된(ACCEPTED) 친구 목록을 조회합니다.
+                            
+                            - **[200]**
+                              - **빈 목록(empty)**
+                                - 수락된 친구가 없는 경우 빈 배열 반환
+                            """)
                         .requestHeaders(
                             headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
                         )
@@ -452,12 +452,12 @@ class MateDocumentationTest {
                         .tag("Mate")
                         .summary("받은 친구 요청 조회")
                         .description("""
-                        대기 중(PENDING)인 받은 친구 요청 목록을 조회합니다.
-                        
-                        - **[200]**
-                          - **빈 목록(empty)**
-                            - 대기 중인 친구 요청이 없는 경우 빈 배열 반환
-                        """)
+                            대기 중(PENDING)인 받은 친구 요청 목록을 조회합니다.
+                            
+                            - **[200]**
+                              - **빈 목록(empty)**
+                                - 대기 중인 친구 요청이 없는 경우 빈 배열 반환
+                            """)
                         .requestHeaders(
                             headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
                         )
@@ -542,22 +542,22 @@ class MateDocumentationTest {
                         .tag("Mate")
                         .summary("친구 요청 수락/거절")
                         .description("""
-                        받은 친구 요청을 수락 또는 거절합니다. 수신자만 수락/거절할 수 있습니다.
-                        
-                        - **[200]**
-                          - **친구 요청 거절(reject)**
-                            - 친구 요청을 거절하는 경우
-                        
-                        - **[400]**
-                          - **잘못된 status로 요청(invalid-status)**
-                            - PENDING으로 상태 변경 불가능
-                          - **존재하지 않는 요청(non-exists-request)**
-                            - 친구 요청 ID에 해당하는 요청이 존재하지 않는 경우
-                          - **권한 없음(no-permission)**
-                            - 요청의 수신자가 아닌 사용자가 수락/거절을 시도한 경우
-                          - **잘못된 status 값(invalid-status)**
-                            - status 필드가 허용되지 않는 값인 경우
-                        """)
+                            받은 친구 요청을 수락 또는 거절합니다. 수신자만 수락/거절할 수 있습니다.
+                            
+                            - **[200]**
+                              - **친구 요청 거절(reject)**
+                                - 친구 요청을 거절하는 경우
+                            
+                            - **[400]**
+                              - **잘못된 status로 요청(invalid-status)**
+                                - PENDING으로 상태 변경 불가능
+                              - **존재하지 않는 요청(non-exists-request)**
+                                - 친구 요청 ID에 해당하는 요청이 존재하지 않는 경우
+                              - **권한 없음(no-permission)**
+                                - 요청의 수신자가 아닌 사용자가 수락/거절을 시도한 경우
+                              - **잘못된 status 값(invalid-status)**
+                                - status 필드가 허용되지 않는 값인 경우
+                            """)
                         .requestHeaders(
                             headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
                         )

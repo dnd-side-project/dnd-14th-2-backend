@@ -96,7 +96,7 @@ class VerdictDocumentationTest {
                             - **[401]**
                               - **유효하지 않은 토큰(invalid-token)**
                                 - 위조/변조/형식 오류 등 유효하지 않은 access token으로 요청한 경우
-                                
+                            
                             - **[400]**
                               - **존재하지 않는 가계부 항목(non-exists-ledger-entry)**
                                 - 소비 심판을 요청할 가계 항목이 존재하지 않을 경우
@@ -223,18 +223,18 @@ class VerdictDocumentationTest {
                         .tag("Verdict")
                         .summary("소비 심판 판결")
                         .description("""
-                        배정된 소비 심판에 대해 판결합니다.
-                        
-                        - **[401]**
-                          - **유효하지 않은 토큰(invalid-token)**
-                            - 위조/변조/형식 오류 등 유효하지 않은 access token으로 요청한 경우
+                            배정된 소비 심판에 대해 판결합니다.
                             
-                        - **[400]**
-                          - **판결 권한 없음(no-permission)**
-                            - 판결할 권한이 없는 경우 ex. 친구가 아니다.
-                          - **이미 판결된 심판(already-judged)**
-                            - 이미 판결되어진 심판에 대해 다시 판결할 경우
-                        """)
+                            - **[401]**
+                              - **유효하지 않은 토큰(invalid-token)**
+                                - 위조/변조/형식 오류 등 유효하지 않은 access token으로 요청한 경우
+                            
+                            - **[400]**
+                              - **판결 권한 없음(no-permission)**
+                                - 판결할 권한이 없는 경우 ex. 친구가 아니다.
+                              - **이미 판결된 심판(already-judged)**
+                                - 이미 판결되어진 심판에 대해 다시 판결할 경우
+                            """)
                         .requestHeaders(
                             headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
                         )
@@ -530,12 +530,12 @@ class VerdictDocumentationTest {
                         .tag("Verdict")
                         .summary("내가 판결해야 할 소비 심판 목록 조회")
                         .description("""
-                        내가 배심원으로 배정된 소비 심판 목록을 조회합니다.
-                        
-                        - **[401]**
-                          - **유효하지 않은 토큰(invalid-token)**
-                            - 위조/변조/형식 오류 등 유효하지 않은 access token으로 요청한 경우
-                        """)
+                            내가 배심원으로 배정된 소비 심판 목록을 조회합니다.
+                            
+                            - **[401]**
+                              - **유효하지 않은 토큰(invalid-token)**
+                                - 위조/변조/형식 오류 등 유효하지 않은 access token으로 요청한 경우
+                            """)
                         .requestHeaders(
                             headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
                         )
