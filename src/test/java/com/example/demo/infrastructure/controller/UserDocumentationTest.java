@@ -87,15 +87,15 @@ class UserDocumentationTest {
                         로그인한 사용자의 닉네임을 변경합니다.
                         
                         - **[400]**
-                          - 존재하지 않는 사용자(non-exists-user)
+                          - **존재하지 않는 사용자(non-exists-user)**
                             - access token 속 사용자 정보가 존재하지 않는 경우
-                          - 중복되는 닉네임(duplicate-nickname)
+                          - **중복되는 닉네임(duplicate-nickname)**
                             - 새로운 닉네임이 기존에 존재하는 닉네임과 중복되는 경우
-                          - 비어있는 닉네임(empty-nickname)
+                          - **비어있는 닉네임(empty-nickname)**
                             - 새로운 닉네임이 비어있는 경우
-                          - 닉네임 최대 길이 초과(max-length-excced)
+                          - **닉네임 최대 길이 초과(max-length-excced)**
                             - 새로운 닉네임의 길이가 제한을 초과했을 경우
-                          - 형식 불일치(wrong-format)
+                          - **형식 불일치(wrong-format)**
                             - 새로운 닉네임의 형식이 맞지 않을 경우
                         """)
                         .requestHeaders(
@@ -139,7 +139,7 @@ class UserDocumentationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("존재하지 않는 사용자입니다."))
-                .andDo(document("non-exists-user",
+                .andDo(document("change-nickname - non-exists-user",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -186,7 +186,7 @@ class UserDocumentationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("중복되는 닉네임입니다."))
-                .andDo(document("duplicate-nickname",
+                .andDo(document("change-nickname - duplicate-nickname",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -230,7 +230,7 @@ class UserDocumentationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("닉네임은 비어있을 수 없습니다."))
-                .andDo(document("empty-nickname",
+                .andDo(document("change-nickname - empty-nickname",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -275,7 +275,7 @@ class UserDocumentationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("닉네임은 5자 이내여야 합니다."))
-                .andDo(document("max-length-excced",
+                .andDo(document("change-nickname - max-length-excced",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -322,7 +322,7 @@ class UserDocumentationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("닉네임은 한글, 숫자, 영어 소문자로만 이루어져야 합니다."))
-                .andDo(document("wrong-format",
+                .andDo(document("change-nickname - wrong-format",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -420,13 +420,13 @@ class UserDocumentationTest {
                             로그인한 사용자의 정보를 조회합니다.
                             
                             - **[401]**
-                              - 만료된 토큰(expired-token)
+                              - **만료된 토큰(expired-token)**
                                 - 만료된 access token으로 요청한 경우
-                              - 유효하지 않은 토큰(invalid-token)
+                              - **유효하지 않은 토큰(invalid-token)**
                                 - 위조/변조/형식 오류 등 유효하지 않은 access token으로 요청한 경우
                                 
                             - **[400]**
-                              - 존재하지 않는 사용자(non-exists-user)
+                              - **존재하지 않는 사용자(non-exists-user)**
                                 - 로그인한 사용자의 정보를 조회할 때, 사용자 정보가 존재하지 않아 실패한 경우
                             """)
                         .requestHeaders(
@@ -462,7 +462,7 @@ class UserDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("만료된 토큰입니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("expired-token",
+                .andDo(document("get-user-info - expired-token",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -497,7 +497,7 @@ class UserDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("유효하지 않은 토큰 정보입니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("invalid-token",
+                .andDo(document("get-user-info - invalid-token",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
@@ -536,7 +536,7 @@ class UserDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("존재하지 않는 사용자입니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("non-exists-user",
+                .andDo(document("get-user-info - non-exists-user",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
