@@ -93,7 +93,7 @@ class UserDocumentationTest {
                             - 새로운 닉네임이 기존에 존재하는 닉네임과 중복되는 경우
                           - **비어있는 닉네임(empty-nickname)**
                             - 새로운 닉네임이 비어있는 경우
-                          - **닉네임 최대 길이 초과(max-length-excced)**
+                          - **닉네임 최대 길이 초과(exceed-max-length)**
                             - 새로운 닉네임의 길이가 제한을 초과했을 경우
                           - **형식 불일치(wrong-format)**
                             - 새로운 닉네임의 형식이 맞지 않을 경우
@@ -275,7 +275,7 @@ class UserDocumentationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("닉네임은 5자 이내여야 합니다."))
-                .andDo(document("change-nickname - max-length-excced",
+                .andDo(document("change-nickname - exceed-max-length",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
