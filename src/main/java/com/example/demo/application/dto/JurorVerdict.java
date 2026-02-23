@@ -17,18 +17,8 @@ public record JurorVerdict(
 
         return new JurorVerdict(
             verdict.getId(),
-            new UserInfo(
-                defendant.getId(),
-                defendant.getNickname(),
-                defendant.getLevel(),
-                defendant.getProfile()
-            ),
-            new LedgerEntryInfo(
-                ledgerEntry.getId(),
-                ledgerEntry.getAmount(),
-                ledgerEntry.getCategory(),
-                ledgerEntry.getDescription()
-            ),
+            UserInfo.from(defendant),
+            LedgerEntryInfo.from(ledgerEntry),
             verdict.getType()
         );
     }
