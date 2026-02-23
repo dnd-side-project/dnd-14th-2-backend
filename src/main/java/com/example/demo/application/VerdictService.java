@@ -6,6 +6,7 @@ import com.example.demo.domain.LedgerEntry;
 import com.example.demo.domain.LedgerEntryRepository;
 import com.example.demo.domain.Mate;
 import com.example.demo.domain.MateRepository;
+import com.example.demo.domain.MateStatus;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
 import com.example.demo.domain.Verdict;
@@ -32,7 +33,7 @@ public class VerdictService {
 
         User me = ledgerEntry.getUser();
 
-        List<Mate> acceptedMates = mateRepository.findAcceptedMates(userId);
+        List<Mate> acceptedMates = mateRepository.findMates(userId, MateStatus.ACCEPTED);
         validateIsNotEmptyMate(acceptedMates);
         acceptedMates.stream()
             .map(mate -> mate.getOtherUser(me))

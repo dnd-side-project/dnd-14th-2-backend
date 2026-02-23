@@ -1,5 +1,6 @@
 package com.example.demo.domain;
 
+import com.example.demo.domain.enums.MateStatus;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.Query;
@@ -11,12 +12,10 @@ public interface MateRepository extends Repository<Mate, Long> {
     Mate save(Mate mate);
 
     @Query("""
-        select m from Mate m where (m.requester.id = :id or m.receiver.id = :id)
-            and m.status = 'ACCEPTED'
+        select m from Mate m join fetch m.requester join fetch m.receiver
+             where (m.requester.id = :id or m.receiver.id = :id) and m.status = :status
         """)
-    List<Mate> findAcceptedMates(@Param("id") Long userId);
-
-    Mate save(Mate mate);
+    List<Mate> findMates(@Param("id") Long userId, @Param("status") MateStatus mateStatus);
 
     Optional<Mate> findById(Long id);
 
