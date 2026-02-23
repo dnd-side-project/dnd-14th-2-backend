@@ -385,7 +385,7 @@ class UserDocumentationTest {
                         .responseFields(
                             fieldWithPath("id").type(NUMBER).description("사용자의 id"),
                             fieldWithPath("nickname").type(STRING).description("사용자 닉네임 (설정하지 않은 경우 랜덤 닉네임)"),
-                            fieldWithPath("level").type(NUMBER).description("사용자 레벨 (기본값: 1)")
+                            fieldWithPath("level").type(NUMBER).description("사용자 레벨 (기본값: 0)")
                         )
                         .build()
                     )
