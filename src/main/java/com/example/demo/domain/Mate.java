@@ -68,4 +68,10 @@ public class Mate extends BaseEntity {
         }
         this.status = MateStatus.REJECTED;
     }
+
+    public User getOtherUser(User me) {
+        if (requester.equals(me)) return receiver;
+        if (receiver.equals(me)) return requester;
+        throw new IllegalArgumentException("친구 관계에 해당하지 않습니다.");
+    }
 }

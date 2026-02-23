@@ -1,5 +1,6 @@
 package com.example.demo.domain;
 
+import com.example.demo.domain.enums.MateStatus;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.Query;
@@ -11,6 +12,12 @@ public interface MateRepository extends Repository<Mate, Long> {
     Mate save(Mate mate);
 
     Optional<Mate> findById(Long id);
+
+    @Query("""
+        select m from Mate m join fetch m.requester join fetch m.receiver
+             where (m.requester.id = :id or m.receiver.id = :id) and m.status = :status
+        """)
+    List<Mate> findMates(@Param("id") Long userId, @Param("status") MateStatus mateStatus);
 
     @Query("SELECT COUNT(m) > 0 FROM Mate m " +
         "WHERE ((m.requester.id = :user1Id AND m.receiver.id = :user2Id) " +
