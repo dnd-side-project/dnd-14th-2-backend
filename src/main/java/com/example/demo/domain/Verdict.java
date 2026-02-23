@@ -1,5 +1,6 @@
 package com.example.demo.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -23,14 +24,15 @@ public class Verdict {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ledger_entry_id", referencedColumnName = "id")
+    @JoinColumn(name = "ledger_entry_id", referencedColumnName = "id", nullable = false)
     private LedgerEntry ledgerEntry;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "juror_id", referencedColumnName = "id")
+    @JoinColumn(name = "juror_id", referencedColumnName = "id", nullable = false)
     private User juror;
 
     @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
     private VerdictType type;
 
     public Verdict(LedgerEntry ledgerEntry, User juror) {
@@ -40,8 +42,8 @@ public class Verdict {
     }
 
     public void judge(User juror, VerdictType type) {
-        validateIsValidJuror(juror);
         validateIsNotCompletedJudge();
+        validateIsValidJuror(juror);
 
         this.type = type;
     }
