@@ -444,7 +444,6 @@ class LedgerDocumentationTest {
         }
     }
 
-
     @Nested
     @DisplayName("가계부 메모 수정")
     class UpdateLedgerMemo {
