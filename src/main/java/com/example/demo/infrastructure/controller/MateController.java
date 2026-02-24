@@ -5,6 +5,7 @@ import com.example.demo.infrastructure.controller.dto.CreateMateWebRequest;
 import com.example.demo.infrastructure.controller.dto.MateCreateWebResponse;
 import com.example.demo.infrastructure.controller.dto.MateInfoWebResponse;
 import com.example.demo.infrastructure.controller.dto.MateReceivedWebResponse;
+import com.example.demo.infrastructure.controller.dto.MateUpdateWebResponse;
 import com.example.demo.infrastructure.controller.dto.UpdateMateStatusWebRequest;
 import com.example.demo.infrastructure.interceptor.UserId;
 import jakarta.validation.Valid;
@@ -54,12 +55,12 @@ public class MateController {
     }
 
     @PatchMapping("/mates/{mateId}")
-    public ResponseEntity<Void> updateMateStatus(
+    public ResponseEntity<MateUpdateWebResponse> updateMateStatus(
         @UserId Long userId,
         @PathVariable Long mateId,
         @Valid @RequestBody UpdateMateStatusWebRequest request
     ) {
         mateService.updateMateStatus(mateId, userId, request.status());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(new MateUpdateWebResponse(mateId));
     }
 }

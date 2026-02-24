@@ -3,13 +3,20 @@ package com.example.demo.application;
 import com.example.demo.application.dto.MateInfo;
 import com.example.demo.application.dto.MateReceivedInfo;
 import com.example.demo.domain.InvitationCode;
+import com.example.demo.domain.LedgerEntry;
+import com.example.demo.domain.LedgerEntryRepository;
 import com.example.demo.domain.Mate;
 import com.example.demo.domain.MateRepository;
 import com.example.demo.domain.Nickname;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
+import com.example.demo.domain.VerdictRepository;
+import com.example.demo.domain.enums.LedgerCategory;
+import com.example.demo.domain.enums.LedgerType;
 import com.example.demo.domain.enums.MateStatus;
+import com.example.demo.domain.enums.PaymentMethod;
 import com.example.demo.util.AbstractIntegrationTest;
+import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -30,6 +37,12 @@ class MateServiceTest extends AbstractIntegrationTest {
 
     @Autowired
     MateRepository mateRepository;
+
+    @Autowired
+    VerdictRepository verdictRepository;
+
+    @Autowired
+    LedgerEntryRepository ledgerEntryRepository;
 
     @Nested
     @DisplayName("친구 요청")
@@ -144,6 +157,45 @@ class MateServiceTest extends AbstractIntegrationTest {
             assertThat(result).hasSize(1);
             assertThat(result.get(0).nickname()).isEqualTo("상대방");
             assertThat(result.get(0).invitationCode()).isEqualTo("FFFFFF");
+        }
+
+        @Test
+        void 친구와_함께한_심판_횟수가_반환된다() {
+            // given
+            User me = givenSavedUser(userRepository);
+            User friend1 = givenSavedUser(userRepository, new Nickname("친구1"), new InvitationCode("FFAAAA"));
+            User friend2 = givenSavedUser(userRepository, new Nickname("친구2"), new InvitationCode("FFBBBB"));
+
+            Long mateId1 = sut.requestMate(me.getId(), "FFAAAA");
+            Long mateId2 = sut.requestMate(me.getId(), "FFBBBB");
+            acceptMate(mateId1);
+            acceptMate(mateId2);
+
+            // 내 가계부 항목에 friend1이 배심원인 심판 2건
+            LedgerEntry myEntry1 = ledgerEntryRepository.save(
+                new LedgerEntry(10000L, LedgerType.EXPENSE, LedgerCategory.FOOD, "점심", LocalDate.now(), PaymentMethod.CASH, null, me));
+            verdictRepository.save(myEntry1.requestVerdict(friend1));
+
+            LedgerEntry myEntry2 = ledgerEntryRepository.save(
+                new LedgerEntry(20000L, LedgerType.EXPENSE, LedgerCategory.SHOPPING, "옷", LocalDate.now(), PaymentMethod.CREDIT_CARD, null, me));
+            verdictRepository.save(myEntry2.requestVerdict(friend1));
+
+            // friend1의 가계부 항목에 내가 배심원인 심판 1건
+            LedgerEntry friendEntry = ledgerEntryRepository.save(
+                new LedgerEntry(5000L, LedgerType.EXPENSE, LedgerCategory.FOOD, "커피", LocalDate.now(), PaymentMethod.CASH, null, friend1));
+            verdictRepository.save(friendEntry.requestVerdict(me));
+
+            // when
+            List<MateInfo> result = sut.getAcceptedMates(me.getId());
+
+            // then
+            assertThat(result).hasSize(2);
+            MateInfo friend1Info = result.stream()
+                .filter(m -> m.nickname().equals("친구1")).findFirst().orElseThrow();
+            MateInfo friend2Info = result.stream()
+                .filter(m -> m.nickname().equals("친구2")).findFirst().orElseThrow();
+            assertThat(friend1Info.verdictCount()).isEqualTo(3);
+            assertThat(friend2Info.verdictCount()).isEqualTo(0);
         }
 
         @Test

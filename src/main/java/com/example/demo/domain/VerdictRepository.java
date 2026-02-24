@@ -23,4 +23,20 @@ public interface VerdictRepository extends Repository<Verdict, Long> {
         select v from Verdict v where v.juror.id = :userId
         """)
     List<Verdict> findJurorVerdicts(@Param("userId") Long userId);
+
+    @Query("""
+        SELECT new com.example.demo.domain.FriendVerdictCount(v.juror.id, COUNT(v))
+        FROM Verdict v
+        WHERE v.ledgerEntry.user.id = :userId
+        GROUP BY v.juror.id
+        """)
+    List<FriendVerdictCount> countVerdictsAsOwner(@Param("userId") Long userId);
+
+    @Query("""
+        SELECT new com.example.demo.domain.FriendVerdictCount(v.ledgerEntry.user.id, COUNT(v))
+        FROM Verdict v
+        WHERE v.juror.id = :userId
+        GROUP BY v.ledgerEntry.user.id
+        """)
+    List<FriendVerdictCount> countVerdictsAsJuror(@Param("userId") Long userId);
 }

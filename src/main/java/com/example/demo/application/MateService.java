@@ -3,11 +3,16 @@ package com.example.demo.application;
 import com.example.demo.application.dto.MateInfo;
 import com.example.demo.application.dto.MateReceivedInfo;
 import com.example.demo.domain.Mate;
+import com.example.demo.domain.FriendVerdictCount;
 import com.example.demo.domain.MateRepository;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
+import com.example.demo.domain.VerdictRepository;
 import com.example.demo.domain.enums.MateStatus;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +23,7 @@ public class MateService {
 
     private final MateRepository mateRepository;
     private final UserRepository userRepository;
+    private final VerdictRepository verdictRepository;
 
     @Transactional
     public Long requestMate(Long userId, String invitationCode) {
@@ -35,12 +41,21 @@ public class MateService {
 
     @Transactional(readOnly = true)
     public List<MateInfo> getAcceptedMates(Long userId) {
+        Map<Long, Long> verdictCounts = Stream.concat(
+                verdictRepository.countVerdictsAsOwner(userId).stream(),
+                verdictRepository.countVerdictsAsJuror(userId).stream()
+            ).collect(Collectors.toMap(
+                FriendVerdictCount::friendId,
+                FriendVerdictCount::count,
+                Long::sum
+            ));
+
         return mateRepository.findAllAcceptedWithFriend(userId).stream()
             .map(result -> new MateInfo(
                 result.mate().getId(),
                 result.friend().getNickname(),
                 result.friend().getInvitationCode().value(),
-                0 // TODO: 함께한 심판 횟수를 조회하여 반환
+                verdictCounts.getOrDefault(result.friend().getId(), 0L).intValue()
             ))
             .toList();
     }
