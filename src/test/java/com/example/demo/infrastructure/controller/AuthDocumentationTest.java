@@ -162,13 +162,13 @@ class AuthDocumentationTest {
                             만료된 access token을 refresh token을 통해 재발급 합니다.
                             
                             - **[401]**
-                              - **유효하지 않은 토큰(invalid token)**
+                              - **유효하지 않은 토큰(invalid-token)**
                                 - 유효하지 않은 리프레시 토큰으로 시도했을 경우
-                              - **만료된 토큰(expired token)**
+                              - **만료된 토큰(expired-token)**
                                 - 만료된 토큰으로 시도했을 경우
-                              - **토큰 타입 불일치(unmatch token type)**
+                              - **토큰 타입 불일치(unmatch-token-type)**
                                 - 리프레시 토큰이 아닌 다른 토큰을 사용했을 경우
-                              - **인증되지 않은 사용자(unauthorized user)**
+                              - **인증되지 않은 사용자(unauthorized-user)**
                                 - 리프레시 토큰 인증에 실패했을 경우 ex. 다른 서버의 리프레시 토큰
                             """)
                         .requestSchema(Schema.schema("ReissueTokenWebRequest"))
