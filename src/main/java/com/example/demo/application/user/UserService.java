@@ -29,7 +29,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserInfo getUserInfo(Long userId) {
         User user = findUserById(userId);
-        return new UserInfo(user.getId(), user.getNickname(), user.getLevel(), user.getProfile(), user.getInvitationCode().value());
+        return UserInfo.from(user);
     }
 
     @Transactional
