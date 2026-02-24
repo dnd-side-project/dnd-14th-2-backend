@@ -18,6 +18,7 @@ public record MyVerdictWebResponse(
                 ledgerEntryInfo.id(),
                 ledgerEntryInfo.amount(),
                 ledgerEntryInfo.category(),
+                ledgerEntryInfo.paymentMethod(),
                 ledgerEntryInfo.description()
             ),
             myVerdict.verdictType()

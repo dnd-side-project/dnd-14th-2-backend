@@ -3,6 +3,7 @@ package com.example.demo.infrastructure.controller;
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.ResourceDocumentation.headerWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import static com.example.demo.util.RestDocsUtils.allowedValues;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
@@ -36,6 +37,7 @@ import com.example.demo.application.exception.UnauthorizedException;
 import com.example.demo.application.oauth.TokenProvider;
 import com.example.demo.domain.VerdictType;
 import com.example.demo.domain.enums.LedgerCategory;
+import com.example.demo.domain.enums.PaymentMethod;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -46,6 +48,7 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -410,8 +413,8 @@ class VerdictDocumentationTest {
             String accessToken = "test-access-token";
 
             MyVerdicts myVerdicts = new MyVerdicts(List.of(
-                new MyVerdict(1L, new LedgerEntryInfo(1L, 7000L, LedgerCategory.FOOD, "커피"), VerdictType.GUILTY),
-                new MyVerdict(2L, new LedgerEntryInfo(2L, 15000L, LedgerCategory.FOOD, "점심"), VerdictType.PENDING)
+                new MyVerdict(1L, new LedgerEntryInfo(1L, 7000L, LedgerCategory.FOOD, PaymentMethod.CREDIT_CARD, "커피"), VerdictType.GUILTY),
+                new MyVerdict(2L, new LedgerEntryInfo(2L, 15000L, LedgerCategory.FOOD, PaymentMethod.CREDIT_CARD, "점심"), VerdictType.PENDING)
             ));
 
             given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
@@ -448,6 +451,8 @@ class VerdictDocumentationTest {
                             fieldWithPath("verdicts[].ledgerEntryInfo.amount").type(NUMBER).description("소비 금액"),
                             fieldWithPath("verdicts[].ledgerEntryInfo.category").type(STRING)
                                 .description("소비 카테고리"),
+                            fieldWithPath("verdicts[].ledgerEntryInfo.paymentMethod").type(STRING)
+                                .description("결제 수단. " + allowedValues(PaymentMethod.class)),
                             fieldWithPath("verdicts[].ledgerEntryInfo.description").type(STRING)
                                 .description("소비 내용"),
                             fieldWithPath("verdicts[].verdictType").type(STRING).optional()
@@ -551,6 +556,8 @@ class VerdictDocumentationTest {
                             fieldWithPath("jurorVerdicts[].ledgerEntryInfo.amount").type(NUMBER).description("소비 금액"),
                             fieldWithPath("jurorVerdicts[].ledgerEntryInfo.category").type(STRING)
                                 .description("소비 카테고리"),
+                            fieldWithPath("jurorVerdicts[].ledgerEntryInfo.paymentMethod").type(STRING)
+                                .description("결제 수단. " + allowedValues(PaymentMethod.class)),
                             fieldWithPath("jurorVerdicts[].ledgerEntryInfo.description").type(STRING)
                                 .description("소비 내용"),
                             fieldWithPath("jurorVerdicts[].verdictType").type(STRING).optional()

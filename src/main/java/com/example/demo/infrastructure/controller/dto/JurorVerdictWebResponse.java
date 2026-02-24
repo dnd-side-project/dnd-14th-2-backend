@@ -25,6 +25,7 @@ public record JurorVerdictWebResponse(
                 entry.id(),
                 entry.amount(),
                 entry.category(),
+                entry.paymentMethod(),
                 entry.description()
             ),
             verdict.verdictType()
