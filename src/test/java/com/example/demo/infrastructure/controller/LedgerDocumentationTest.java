@@ -27,11 +27,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
+import static com.epages.restdocs.apispec.ResourceDocumentation.headerWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static com.example.demo.util.RestDocsUtils.allowedValues;
 import static com.example.demo.util.RestDocsUtils.enumList;
@@ -112,12 +114,24 @@ class LedgerDocumentationTest {
                 .andExpect(status().isCreated())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.ledgerId").value(1))
-                .andDo(document("가계부 생성",
+                .andDo(document("create-ledger-entry",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
                         .summary("가계부 항목 생성")
+                        .description("""
+                            가계부 항목 생성
+                            
+                            - **[400]**
+                              - **존재하지 않는 사용자(non-exists-user)**
+                                - 가계부 항목 생성 요청 시, 사용자 정보가 존재하지 않아 생성에 실패한 경우
+                              - **잘못된 enum 값(invalid-enum)**
+                                - 가계부 항목 생성 요청에서 enum 필드(type/category/paymentMethod)가 허용되지 않는 값인 경우
+                            """)
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .requestSchema(Schema.schema("UpsertLedgerWebRequest"))
                         .responseSchema(Schema.schema("LedgerDetailWebResponse"))
                         .requestFields(
@@ -243,11 +257,14 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("존재하지 않는 사용자입니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("가계부 생성 - 존재하지 않는 사용자 (가계부 항목 생성 요청 시, 사용자 정보가 존재하지 않아 생성에 실패한 경우)",
+                .andDo(document("create-ledger-entry_non-exists-user",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .responseSchema(Schema.schema("ErrorResponse"))
                         .responseFields(
                             fieldWithPath("message").type(STRING).description("에러 메시지"),
@@ -283,11 +300,14 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("요청 형식이 올바르지 않습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("가계부 생성 - 잘못된 enum 값 (가계부 항목 생성 요청에서 enum 필드(type/category/paymentMethod)가 허용되지 않는 값인 경우)",
+                .andDo(document("create-ledger-entry_invalid-enum",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .responseSchema(Schema.schema("ErrorResponse"))
                         .responseFields(
                             fieldWithPath("message").type(STRING).description("에러 메시지"),
@@ -314,12 +334,22 @@ class LedgerDocumentationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.ledgerId").value(1))
-                .andDo(document("가계부 단건 조회",
+                .andDo(document("get-ledger-entry",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
                         .summary("가계부 항목 단건 조회")
+                        .description("""
+                            가계부 항목 단건 조회
+                            
+                            - **[400]**
+                              - **항목 없음(non-exists-ledger-entry)**
+                                - 조회하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우
+                            """)
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .pathParameters(
                             parameterWithName("ledgerId").description("가계부 항목 ID")
                         )
@@ -393,11 +423,14 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("해당되는 가계부 항목이 존재하지 않습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("가계부 단건 조회 - 항목 없음 (조회하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우)",
+                .andDo(document("get-ledger-entry_non-exists-ledger-entry",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .pathParameters(
                             parameterWithName("ledgerId").description("가계부 항목 ID")
                         )
@@ -410,7 +443,6 @@ class LedgerDocumentationTest {
                 ));
         }
     }
-
 
     @Nested
     @DisplayName("가계부 메모 수정")
@@ -427,12 +459,24 @@ class LedgerDocumentationTest {
                         .content("{\"memo\":\"새 메모\"}")
                 )
                 .andExpect(status().isNoContent())
-                .andDo(document("가계부 메모 수정",
+                .andDo(document("update-memo",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
                         .summary("가계부 메모 수정")
+                        .description("""
+                            가계부 메모를 수정합니다.
+                            
+                            - **[400]**
+                              - **항목 없음(non-exists-ledger-entry)**
+                                - 수정하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우
+                              - **길이 초과(exceed-max-length)**
+                                - 메모가 최대 길이(100자)를 초과한 경우
+                            """)
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .pathParameters(
                             parameterWithName("ledgerId").description("가계부 항목 ID")
                         )
@@ -465,11 +509,14 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("해당되는 가계부 항목이 존재하지 않습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("가계부 메모 수정 - 항목 없음 (수정하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우)",
+                .andDo(document("update-memo_non-exists-ledger-entry",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .pathParameters(
                             parameterWithName("ledgerId").description("가계부 항목 ID")
                         )
@@ -500,11 +547,14 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("메모(memo)는 최대 100자까지 입력할 수 있습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("가계부 메모 수정 - 길이 초과 (메모가 최대 길이(100자)를 초과한 경우)",
+                .andDo(document("update-memo_exceed-max-length",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .pathParameters(
                             parameterWithName("ledgerId").description("가계부 항목 ID")
                         )
@@ -551,12 +601,24 @@ class LedgerDocumentationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.ledgerId").value(1))
-                .andDo(document("가계부 항목 전체 수정",
+                .andDo(document("update-ledger-entry",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
                         .summary("가계부 항목 전체 수정")
+                        .description("""
+                            가계부 항목 전체 수정
+                            
+                            - **[400]**
+                              - **항목 없음(non-exists-ledger-entry)**
+                                - 수정하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우
+                              - **요청 값 오류(invalid-enum)**
+                                - 가계부 항목 수정 요청에서 enum 필드가 허용되지 않는 값인 경우
+                            """)
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .pathParameters(
                             parameterWithName("ledgerId").description("가계부 항목 ID")
                         )
@@ -685,11 +747,14 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("해당되는 가계부 항목이 존재하지 않습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("가계부 항목 전체 수정 - 항목 없음 (수정하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우)",
+                .andDo(document("update-ledger-entry_non-exists-ledger-entry",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .pathParameters(
                             parameterWithName("ledgerId").description("가계부 항목 ID")
                         )
@@ -727,11 +792,14 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("요청 형식이 올바르지 않습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("가계부 항목 전체 수정 - 요청 값 오류 (가계부 항목 수정 요청에서 enum 필드가 허용되지 않는 값인 경우)",
+                .andDo(document("update-ledger-entry_invalid-enum",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .pathParameters(
                             parameterWithName("ledgerId").description("가계부 항목 ID")
                         )
@@ -758,12 +826,22 @@ class LedgerDocumentationTest {
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isNoContent())
-                .andDo(document("가계부 항목 삭제",
+                .andDo(document("delete-ledger-entry",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
                         .summary("가계부 항목 삭제")
+                        .description("""
+                            가계부 항목을 삭제합니다.
+                            
+                            - **[400]**
+                              - **항목 없음(non-exists-ledger-entry)**
+                                - 삭제하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우
+                            """)
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .pathParameters(
                             parameterWithName("ledgerId").description("가계부 항목 ID")
                         )
@@ -788,11 +866,14 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("해당되는 가계부 항목이 존재하지 않습니다."))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("가계부 항목 삭제 - 항목 없음 (삭제하려는 가계부 항목이 존재하지 않거나, 해당 사용자의 항목이 아닌 경우)",
+                .andDo(document("delete-ledger-entry_non-exists-ledger-entry",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .pathParameters(
                             parameterWithName("ledgerId").description("가계부 항목 ID")
                         )
@@ -836,12 +917,24 @@ class LedgerDocumentationTest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andDo(document("가계부 요약 조회",
+                .andDo(document("get-ledger-summary",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
                         .summary("가계부 요약 조회")
+                        .description("""
+                            가계부 정보를 요약하여 조회합니다.
+                            
+                            - **[400]**
+                              - **날짜 형식 오류(wrong-date-format)**
+                                - 날짜 파라미터(start, end)가 yyyy-MM-dd 형식이 아니거나 유효하지 않은 날짜인 경우
+                              - **날짜 파라미터 누락(missing-date-param)**
+                                - 필수 쿼리 파라미터(start 또는 end)가 누락된 경우
+                            """)
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .queryParameters(
                             parameterWithName("start").description("조회 시작일(yyyy-MM-dd), 미입력 시 기본값 적용"),
                             parameterWithName("end").description("조회 종료일(yyyy-MM-dd), 미입력 시 기본값 적용")
@@ -929,11 +1022,14 @@ class LedgerDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value(containsString("요청 파라미터 형식이 올바르지 않습니다")))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("가계부 요약 조회 - 날짜 형식 오류 (날짜 파라미터(start, end)가 yyyy-MM-dd 형식이 아니거나 유효하지 않은 날짜인 경우)",
+                .andDo(document("get-ledger-summary_wrong-date-format",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .queryParameters(
                             parameterWithName("start").description("조회 시작일(yyyy-MM-dd)"),
                             parameterWithName("end").description("조회 종료일(yyyy-MM-dd)")
@@ -959,12 +1055,16 @@ class LedgerDocumentationTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value(containsString("필수 요청 파라미터가 누락되었습니다"))).andExpect(jsonPath("$.timestamp").exists())
-                .andDo(document("가계부 요약 조회 - 날짜 파라미터 누락(필수 쿼리 파라미터(start 또는 end)가 누락된 경우)",
+                .andExpect(jsonPath("$.message").value(containsString("필수 요청 파라미터가 누락되었습니다")))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andDo(document("get-ledger-summary_missing-date-param",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Ledger")
+                        .requestHeaders(
+                            headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                        )
                         .queryParameters(
                             parameterWithName("end").description("조회 종료일(yyyy-MM-dd)")
                         )

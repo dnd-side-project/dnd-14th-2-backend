@@ -1,6 +1,7 @@
 package com.example.demo.infrastructure.controller;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
+import static com.epages.restdocs.apispec.ResourceDocumentation.headerWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -65,34 +66,35 @@ class AuthDocumentationTest {
 
         // when & then
         mockMvc.perform(
-                        post("/oauth/login")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"provider\":\"KAKAO\",\"idToken\":\"" + idToken + "\"}")
-                                .accept(MediaType.APPLICATION_JSON)
+                post("/oauth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"provider\":\"KAKAO\",\"idToken\":\"" + idToken + "\"}")
+                    .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.accessToken").value(accessToken))
+            .andExpect(jsonPath("$.refreshToken").value(refreshToken))
+            .andDo(document("oauth-login",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                resource(ResourceSnippetParameters.builder()
+                    .tag("Auth")
+                    .summary("소셜 로그인")
+                    .description("카카오/구글을 통해 소셜 로그인 할 수 있습니다.")
+                    .requestSchema(Schema.schema("OauthLoginWebRequest"))
+                    .responseSchema(Schema.schema("AuthTokenWebResponse"))
+                    .requestFields(
+                        fieldWithPath("provider").type(STRING).description("소셜 로그인 제공자(예: KAKAO, GOOGLE)"),
+                        fieldWithPath("idToken").type(STRING).description("OIDC ID Token")
+                    )
+                    .responseFields(
+                        fieldWithPath("accessToken").type(STRING).description("PICKLE access token(JWT)"),
+                        fieldWithPath("refreshToken").type(STRING).description("PICKLE refresh token(JWT)")
+                    )
+                    .build()
                 )
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.accessToken").value(accessToken))
-                .andExpect(jsonPath("$.refreshToken").value(refreshToken))
-                .andDo(document("oauth-login",
-                        preprocessRequest(prettyPrint()),
-                        preprocessResponse(prettyPrint()),
-                        resource(ResourceSnippetParameters.builder()
-                                .tag("Auth")
-                                .summary("소셜 로그인")
-                                .requestSchema(Schema.schema("OauthLoginWebRequest"))
-                                .responseSchema(Schema.schema("AuthTokenWebResponse"))
-                                .requestFields(
-                                        fieldWithPath("provider").type(STRING).description("소셜 로그인 제공자(예: KAKAO, GOOGLE)"),
-                                        fieldWithPath("idToken").type(STRING).description("OIDC ID Token")
-                                )
-                                .responseFields(
-                                        fieldWithPath("accessToken").type(STRING).description("PICKLE access token(JWT)"),
-                                        fieldWithPath("refreshToken").type(STRING).description("PICKLE refresh token(JWT)")
-                                )
-                                .build()
-                        )
-                ));
+            ));
     }
 
     @Test
@@ -116,6 +118,10 @@ class AuthDocumentationTest {
                 resource(ResourceSnippetParameters.builder()
                     .tag("Auth")
                     .summary("로그아웃")
+                    .description("기존 회원의 로그아웃 기능입니다.")
+                    .requestHeaders(
+                        headerWithName(HttpHeaders.AUTHORIZATION).description("pickle의 access token")
+                    )
                     .build()
                 )
             ));
@@ -128,7 +134,6 @@ class AuthDocumentationTest {
         @Test
         void reissue_docs() throws Exception {
             // given
-            long userId = 1L;
             String refreshToken = "jwt.refresh.token";
             String newAccessToken = "jwt.new.access.token";
             String newRefreshToken = "jwt.new.refresh.token";
@@ -147,12 +152,25 @@ class AuthDocumentationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.accessToken").value(newAccessToken))
                 .andExpect(jsonPath("$.refreshToken").value(newRefreshToken))
-                .andDo(document("재발행",
+                .andDo(document("token-reissue",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Auth")
                         .summary("액세스 토큰 재발급")
+                        .description("""
+                            만료된 access token을 refresh token을 통해 재발급 합니다.
+                            
+                            - **[401]**
+                              - **유효하지 않은 토큰(invalid-token)**
+                                - 유효하지 않은 리프레시 토큰으로 시도했을 경우
+                              - **만료된 토큰(expired-token)**
+                                - 만료된 토큰으로 시도했을 경우
+                              - **토큰 타입 불일치(unmatch-token-type)**
+                                - 리프레시 토큰이 아닌 다른 토큰을 사용했을 경우
+                              - **인증되지 않은 사용자(unauthorized-user)**
+                                - 리프레시 토큰 인증에 실패했을 경우 ex. 다른 서버의 리프레시 토큰
+                            """)
                         .requestSchema(Schema.schema("ReissueTokenWebRequest"))
                         .responseSchema(Schema.schema("AuthTokenWebResponse"))
                         .requestFields(
@@ -186,11 +204,15 @@ class AuthDocumentationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("유효하지 않은 토큰 정보입니다."))
-                .andDo(document("재발행 - 유효하지 않은 토큰",
+                .andDo(document("token-reissue_invalid-token",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Auth")
+                        .requestSchema(Schema.schema("ReissueTokenWebRequest"))
+                        .requestFields(
+                            fieldWithPath("refreshToken").type(STRING).description("사용자의 refresh token(JWT)")
+                        )
                         .responseSchema(Schema.schema("ErrorResponse"))
                         .responseFields(
                             fieldWithPath("message").type(STRING).description("에러 메시지"),
@@ -221,11 +243,15 @@ class AuthDocumentationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("만료된 토큰입니다."))
-                .andDo(document("재발행 - 만료된 토큰",
+                .andDo(document("token-reissue_expired-token",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Auth")
+                        .requestSchema(Schema.schema("ReissueTokenWebRequest"))
+                        .requestFields(
+                            fieldWithPath("refreshToken").type(STRING).description("사용자의 refresh token(JWT)")
+                        )
                         .responseSchema(Schema.schema("ErrorResponse"))
                         .responseFields(
                             fieldWithPath("message").type(STRING).description("에러 메시지"),
@@ -256,11 +282,15 @@ class AuthDocumentationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("잘못된 토큰 타입입니다."))
-                .andDo(document("재발행 - 토큰 타입 불일치",
+                .andDo(document("token-reissue_unmatch-token-type",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Auth")
+                        .requestSchema(Schema.schema("ReissueTokenWebRequest"))
+                        .requestFields(
+                            fieldWithPath("refreshToken").type(STRING).description("사용자의 refresh token(JWT)")
+                        )
                         .responseSchema(Schema.schema("ErrorResponse"))
                         .responseFields(
                             fieldWithPath("message").type(STRING).description("에러 메시지"),
@@ -291,11 +321,15 @@ class AuthDocumentationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value("인증되지 않은 사용자입니다."))
-                .andDo(document("재발행 - 인증되지 않은 사용자",
+                .andDo(document("token-reissue_unauthorized-user",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
                     resource(ResourceSnippetParameters.builder()
                         .tag("Auth")
+                        .requestSchema(Schema.schema("ReissueTokenWebRequest"))
+                        .requestFields(
+                            fieldWithPath("refreshToken").type(STRING).description("사용자의 refresh token(JWT)")
+                        )
                         .responseSchema(Schema.schema("ErrorResponse"))
                         .responseFields(
                             fieldWithPath("message").type(STRING).description("에러 메시지"),

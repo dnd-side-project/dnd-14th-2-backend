@@ -59,8 +59,3 @@ management:
     tags:
       application: pickle
 
-springdoc:
-  swagger-ui:
-    url: /api-docs/openapi3.yaml
-    disable-swagger-default-url: true
-
