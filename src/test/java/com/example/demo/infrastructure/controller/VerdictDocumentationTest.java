@@ -430,9 +430,9 @@ class VerdictDocumentationTest {
             String accessToken = "test-access-token";
 
             JurorVerdicts jurorVerdicts = new JurorVerdicts(List.of(
-                new JurorVerdict(1L, new UserInfo(2L, "토끼abc", 1, "profile.jpg"),
+                new JurorVerdict(1L, new UserInfo(2L, "토끼abc", 1, "profile.jpg", "AAAAAA"),
                     new LedgerEntryInfo(1L, 7000L, LedgerCategory.FOOD, "커피"), VerdictType.GUILTY),
-                new JurorVerdict(2L, new UserInfo(3L, "강아지123", 2, "profile2.jpg"),
+                new JurorVerdict(2L, new UserInfo(3L, "강아지123", 2, "profile2.jpg", "BBBBBB"),
                     new LedgerEntryInfo(2L, 15000L, LedgerCategory.FOOD, "점심"), null)
             ));
 
@@ -460,6 +460,7 @@ class VerdictDocumentationTest {
                             fieldWithPath("jurorVerdicts[].defendantInfo.id").type(NUMBER).description("피고 유저 ID"),
                             fieldWithPath("jurorVerdicts[].defendantInfo.nickname").type(STRING).description("피고 닉네임"),
                             fieldWithPath("jurorVerdicts[].defendantInfo.level").type(NUMBER).description("피고 레벨"),
+                            fieldWithPath("jurorVerdicts[].defendantInfo.invitationCode").type(STRING).description("피고 초대코드"),
                             fieldWithPath("jurorVerdicts[].ledgerEntryInfo.id").type(NUMBER).description("소비 내역 ID"),
                             fieldWithPath("jurorVerdicts[].ledgerEntryInfo.amount").type(NUMBER).description("소비 금액"),
                             fieldWithPath("jurorVerdicts[].ledgerEntryInfo.category").type(STRING)

@@ -358,7 +358,7 @@ class UserDocumentationTest {
             // given
             Long userId = 1L;
             String accessToken = "test-access-token";
-            UserInfo userInfo = new UserInfo(userId, "토끼abc", 1, "profile.jpg");
+            UserInfo userInfo = new UserInfo(userId, "토끼abc", 1, "profile.jpg", "AAAAAA");
 
             given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
             given(userService.getUserInfo(userId)).willReturn(userInfo);
@@ -374,6 +374,7 @@ class UserDocumentationTest {
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.nickname").value("토끼abc"))
                 .andExpect(jsonPath("$.level").value(1))
+                .andExpect(jsonPath("$.invitationCode").value("AAAAAA"))
                 .andDo(document("사용자 정보 조회",
                     preprocessRequest(prettyPrint()),
                     preprocessResponse(prettyPrint()),
@@ -385,7 +386,8 @@ class UserDocumentationTest {
                         .responseFields(
                             fieldWithPath("id").type(NUMBER).description("사용자의 id"),
                             fieldWithPath("nickname").type(STRING).description("사용자 닉네임 (설정하지 않은 경우 랜덤 닉네임)"),
-                            fieldWithPath("level").type(NUMBER).description("사용자 레벨 (기본값: 0)")
+                            fieldWithPath("level").type(NUMBER).description("사용자 레벨 (기본값: 0)"),
+                            fieldWithPath("invitationCode").type(STRING).description("사용자 초대코드")
                         )
                         .build()
                     )
