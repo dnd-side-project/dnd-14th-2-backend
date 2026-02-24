@@ -1,8 +1,10 @@
 package com.example.demo.infrastructure.controller;
 
 import com.example.demo.application.VerdictService;
+import com.example.demo.application.dto.JurorVerdict;
 import com.example.demo.application.dto.JurorVerdicts;
 import com.example.demo.application.dto.MyVerdicts;
+import com.example.demo.infrastructure.controller.dto.JurorVerdictWebResponse;
 import com.example.demo.infrastructure.controller.dto.JurorVerdictsWebResponse;
 import com.example.demo.infrastructure.controller.dto.MyVerdictsWebResponse;
 import com.example.demo.infrastructure.controller.dto.RequestJudgeWebRequest;
@@ -30,12 +32,14 @@ public class VerdictController {
     }
 
     @PatchMapping("/verdicts/{id}")
-    public ResponseEntity<Void> judge(@RequestBody VerdictJudgeWebRequest request,
+    public ResponseEntity<JurorVerdictWebResponse> judge(@RequestBody VerdictJudgeWebRequest request,
                                       @PathVariable("id") Long verdictId,
                                       @UserId Long jurorId
     ) {
         verdictService.judge(verdictId, jurorId, request.verdictType());
-        return ResponseEntity.ok().build();
+        JurorVerdict verdict = verdictService.getVerdict(verdictId);
+
+        return ResponseEntity.ok(JurorVerdictWebResponse.from(verdict));
     }
 
     @GetMapping("/verdicts/my")

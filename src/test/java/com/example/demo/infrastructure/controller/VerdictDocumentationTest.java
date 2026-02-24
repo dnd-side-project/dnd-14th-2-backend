@@ -48,7 +48,6 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -205,7 +204,14 @@ class VerdictDocumentationTest {
             Long verdictId = 1L;
             String accessToken = "test-access-token";
 
+            JurorVerdict jurorVerdict = new JurorVerdict(
+                1L,
+                new UserInfo(2L, "토끼abc", 1, "profile.jpg"),
+                new LedgerEntryInfo(1L, 7000L, LedgerCategory.FOOD, PaymentMethod.CREDIT_CARD, "커피"),
+                VerdictType.GUILTY
+            );
             given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
+            given(verdictService.getVerdict(verdictId)).willReturn(jurorVerdict);
 
             // when & then
             mockMvc.perform(
@@ -247,6 +253,23 @@ class VerdictDocumentationTest {
                         .requestSchema(Schema.schema("VerdictJudgeWebRequest"))
                         .requestFields(
                             fieldWithPath("verdictType").type(STRING).description("판결 결과 (GUILTY / NOT_GUILTY)")
+                        )
+                        .responseSchema(Schema.schema("JurorVerdictWebResponse"))
+                        .responseFields(
+                            fieldWithPath("id").type(NUMBER).description("심판 ID"),
+                            fieldWithPath("defendantInfo.id").type(NUMBER).description("피고 유저 ID"),
+                            fieldWithPath("defendantInfo.nickname").type(STRING).description("피고 닉네임"),
+                            fieldWithPath("defendantInfo.level").type(NUMBER).description("피고 레벨"),
+                            fieldWithPath("ledgerEntryInfo.id").type(NUMBER).description("소비 내역 ID"),
+                            fieldWithPath("ledgerEntryInfo.amount").type(NUMBER).description("소비 금액"),
+                            fieldWithPath("ledgerEntryInfo.category").type(STRING)
+                                .description("소비 카테고리"),
+                            fieldWithPath("ledgerEntryInfo.paymentMethod").type(STRING)
+                                .description("결제 수단. " + allowedValues(PaymentMethod.class)),
+                            fieldWithPath("ledgerEntryInfo.description").type(STRING)
+                                .description("소비 내용"),
+                            fieldWithPath("verdictType").type(STRING).optional()
+                                .description("판결 결과 (GUILTY / NOT_GUILTY / PENDING: 미판결)")
                         )
                         .build()
                     )
