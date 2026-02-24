@@ -37,7 +37,3 @@ oauth:
       audience: kakao-local-client-id
       jwks-uri: "https://kauth.kakao.com/.well-known/jwks.json"
 
-springdoc:
-  swagger-ui:
-    url: /api-docs/openapi3.yaml
-    disable-swagger-default-url: true
