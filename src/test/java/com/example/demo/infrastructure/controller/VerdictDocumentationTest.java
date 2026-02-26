@@ -3,6 +3,7 @@ package com.example.demo.infrastructure.controller;
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.ResourceDocumentation.headerWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import static com.example.demo.util.RestDocsUtils.allowedValues;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
@@ -36,6 +37,7 @@ import com.example.demo.application.exception.UnauthorizedException;
 import com.example.demo.application.oauth.TokenProvider;
 import com.example.demo.domain.VerdictType;
 import com.example.demo.domain.enums.LedgerCategory;
+import com.example.demo.domain.enums.PaymentMethod;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -202,7 +204,14 @@ class VerdictDocumentationTest {
             Long verdictId = 1L;
             String accessToken = "test-access-token";
 
+            JurorVerdict jurorVerdict = new JurorVerdict(
+                1L,
+                new UserInfo(2L, "토끼abc", 1, "profile.jpg", "AAAAAA"),
+                new LedgerEntryInfo(1L, 7000L, LedgerCategory.FOOD, PaymentMethod.CREDIT_CARD, "커피"),
+                VerdictType.GUILTY
+            );
             given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
+            given(verdictService.getVerdict(verdictId)).willReturn(jurorVerdict);
 
             // when & then
             mockMvc.perform(
@@ -244,6 +253,24 @@ class VerdictDocumentationTest {
                         .requestSchema(Schema.schema("VerdictJudgeWebRequest"))
                         .requestFields(
                             fieldWithPath("verdictType").type(STRING).description("판결 결과 (GUILTY / NOT_GUILTY)")
+                        )
+                        .responseSchema(Schema.schema("JurorVerdictWebResponse"))
+                        .responseFields(
+                            fieldWithPath("id").type(NUMBER).description("심판 ID"),
+                            fieldWithPath("defendantInfo.id").type(NUMBER).description("피고 유저 ID"),
+                            fieldWithPath("defendantInfo.nickname").type(STRING).description("피고 닉네임"),
+                            fieldWithPath("defendantInfo.level").type(NUMBER).description("피고 레벨"),
+                            fieldWithPath("defendantInfo.invitationCode").type(STRING).description("피고 초대코드"),
+                            fieldWithPath("ledgerEntryInfo.id").type(NUMBER).description("소비 내역 ID"),
+                            fieldWithPath("ledgerEntryInfo.amount").type(NUMBER).description("소비 금액"),
+                            fieldWithPath("ledgerEntryInfo.category").type(STRING)
+                                .description("소비 카테고리"),
+                            fieldWithPath("ledgerEntryInfo.paymentMethod").type(STRING)
+                                .description("결제 수단. " + allowedValues(PaymentMethod.class)),
+                            fieldWithPath("ledgerEntryInfo.description").type(STRING)
+                                .description("소비 내용"),
+                            fieldWithPath("verdictType").type(STRING).optional()
+                                .description("판결 결과 (GUILTY / NOT_GUILTY / PENDING: 미판결)")
                         )
                         .build()
                     )
@@ -410,8 +437,8 @@ class VerdictDocumentationTest {
             String accessToken = "test-access-token";
 
             MyVerdicts myVerdicts = new MyVerdicts(List.of(
-                new MyVerdict(1L, new LedgerEntryInfo(1L, 7000L, LedgerCategory.FOOD, "커피"), VerdictType.GUILTY),
-                new MyVerdict(2L, new LedgerEntryInfo(2L, 15000L, LedgerCategory.FOOD, "점심"), VerdictType.PENDING)
+                new MyVerdict(1L, new LedgerEntryInfo(1L, 7000L, LedgerCategory.FOOD, PaymentMethod.CREDIT_CARD, "커피"), VerdictType.GUILTY),
+                new MyVerdict(2L, new LedgerEntryInfo(2L, 15000L, LedgerCategory.FOOD, PaymentMethod.CREDIT_CARD, "점심"), VerdictType.PENDING)
             ));
 
             given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
@@ -448,6 +475,8 @@ class VerdictDocumentationTest {
                             fieldWithPath("verdicts[].ledgerEntryInfo.amount").type(NUMBER).description("소비 금액"),
                             fieldWithPath("verdicts[].ledgerEntryInfo.category").type(STRING)
                                 .description("소비 카테고리"),
+                            fieldWithPath("verdicts[].ledgerEntryInfo.paymentMethod").type(STRING)
+                                .description("결제 수단. " + allowedValues(PaymentMethod.class)),
                             fieldWithPath("verdicts[].ledgerEntryInfo.description").type(STRING)
                                 .description("소비 내용"),
                             fieldWithPath("verdicts[].verdictType").type(STRING).optional()
@@ -508,9 +537,9 @@ class VerdictDocumentationTest {
 
             JurorVerdicts jurorVerdicts = new JurorVerdicts(List.of(
                 new JurorVerdict(1L, new UserInfo(2L, "토끼abc", 1, "profile.jpg", "AAAAAA"),
-                    new LedgerEntryInfo(1L, 7000L, LedgerCategory.FOOD, "커피"), VerdictType.GUILTY),
+                    new LedgerEntryInfo(1L, 7000L, LedgerCategory.FOOD, PaymentMethod.CREDIT_CARD, "커피"), VerdictType.GUILTY),
                 new JurorVerdict(2L, new UserInfo(3L, "강아지123", 2, "profile2.jpg", "BBBBBB"),
-                    new LedgerEntryInfo(2L, 15000L, LedgerCategory.FOOD, "점심"), null)
+                    new LedgerEntryInfo(2L, 15000L, LedgerCategory.FOOD, PaymentMethod.CREDIT_CARD, "점심"), VerdictType.PENDING)
             ));
 
             given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
@@ -551,6 +580,8 @@ class VerdictDocumentationTest {
                             fieldWithPath("jurorVerdicts[].ledgerEntryInfo.amount").type(NUMBER).description("소비 금액"),
                             fieldWithPath("jurorVerdicts[].ledgerEntryInfo.category").type(STRING)
                                 .description("소비 카테고리"),
+                            fieldWithPath("jurorVerdicts[].ledgerEntryInfo.paymentMethod").type(STRING)
+                                .description("결제 수단. " + allowedValues(PaymentMethod.class)),
                             fieldWithPath("jurorVerdicts[].ledgerEntryInfo.description").type(STRING)
                                 .description("소비 내용"),
                             fieldWithPath("jurorVerdicts[].verdictType").type(STRING).optional()

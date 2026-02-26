@@ -1,5 +1,6 @@
 package com.example.demo.application;
 
+import com.example.demo.application.dto.JurorVerdict;
 import com.example.demo.application.dto.JurorVerdicts;
 import com.example.demo.application.dto.MyVerdicts;
 import com.example.demo.domain.LedgerEntry;
@@ -56,6 +57,14 @@ public class VerdictService {
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
         verdict.judge(juror, verdictType);
+    }
+
+    @Transactional(readOnly = true)
+    public JurorVerdict getVerdict(Long verdictId) {
+        Verdict verdict = verdictRepository.findById(verdictId)
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 판결입니다."));
+
+        return JurorVerdict.from(verdict);
     }
 
     @Transactional(readOnly = true)
