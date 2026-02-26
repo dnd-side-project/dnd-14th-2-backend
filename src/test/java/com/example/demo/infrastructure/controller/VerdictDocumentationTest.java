@@ -206,7 +206,7 @@ class VerdictDocumentationTest {
 
             JurorVerdict jurorVerdict = new JurorVerdict(
                 1L,
-                new UserInfo(2L, "토끼abc", 1, "profile.jpg"),
+                new UserInfo(2L, "토끼abc", 1, "profile.jpg", "AAAAAA"),
                 new LedgerEntryInfo(1L, 7000L, LedgerCategory.FOOD, PaymentMethod.CREDIT_CARD, "커피"),
                 VerdictType.GUILTY
             );
@@ -536,9 +536,9 @@ class VerdictDocumentationTest {
 
             JurorVerdicts jurorVerdicts = new JurorVerdicts(List.of(
                 new JurorVerdict(1L, new UserInfo(2L, "토끼abc", 1, "profile.jpg", "AAAAAA"),
-                    new LedgerEntryInfo(1L, 7000L, LedgerCategory.FOOD, "커피"), VerdictType.GUILTY),
+                    new LedgerEntryInfo(1L, 7000L, LedgerCategory.FOOD, PaymentMethod.CREDIT_CARD, "커피"), VerdictType.GUILTY),
                 new JurorVerdict(2L, new UserInfo(3L, "강아지123", 2, "profile2.jpg", "BBBBBB"),
-                    new LedgerEntryInfo(2L, 15000L, LedgerCategory.FOOD, "점심"), null)
+                    new LedgerEntryInfo(2L, 15000L, LedgerCategory.FOOD, PaymentMethod.CREDIT_CARD, "점심"), VerdictType.PENDING)
             ));
 
             given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
