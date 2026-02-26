@@ -260,6 +260,7 @@ class VerdictDocumentationTest {
                             fieldWithPath("defendantInfo.id").type(NUMBER).description("피고 유저 ID"),
                             fieldWithPath("defendantInfo.nickname").type(STRING).description("피고 닉네임"),
                             fieldWithPath("defendantInfo.level").type(NUMBER).description("피고 레벨"),
+                            fieldWithPath("defendantInfo.invitationCode").type(STRING).description("피고 초대코드"),
                             fieldWithPath("ledgerEntryInfo.id").type(NUMBER).description("소비 내역 ID"),
                             fieldWithPath("ledgerEntryInfo.amount").type(NUMBER).description("소비 금액"),
                             fieldWithPath("ledgerEntryInfo.category").type(STRING)
