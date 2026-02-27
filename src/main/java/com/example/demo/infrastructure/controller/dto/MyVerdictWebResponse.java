@@ -2,13 +2,12 @@ package com.example.demo.infrastructure.controller.dto;
 
 import com.example.demo.application.dto.LedgerEntryInfo;
 import com.example.demo.application.dto.MyVerdict;
-import com.example.demo.application.dto.UserInfo;
 import com.example.demo.domain.VerdictType;
 
 public record MyVerdictWebResponse(
     Long id,
     LedgerEntryInfoWebResponse ledgerEntryInfo,
-    UserInfo juror,
+    UserInfoWebResponse juror,
     VerdictType verdictType
 ) {
     public static MyVerdictWebResponse from(MyVerdict myVerdict) {
@@ -23,7 +22,7 @@ public record MyVerdictWebResponse(
                 ledgerEntryInfo.paymentMethod(),
                 ledgerEntryInfo.description()
             ),
-            myVerdict.juror(),
+            UserInfoWebResponse.from(myVerdict.juror()),
             myVerdict.verdictType()
         );
     }

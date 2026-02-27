@@ -494,14 +494,12 @@ class VerdictDocumentationTest {
                                 .description("결제 수단. " + allowedValues(PaymentMethod.class)),
                             fieldWithPath("verdicts[].ledgerEntryInfo.description").type(STRING)
                                 .description("소비 내용"),
-                            fieldWithPath("verdicts[].juror.userId").type(NUMBER)
+                            fieldWithPath("verdicts[].juror.id").type(NUMBER)
                                     .description("배심원 id"),
                             fieldWithPath("verdicts[].juror.nickname").type(STRING)
                                     .description("배심원 닉네임"),
                             fieldWithPath("verdicts[].juror.level").type(NUMBER)
                                 .description("배심원 레벨"),
-                            fieldWithPath("verdicts[].juror.profile").type(NULL)
-                                .description("배심원 프로필 사진 url"),
                             fieldWithPath("verdicts[].juror.invitationCode").type(STRING)
                                 .description("배심원 초대코드"),
                             fieldWithPath("verdicts[].verdictType").type(STRING).optional()
