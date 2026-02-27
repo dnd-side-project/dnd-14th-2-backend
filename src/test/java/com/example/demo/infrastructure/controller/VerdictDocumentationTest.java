@@ -15,6 +15,7 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.pr
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.JsonFieldType.ARRAY;
+import static org.springframework.restdocs.payload.JsonFieldType.NULL;
 import static org.springframework.restdocs.payload.JsonFieldType.NUMBER;
 import static org.springframework.restdocs.payload.JsonFieldType.STRING;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -35,6 +36,10 @@ import com.example.demo.application.dto.MyVerdicts;
 import com.example.demo.application.dto.UserInfo;
 import com.example.demo.application.exception.UnauthorizedException;
 import com.example.demo.application.oauth.TokenProvider;
+import com.example.demo.domain.InvitationCode;
+import com.example.demo.domain.Nickname;
+import com.example.demo.domain.Provider;
+import com.example.demo.domain.User;
 import com.example.demo.domain.VerdictType;
 import com.example.demo.domain.enums.LedgerCategory;
 import com.example.demo.domain.enums.PaymentMethod;
@@ -437,8 +442,18 @@ class VerdictDocumentationTest {
             String accessToken = "test-access-token";
 
             MyVerdicts myVerdicts = new MyVerdicts(List.of(
-                new MyVerdict(1L, new LedgerEntryInfo(1L, 7000L, LedgerCategory.FOOD, PaymentMethod.CREDIT_CARD, "커피"), VerdictType.GUILTY),
-                new MyVerdict(2L, new LedgerEntryInfo(2L, 15000L, LedgerCategory.FOOD, PaymentMethod.CREDIT_CARD, "점심"), VerdictType.PENDING)
+                new MyVerdict(
+                    1L,
+                    new LedgerEntryInfo(1L, 7000L, LedgerCategory.FOOD, PaymentMethod.CREDIT_CARD, "커피"),
+                    new UserInfo(1L, "juror", 0, null, "ABCDEF"),
+                    VerdictType.GUILTY
+                ),
+                new MyVerdict(
+                    2L,
+                    new LedgerEntryInfo(2L, 15000L, LedgerCategory.FOOD, PaymentMethod.CREDIT_CARD, "점심"),
+                    new UserInfo(1L, "juror", 0, null, "ABCDEF"),
+                    VerdictType.PENDING
+                )
             ));
 
             given(tokenProvider.validateAccessToken(accessToken)).willReturn(userId);
@@ -479,6 +494,16 @@ class VerdictDocumentationTest {
                                 .description("결제 수단. " + allowedValues(PaymentMethod.class)),
                             fieldWithPath("verdicts[].ledgerEntryInfo.description").type(STRING)
                                 .description("소비 내용"),
+                            fieldWithPath("verdicts[].juror.userId").type(NUMBER)
+                                    .description("배심원 id"),
+                            fieldWithPath("verdicts[].juror.nickname").type(STRING)
+                                    .description("배심원 닉네임"),
+                            fieldWithPath("verdicts[].juror.level").type(NUMBER)
+                                .description("배심원 레벨"),
+                            fieldWithPath("verdicts[].juror.profile").type(NULL)
+                                .description("배심원 프로필 사진 url"),
+                            fieldWithPath("verdicts[].juror.invitationCode").type(STRING)
+                                .description("배심원 초대코드"),
                             fieldWithPath("verdicts[].verdictType").type(STRING).optional()
                                 .description("판결 결과 (GUILTY / NOT_GUILTY / PENDING: 미판결)")
                         )
