@@ -15,7 +15,6 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.pr
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.JsonFieldType.ARRAY;
-import static org.springframework.restdocs.payload.JsonFieldType.NULL;
 import static org.springframework.restdocs.payload.JsonFieldType.NUMBER;
 import static org.springframework.restdocs.payload.JsonFieldType.STRING;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -36,10 +35,6 @@ import com.example.demo.application.dto.MyVerdicts;
 import com.example.demo.application.dto.UserInfo;
 import com.example.demo.application.exception.UnauthorizedException;
 import com.example.demo.application.oauth.TokenProvider;
-import com.example.demo.domain.InvitationCode;
-import com.example.demo.domain.Nickname;
-import com.example.demo.domain.Provider;
-import com.example.demo.domain.User;
 import com.example.demo.domain.VerdictType;
 import com.example.demo.domain.enums.LedgerCategory;
 import com.example.demo.domain.enums.PaymentMethod;
