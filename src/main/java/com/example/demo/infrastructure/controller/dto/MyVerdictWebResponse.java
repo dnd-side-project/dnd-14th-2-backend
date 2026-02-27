@@ -7,6 +7,7 @@ import com.example.demo.domain.VerdictType;
 public record MyVerdictWebResponse(
     Long id,
     LedgerEntryInfoWebResponse ledgerEntryInfo,
+    UserInfoWebResponse juror,
     VerdictType verdictType
 ) {
     public static MyVerdictWebResponse from(MyVerdict myVerdict) {
@@ -21,6 +22,7 @@ public record MyVerdictWebResponse(
                 ledgerEntryInfo.paymentMethod(),
                 ledgerEntryInfo.description()
             ),
+            UserInfoWebResponse.from(myVerdict.juror()),
             myVerdict.verdictType()
         );
     }
