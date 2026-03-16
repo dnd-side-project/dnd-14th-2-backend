@@ -23,10 +23,12 @@ public interface MateRepository extends Repository<Mate, Long> {
     List<Mate> findMates(@Param("id") Long userId, @Param("status") MateStatus mateStatus);
 
     @Query("""
-        SELECT COUNT(m) > 0 FROM Mate m
-        WHERE ((m.requester.id = :user1Id AND m.receiver.id = :user2Id)
-           OR (m.requester.id = :user2Id AND m.receiver.id = :user1Id))
-          AND m.status IN ('PENDING', 'ACCEPTED')
+        SELECT EXISTS(
+            SELECT 1 FROM Mate m
+            WHERE ((m.requester.id = :user1Id AND m.receiver.id = :user2Id)
+                OR (m.requester.id = :user2Id AND m.receiver.id = :user1I))
+                AND m.status IN ('PENDING', 'ACCEPTED')
+        )
         """)
     boolean existsMateBetween(@Param("user1Id") Long user1Id, @Param("user2Id") Long user2Id);
 
