@@ -291,7 +291,7 @@ class MateServiceTest extends AbstractIntegrationTest {
             // then
             Mate mate = mateRepository.findById(mateId).orElseThrow();
             assertThat(mate.getStatus()).isEqualTo(MateStatus.ACCEPTED);
-            assertThat(mate.getAcceptedAt()).isNotNull();
+            assertThat(mate.getModifiedAt()).isNotNull();
         }
 
         @Test

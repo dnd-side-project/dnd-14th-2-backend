@@ -2,8 +2,8 @@ package com.example.demo.application;
 
 import com.example.demo.application.dto.MateInfo;
 import com.example.demo.application.dto.MateReceivedInfo;
-import com.example.demo.domain.Mate;
 import com.example.demo.domain.FriendVerdictCount;
+import com.example.demo.domain.Mate;
 import com.example.demo.domain.MateRepository;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
@@ -48,13 +48,13 @@ public class MateService {
     @Transactional(readOnly = true)
     public List<MateInfo> getAcceptedMates(Long userId) {
         Map<Long, Long> verdictCounts = Stream.concat(
-                verdictRepository.countVerdictsAsOwner(userId).stream(),
-                verdictRepository.countVerdictsAsJuror(userId).stream()
-            ).collect(Collectors.toMap(
-                FriendVerdictCount::friendId,
-                FriendVerdictCount::count,
-                Long::sum
-            ));
+            verdictRepository.countVerdictsAsOwner(userId).stream(),
+            verdictRepository.countVerdictsAsJuror(userId).stream()
+        ).collect(Collectors.toMap(
+            FriendVerdictCount::friendId,
+            FriendVerdictCount::count,
+            Long::sum
+        ));
 
         return mateRepository.findAllAcceptedWithFriend(userId).stream()
             .map(result -> new MateInfo(

@@ -13,7 +13,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -45,8 +44,6 @@ public class Mate extends BaseEntity {
     @Column(nullable = false)
     private MateStatus status;
 
-    private LocalDateTime acceptedAt;
-
     public Mate(User requester, User receiver) {
         if (requester == null) {
             throw new IllegalArgumentException("요청자는 필수입니다.");
@@ -67,7 +64,6 @@ public class Mate extends BaseEntity {
             throw new IllegalArgumentException("대기 중인 요청만 수락할 수 있습니다.");
         }
         this.status = MateStatus.ACCEPTED;
-        this.acceptedAt = LocalDateTime.now();
     }
 
     public void reject() {

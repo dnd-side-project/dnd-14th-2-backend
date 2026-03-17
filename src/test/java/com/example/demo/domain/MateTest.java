@@ -32,7 +32,6 @@ class MateTest {
             assertThat(mate.getRequester()).isEqualTo(requester);
             assertThat(mate.getReceiver()).isEqualTo(receiver);
             assertThat(mate.getStatus()).isEqualTo(MateStatus.PENDING);
-            assertThat(mate.getAcceptedAt()).isNull();
         }
 
         @Test
@@ -68,7 +67,6 @@ class MateTest {
             mate.accept();
 
             assertThat(mate.getStatus()).isEqualTo(MateStatus.ACCEPTED);
-            assertThat(mate.getAcceptedAt()).isNotNull();
         }
 
         @Test
