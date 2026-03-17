@@ -295,7 +295,7 @@ class MateServiceTest extends AbstractIntegrationTest {
         }
 
         @Test
-        void 친구_요청을_거절하면_REJECTED_상태가_된다() {
+        void 친구_요청을_거절하면_삭제된다() {
             // given
             User requester = givenSavedUser(userRepository, new Nickname("요청자"), new InvitationCode("RRRRRR"));
             User receiver = givenSavedUser(userRepository, new Nickname("수신자"), new InvitationCode("EEEEEE"));
@@ -304,9 +304,25 @@ class MateServiceTest extends AbstractIntegrationTest {
             // when
             sut.updateMateStatus(mateId, receiver.getId(), MateStatus.REJECTED);
 
-            // then
-            Mate mate = mateRepository.findById(mateId).orElseThrow();
-            assertThat(mate.getStatus()).isEqualTo(MateStatus.REJECTED);
+            // then: 거절된 요청은 삭제되어 찾을 수 없음
+            assertThat(mateRepository.findById(mateId)).isEmpty();
+        }
+
+        @Test
+        void 거절된_요청은_다시_보낼_수_있다() {
+            // given
+            User requester = givenSavedUser(userRepository, new Nickname("요청자"), new InvitationCode("RRRRRR"));
+            User receiver = givenSavedUser(userRepository, new Nickname("수신자"), new InvitationCode("EEEEEE"));
+            Long firstMateId = sut.requestMate(requester.getId(), "EEEEEE");
+            sut.updateMateStatus(firstMateId, receiver.getId(), MateStatus.REJECTED);
+
+            // when: 다시 요청
+            Long secondMateId = sut.requestMate(requester.getId(), "EEEEEE");
+
+            // then: 새로운 요청이 생성됨
+            assertThat(secondMateId).isNotNull().isNotEqualTo(firstMateId);
+            Mate newMate = mateRepository.findById(secondMateId).orElseThrow();
+            assertThat(newMate.getStatus()).isEqualTo(MateStatus.PENDING);
         }
 
         @Test

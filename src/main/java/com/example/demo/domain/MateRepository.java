@@ -26,7 +26,7 @@ public interface MateRepository extends Repository<Mate, Long> {
         SELECT EXISTS(
             SELECT 1 FROM Mate m
             WHERE ((m.requester.id = :user1Id AND m.receiver.id = :user2Id)
-                OR (m.requester.id = :user2Id AND m.receiver.id = :user1I))
+                OR (m.requester.id = :user2Id AND m.receiver.id = :user1Id))
                 AND m.status IN ('PENDING', 'ACCEPTED')
         )
         """)
@@ -48,4 +48,6 @@ public interface MateRepository extends Repository<Mate, Long> {
         WHERE m.receiver.id = :userId AND m.status = 'PENDING'
         """)
     List<Mate> findAllPendingByReceiverId(@Param("userId") Long userId);
+
+    void delete(Mate mate);
 }

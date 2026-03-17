@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +37,12 @@ public class MateService {
             throw new IllegalArgumentException("이미 친구 관계가 존재하거나 요청 대기 중입니다.");
         }
 
-        return mateRepository.save(new Mate(requester, receiver)).getId();
+        try {
+            return mateRepository.save(new Mate(requester, receiver)).getId();
+        } catch (DataIntegrityViolationException e) {
+            // 동시성으로 인한 중복 저장 시도 시 DB 유니크 제약 위반
+            throw new IllegalArgumentException("이미 친구 관계가 존재하거나 요청 대기 중입니다.");
+        }
     }
 
     @Transactional(readOnly = true)
@@ -71,7 +77,13 @@ public class MateService {
 
         switch (status) {
             case ACCEPTED -> mate.accept();
-            case REJECTED -> mate.reject();
+            case REJECTED -> {
+                // 거절 시 Mate 삭제 (다시 요청 가능하도록)
+                if (mate.getStatus() != MateStatus.PENDING) {
+                    throw new IllegalArgumentException("대기 중인 요청만 거절할 수 있습니다.");
+                }
+                mateRepository.delete(mate);
+            }
             default -> throw new IllegalArgumentException("친구요청은 수락 또는 거절로만 변경 가능합니다.");
         }
     }
