@@ -54,7 +54,7 @@ public class Mate extends BaseEntity {
         if (receiver == null) {
             throw new IllegalArgumentException("수신자는 필수입니다.");
         }
-        if (requester.getId().equals(receiver.getId())) {
+        if (requester.equals(receiver)) {
             throw new IllegalArgumentException("자기 자신에게 친구 요청을 보낼 수 없습니다.");
         }
         this.requester = requester;
