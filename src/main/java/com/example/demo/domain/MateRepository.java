@@ -38,7 +38,6 @@ public interface MateRepository extends Repository<Mate, Long> {
         JOIN User f ON (m.requester.id = :userId AND f.id = m.receiver.id)
                     OR (m.receiver.id = :userId AND f.id = m.requester.id)
         WHERE m.status = 'ACCEPTED'
-          AND (m.requester.id = :userId OR m.receiver.id = :userId)
         """)
     List<MateWithFriend> findAllAcceptedWithFriend(@Param("userId") Long userId);
 
