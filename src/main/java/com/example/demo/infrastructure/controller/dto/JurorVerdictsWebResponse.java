@@ -1,8 +1,6 @@
 package com.example.demo.infrastructure.controller.dto;
 
-import com.example.demo.application.dto.JurorVerdict;
 import com.example.demo.application.dto.JurorVerdicts;
-import com.example.demo.domain.Verdict;
 import java.util.List;
 
 public record JurorVerdictsWebResponse(
