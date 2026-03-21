@@ -1,9 +1,9 @@
 package com.example.demo.infrastructure.controller.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record RequestJudgeWebRequest(
-    @NotBlank
+    @NotNull
     Long ledgerEntryId
 ) {
 }
