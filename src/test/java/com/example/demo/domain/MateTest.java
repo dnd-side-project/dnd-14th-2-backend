@@ -32,7 +32,6 @@ class MateTest {
             assertThat(mate.getRequester()).isEqualTo(requester);
             assertThat(mate.getReceiver()).isEqualTo(receiver);
             assertThat(mate.getStatus()).isEqualTo(MateStatus.PENDING);
-            assertThat(mate.getAcceptedAt()).isNull();
         }
 
         @Test
@@ -68,7 +67,6 @@ class MateTest {
             mate.accept();
 
             assertThat(mate.getStatus()).isEqualTo(MateStatus.ACCEPTED);
-            assertThat(mate.getAcceptedAt()).isNotNull();
         }
 
         @Test
@@ -81,46 +79,27 @@ class MateTest {
                 .hasMessage("대기 중인 요청만 수락할 수 있습니다.");
         }
 
-        @Test
-        void REJECTED에서_친구수락_요청시_예외발생() {
-            Mate mate = new Mate(requester, receiver);
-            mate.reject();
-
-            assertThatThrownBy(mate::accept)
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("대기 중인 요청만 수락할 수 있습니다.");
-        }
     }
 
     @Nested
-    @DisplayName("reject 검증")
-    class RejectValidation {
+    @DisplayName("validateIsPending 검증")
+    class ValidateIsPendingValidation {
 
         @Test
-        void 친구거절시_PENDING에서_REJECTED로_변경() {
+        void PENDING_상태에서_예외가_발생하지_않는다() {
             Mate mate = new Mate(requester, receiver);
 
-            mate.reject();
+            mate.validateIsPending();
 
-            assertThat(mate.getStatus()).isEqualTo(MateStatus.REJECTED);
+            assertThat(mate.getStatus()).isEqualTo(MateStatus.PENDING);
         }
 
         @Test
-        void ACCEPTED에서_친구거절_요청시_예외발생() {
+        void ACCEPTED_상태에서_예외가_발생한다() {
             Mate mate = new Mate(requester, receiver);
             mate.accept();
 
-            assertThatThrownBy(mate::reject)
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("대기 중인 요청만 거절할 수 있습니다.");
-        }
-
-        @Test
-        void REJECTED에서_친구거절_요청시_예외발생() {
-            Mate mate = new Mate(requester, receiver);
-            mate.reject();
-
-            assertThatThrownBy(mate::reject)
+            assertThatThrownBy(mate::validateIsPending)
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("대기 중인 요청만 거절할 수 있습니다.");
         }

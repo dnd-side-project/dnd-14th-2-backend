@@ -2,8 +2,8 @@ package com.example.demo.application;
 
 import com.example.demo.application.dto.MateInfo;
 import com.example.demo.application.dto.MateReceivedInfo;
-import com.example.demo.domain.Mate;
 import com.example.demo.domain.FriendVerdictCount;
+import com.example.demo.domain.Mate;
 import com.example.demo.domain.MateRepository;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,19 +37,24 @@ public class MateService {
             throw new IllegalArgumentException("이미 친구 관계가 존재하거나 요청 대기 중입니다.");
         }
 
-        return mateRepository.save(new Mate(requester, receiver)).getId();
+        try {
+            return mateRepository.save(new Mate(requester, receiver)).getId();
+        } catch (DataIntegrityViolationException e) {
+            // 동시성으로 인한 중복 저장 시도 시 DB 유니크 제약 위반
+            throw new IllegalArgumentException("이미 친구 관계가 존재하거나 요청 대기 중입니다.");
+        }
     }
 
     @Transactional(readOnly = true)
     public List<MateInfo> getAcceptedMates(Long userId) {
         Map<Long, Long> verdictCounts = Stream.concat(
-                verdictRepository.countVerdictsAsOwner(userId).stream(),
-                verdictRepository.countVerdictsAsJuror(userId).stream()
-            ).collect(Collectors.toMap(
-                FriendVerdictCount::friendId,
-                FriendVerdictCount::count,
-                Long::sum
-            ));
+            verdictRepository.countVerdictsAsOwner(userId).stream(),
+            verdictRepository.countVerdictsAsJuror(userId).stream()
+        ).collect(Collectors.toMap(
+            FriendVerdictCount::friendId,
+            FriendVerdictCount::count,
+            Long::sum
+        ));
 
         return mateRepository.findAllAcceptedWithFriend(userId).stream()
             .map(result -> new MateInfo(
@@ -71,7 +77,10 @@ public class MateService {
 
         switch (status) {
             case ACCEPTED -> mate.accept();
-            case REJECTED -> mate.reject();
+            case REJECTED -> {
+                mate.validateIsPending();
+                mateRepository.delete(mate);
+            }
             default -> throw new IllegalArgumentException("친구요청은 수락 또는 거절로만 변경 가능합니다.");
         }
     }
