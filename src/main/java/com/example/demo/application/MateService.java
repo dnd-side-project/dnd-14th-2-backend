@@ -78,10 +78,7 @@ public class MateService {
         switch (status) {
             case ACCEPTED -> mate.accept();
             case REJECTED -> {
-                // 거절 시 Mate 삭제 (다시 요청 가능하도록)
-                if (mate.getStatus() != MateStatus.PENDING) {
-                    throw new IllegalArgumentException("대기 중인 요청만 거절할 수 있습니다.");
-                }
+                mate.validateIsPending();
                 mateRepository.delete(mate);
             }
             default -> throw new IllegalArgumentException("친구요청은 수락 또는 거절로만 변경 가능합니다.");

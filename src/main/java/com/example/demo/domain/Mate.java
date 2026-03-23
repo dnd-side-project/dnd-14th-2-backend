@@ -66,11 +66,10 @@ public class Mate extends BaseEntity {
         this.status = MateStatus.ACCEPTED;
     }
 
-    public void reject() {
+    public void validateIsPending() {
         if (this.status != MateStatus.PENDING) {
             throw new IllegalArgumentException("대기 중인 요청만 거절할 수 있습니다.");
         }
-        this.status = MateStatus.REJECTED;
     }
 
     public User getOtherUser(User me) {
