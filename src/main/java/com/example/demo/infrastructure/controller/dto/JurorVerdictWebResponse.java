@@ -3,9 +3,6 @@ package com.example.demo.infrastructure.controller.dto;
 import com.example.demo.application.dto.JurorVerdict;
 import com.example.demo.application.dto.LedgerEntryInfo;
 import com.example.demo.application.dto.UserInfo;
-import com.example.demo.domain.LedgerEntry;
-import com.example.demo.domain.User;
-import com.example.demo.domain.Verdict;
 import com.example.demo.domain.VerdictType;
 
 public record JurorVerdictWebResponse(

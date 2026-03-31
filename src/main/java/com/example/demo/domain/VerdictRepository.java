@@ -15,12 +15,19 @@ public interface VerdictRepository extends Repository<Verdict, Long> {
     List<Verdict> findAllByLedgerEntry_Id(Long ledgerEntryId);
 
     @Query("""
-        select v from Verdict v where v.ledgerEntry.user.id = :userId
+        select v FROM Verdict v 
+        JOIN FETCH v.ledgerEntry
+        JOIN FETCH v.juror
+        WHERE v.ledgerEntry.user.id = :userId
         """)
     List<Verdict> findMyVerdicts(@Param("userId") Long userId);
 
     @Query("""
-        select v from Verdict v where v.juror.id = :userId
+        SELECT v FROM Verdict v 
+        JOIN FETCH v.juror
+        JOIN FETCH v.ledgerEntry le
+        JOIN FETCH le.user
+        WHERE v.juror.id = :userId
         """)
     List<Verdict> findJurorVerdicts(@Param("userId") Long userId);
 

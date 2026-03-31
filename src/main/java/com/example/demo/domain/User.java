@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -79,6 +80,6 @@ public class User extends BaseEntity {
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return Objects.hash(getId());
     }
 }
