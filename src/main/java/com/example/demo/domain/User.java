@@ -1,5 +1,6 @@
 package com.example.demo.domain;
 
+import com.example.demo.domain.enums.UserType;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -50,15 +51,20 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String providerId;
 
+    @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
+    private UserType userType;
+
     private Integer level = 0;
 
-    public User(Nickname nickname, InvitationCode invitationCode, String email, String profile, Provider provider, String providerId) {
+    public User(Nickname nickname, InvitationCode invitationCode, String email, String profile, Provider provider, String providerId, UserType userType) {
         this.nickname = nickname;
         this.invitationCode = invitationCode;
         this.email = email;
         this.profile = profile;
         this.provider = provider;
         this.providerId = providerId;
+        this.userType = userType;
     }
 
     public void changeNickname(Nickname nickname) {

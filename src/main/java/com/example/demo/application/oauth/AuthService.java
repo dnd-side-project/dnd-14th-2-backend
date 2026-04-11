@@ -7,6 +7,7 @@ import com.example.demo.domain.Provider;
 import com.example.demo.domain.RefreshToken;
 import com.example.demo.domain.RefreshTokenRepository;
 import com.example.demo.domain.User;
+import com.example.demo.domain.UserRepository;
 import com.example.demo.application.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,10 +25,16 @@ public class AuthService {
     private final TokenProvider tokenProvider;
     private final TokenIssuer tokenIssuer;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final UserRepository userRepository;
 
     public TokenResponse login(Provider provider, String idToken) {
         OauthUserInfo userInfo = oauthAuthenticator.authenticate(provider, idToken);
         return processLogin(provider, userInfo);
+    }
+
+    public TokenResponse loginDemo(String deviceId) {
+        User user = userService.findOrCreateDemoUser(deviceId);
+        return tokenIssuer.issueTokens(user.getId());
     }
 
     private TokenResponse processLogin(Provider provider, OauthUserInfo userInfo) {
@@ -47,6 +54,12 @@ public class AuthService {
     @Transactional
     public TokenResponse reissueToken(String refreshToken) {
         Long userId = tokenProvider.validateRefreshToken(refreshToken);
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> {
+                log.warn("리프레시 토큰의 사용자를 찾을 수 없습니다. userId: {}", userId);
+                return new UnauthorizedException("인증되지 않은 사용자입니다.");
+            });
+
         RefreshToken findRefreshToken = refreshTokenRepository.findByUserId(userId)
             .filter(token -> token.isSameToken(refreshToken))
             .orElseThrow(() -> {

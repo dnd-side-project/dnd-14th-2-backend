@@ -14,6 +14,7 @@ import com.example.demo.domain.UserRepository;
 import com.example.demo.application.exception.UnauthorizedException;
 import com.example.demo.infrastructure.oauth.token.JwtProvider;
 import com.example.demo.util.AbstractIntegrationTest;
+import com.example.demo.util.DbUtils;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,8 @@ class AuthServiceTest extends AbstractIntegrationTest {
     @Test
     void 유효한_리프레쉬_토큰으로_새_토큰을_반환한다() {
         // given
-        Long userId = 1L;
+        User user = DbUtils.givenSavedUser(userRepository);
+        Long userId = user.getId();
         TokenResponse initialToken = tokenProvider.generateToken(userId);
         refreshTokenRepository.save(new RefreshToken(userId, initialToken.refreshToken()));
 
@@ -56,7 +58,8 @@ class AuthServiceTest extends AbstractIntegrationTest {
     @Test
     void 토큰_재발급_시_저장된_리프레쉬_토큰이_변경된다() {
         // given
-        Long userId = 1L;
+        User user = DbUtils.givenSavedUser(userRepository);
+        Long userId = user.getId();
         TokenResponse initialToken = tokenProvider.generateToken(userId);
         refreshTokenRepository.save(new RefreshToken(userId, initialToken.refreshToken()));
 
@@ -72,7 +75,8 @@ class AuthServiceTest extends AbstractIntegrationTest {
     @Test
     void DB에_리프레쉬_토큰이_없으면_UnauthorizedException을_발생시킨다() {
         // given
-        Long userId = 1L;
+        User user = DbUtils.givenSavedUser(userRepository);
+        Long userId = user.getId();
         TokenResponse initialToken = tokenProvider.generateToken(userId);
 
         // when & then
@@ -84,7 +88,8 @@ class AuthServiceTest extends AbstractIntegrationTest {
     @Test
     void 저장된_토큰과_다른_토큰으로_재발급_요청시_예외가_발생한다() {
         // given
-        Long userId = 1L;
+        User user = DbUtils.givenSavedUser(userRepository);
+        Long userId = user.getId();
         TokenResponse originalToken = tokenProvider.generateToken(userId);
         refreshTokenRepository.save(new RefreshToken(userId, originalToken.refreshToken()));
 
@@ -100,8 +105,9 @@ class AuthServiceTest extends AbstractIntegrationTest {
     @Test
     void 만료된_리프레쉬_토큰이면_예외를_발생시킨다() throws InterruptedException {
         // given
+        User user = DbUtils.givenSavedUser(userRepository);
+        Long userId = user.getId();
         TokenProvider expiredTokenProvider = new JwtProvider(secretKey, 3600L, 0L);
-        Long userId = 1L;
 
         TokenResponse expiredToken = expiredTokenProvider.generateToken(userId);
         refreshTokenRepository.save(new RefreshToken(userId, expiredToken.refreshToken()));
@@ -115,7 +121,8 @@ class AuthServiceTest extends AbstractIntegrationTest {
     @Test
     void 재발급_후_이전_토큰_재사용은_실패한다() {
         // given
-        Long userId = 1L;
+        User user = DbUtils.givenSavedUser(userRepository);
+        Long userId = user.getId();
         TokenResponse initial = tokenProvider.generateToken(userId);
         refreshTokenRepository.save(new RefreshToken(userId, initial.refreshToken()));
 
