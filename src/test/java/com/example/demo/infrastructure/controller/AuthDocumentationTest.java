@@ -98,6 +98,47 @@ class AuthDocumentationTest {
     }
 
     @Test
+    void oauthDemo_docs() throws Exception {
+        // given
+        String deviceId = "test-device-id";
+        String accessToken = "jwt.access.token";
+        String refreshToken = "jwt.refresh.token";
+
+        given(authService.loginDemo(deviceId)).willReturn(new TokenResponse(accessToken, refreshToken));
+
+        // when & then
+        mockMvc.perform(
+                post("/oauth/demo")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"deviceId\":\"" + deviceId + "\"}")
+                    .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.accessToken").value(accessToken))
+            .andExpect(jsonPath("$.refreshToken").value(refreshToken))
+            .andDo(document("oauth-demo",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                resource(ResourceSnippetParameters.builder()
+                    .tag("Auth")
+                    .summary("데모 로그인")
+                    .description("deviceId를 통해 데모 로그인을 할 수 있습니다.")
+                    .requestSchema(Schema.schema("DemoLoginWebRequest"))
+                    .responseSchema(Schema.schema("AuthTokenWebResponse"))
+                    .requestFields(
+                        fieldWithPath("deviceId").type(STRING).description("기기 고유 ID")
+                    )
+                    .responseFields(
+                        fieldWithPath("accessToken").type(STRING).description("PICKLE access token(JWT)"),
+                        fieldWithPath("refreshToken").type(STRING).description("PICKLE refresh token(JWT)")
+                    )
+                    .build()
+                )
+            ));
+    }
+
+    @Test
     void logout_docs() throws Exception {
         // given
         long userId = 1L;

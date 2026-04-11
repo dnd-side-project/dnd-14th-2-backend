@@ -10,6 +10,7 @@ import com.example.demo.domain.RandomBytesSource;
 import com.example.demo.domain.RefreshTokenRepository;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserRepository;
+import com.example.demo.domain.enums.UserType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -35,10 +36,16 @@ public class UserService {
     @Transactional
     public User findOrCreateUser(Provider provider, OauthUserInfo oauthUserInfo) {
         return userRepository.findByProviderAndProviderId(provider, oauthUserInfo.providerId())
-            .orElseGet(() -> createUser(provider, oauthUserInfo));
+            .orElseGet(() -> createUser(provider, oauthUserInfo, UserType.GENERAL));
     }
 
-    private User createUser(Provider provider, OauthUserInfo oauthUserInfo) {
+    @Transactional
+    public User findOrCreateDemoUser(String deviceId) {
+        return userRepository.findByProviderAndProviderId(Provider.DEMO, deviceId)
+            .orElseGet(() -> createUser(Provider.DEMO, new OauthUserInfo(deviceId, "demo@demo.com"), UserType.DEMO));
+    }
+
+    private User createUser(Provider provider, OauthUserInfo oauthUserInfo, UserType userType) {
         InvitationCode invitationCode = InvitationCode.generate(randomBytesSource);
         Nickname nickname = nicknameGenerator.generate();
 
@@ -48,10 +55,11 @@ public class UserService {
             oauthUserInfo.email(),
             null,
             provider,
-            oauthUserInfo.providerId()
+            oauthUserInfo.providerId(),
+            userType
         );
 
-        log.info("새로운 유저가 생성되었습니다. providerId: {}, nickname: {}", user.getProviderId(), user.getNickname());
+        log.info("새로운 유저가 생성되었습니다. providerId: {}, nickname: {}, userType: {}", user.getProviderId(), user.getNickname(), userType);
 
         return userRepository.save(user);
     }

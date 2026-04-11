@@ -1,5 +1,6 @@
 package com.example.demo.application.oauth;
 
+import com.example.demo.domain.enums.UserType;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
@@ -44,7 +45,8 @@ class AuthServiceTest extends AbstractIntegrationTest {
             "test@email.com",
             "http://test.jpg",
             Provider.GOOGLE,
-            "test-provider-id"
+            "test-provider-id",
+            UserType.GENERAL
         );
         User savedUser = userRepository.save(user);
 

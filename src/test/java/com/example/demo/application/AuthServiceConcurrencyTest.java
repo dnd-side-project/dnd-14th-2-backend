@@ -7,7 +7,10 @@ import com.example.demo.application.oauth.AuthService;
 import com.example.demo.application.oauth.TokenProvider;
 import com.example.demo.domain.RefreshToken;
 import com.example.demo.domain.RefreshTokenRepository;
+import com.example.demo.domain.User;
+import com.example.demo.domain.UserRepository;
 import com.example.demo.util.AbstractIntegrationTest;
+import com.example.demo.util.DbUtils;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -26,6 +29,9 @@ class AuthServiceConcurrencyTest extends AbstractIntegrationTest {
     private RefreshTokenRepository refreshTokenRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private TokenProvider tokenProvider;
 
     @Autowired
@@ -34,7 +40,8 @@ class AuthServiceConcurrencyTest extends AbstractIntegrationTest {
     @Test
     void 동일한_리프레시_토큰으로_동시_재발급_시_모두_성공하지만_마지막_토큰만_유효하다() throws InterruptedException {
         // Given
-        Long userId = 1L;
+        User user = DbUtils.givenSavedUser(userRepository);
+        Long userId = user.getId();
         TokenResponse initialToken = tokenProvider.generateToken(userId);
         RefreshToken refreshToken = new RefreshToken(userId, initialToken.refreshToken());
         refreshTokenRepository.save(refreshToken);

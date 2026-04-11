@@ -1,5 +1,6 @@
 package com.example.demo.util;
 
+import com.example.demo.domain.enums.UserType;
 import com.example.demo.domain.InvitationCode;
 import com.example.demo.domain.Nickname;
 import com.example.demo.domain.Provider;
@@ -17,7 +18,8 @@ public class DbUtils {
             "test@example.com",
             "https://profile.com/image.png",
             Provider.KAKAO,
-            providerId
+            providerId,
+            UserType.GENERAL
         );
     }
 

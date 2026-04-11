@@ -3,6 +3,7 @@ package com.example.demo.infrastructure.controller;
 import com.example.demo.application.dto.TokenResponse;
 import com.example.demo.application.oauth.AuthService;
 import com.example.demo.infrastructure.controller.dto.AuthTokenWebResponse;
+import com.example.demo.infrastructure.controller.dto.DemoLoginWebRequest;
 import com.example.demo.infrastructure.controller.dto.OauthLoginWebRequest;
 import com.example.demo.infrastructure.controller.dto.ReissueTokenWebRequest;
 import com.example.demo.infrastructure.interceptor.UserId;
@@ -22,6 +23,13 @@ public class AuthController {
     @PostMapping("/oauth/login")
     public ResponseEntity<AuthTokenWebResponse> oauthLogin(@Valid @RequestBody OauthLoginWebRequest request) {
         TokenResponse token = authService.login(request.provider(), request.idToken());
+
+        return ResponseEntity.ok(AuthTokenWebResponse.from(token));
+    }
+
+    @PostMapping("/oauth/demo")
+    public ResponseEntity<AuthTokenWebResponse> oauthDemo(@Valid @RequestBody DemoLoginWebRequest request) {
+        TokenResponse token = authService.loginDemo(request.deviceId());
 
         return ResponseEntity.ok(AuthTokenWebResponse.from(token));
     }
